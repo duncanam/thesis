@@ -9,46 +9,44 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      controlDict;
+    class       volScalarField;
+    location    "0";
+    object      CO2;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     rhoReactingFoam;
+dimensions      [0 0 0 0 0 0 0];
 
-startFrom       latestTime;
+internalField   uniform 0;
 
-startTime       0;
-
-stopAt          endTime;
-
-endTime         0.1;
-
-deltaT          1e-7;
-
-writeControl    adjustableRunTime;
-
-writeInterval   1e-6;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-adjustTimeStep  yes;
-
-maxCo           1;
-
+boundaryField
+{
+	inlet
+	{
+	    type            fixedValue;
+	    value           uniform 0;
+	}
+	top
+	{
+	    type            fixedValue;
+	    value           uniform 0;
+	}
+	bottom
+        {
+            type            fixedValue;
+            value           uniform 0;
+        }
+	outlet
+	{
+	    type            inletOutlet;
+	    inletValue      uniform 0;
+	    value           uniform 0;
+	}
+	frontAndBack
+	{
+	    type            empty;
+	}
+}
 
 
 // ************************************************************************* //
