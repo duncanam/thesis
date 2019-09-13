@@ -14,10 +14,9 @@ FoamFile
     object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// NOTE THIS IS A WORK IN PROGRESS
 defaultFieldValues
 (
-    volScalarFieldValue T 293 // [K]
+    volScalarFieldValue T 300 // [K]
     volScalarFieldValue p 101325 // [Pa]
 );
 
@@ -25,11 +24,11 @@ regions
 (
     boxToCell
     {
-        box (0 0 -0.005) (0.01 0.005 0);
+        box (0 0 -0.001) (0.0005 0.0005 0);
         fieldValues
         (
 		volScalarFieldValue T 3000 // [K]
-                volScalarFieldValue p 2e6 // [Pa]
+                volScalarFieldValue p 2.0265e6 // [Pa]
         );
     }
 );
