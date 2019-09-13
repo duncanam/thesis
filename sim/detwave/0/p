@@ -20,13 +20,13 @@ dimensions      [1 -1 -2 0 0 0 0];
 internalField   nonuniform List<scalar> 
 80000
 (
-2e+06
-2e+06
-2e+06
-2e+06
-2e+06
-2e+06
-2e+06
+2.0265e+06
+101325
+101325
+101325
+101325
+101325
+101325
 101325
 101325
 101325
@@ -80033,7 +80033,7 @@ boundaryField
     {
         type            waveTransmissive;
         rho             thermo:rho;
-        gamma           1.4; // Air is 1.4, H2 is 1.41.3;
+        gamma           1.4;
         fieldInf        101325;
         lInf            0.05;
         value           uniform 101325;
