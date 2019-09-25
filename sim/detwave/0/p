@@ -80031,12 +80031,15 @@ boundaryField
     }
     outlet
     {
-        type            waveTransmissive;
-        rho             thermo:rho;
-        gamma           1.4;
-        fieldInf        101325;
-        lInf            0.05;
-        value           uniform 101325;
+        type           	waveTransmissive;
+	value		uniform 101325;
+	field		p;
+	gamma		1.4; // Air is 1.4, H2 is 1.41
+        phi		phi;
+        rho		thermo:rho;
+        psi		thermo:psi;
+        lInf		0.05;
+        fieldInf	101325;
     }
     bottom
     {

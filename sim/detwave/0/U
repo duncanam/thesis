@@ -36,7 +36,7 @@ boundaryField
 	outlet
 	{
 	    type           	waveTransmissive;
-	    value		uniform (1e3 0 0);
+	    value		uniform (0 0 0);
 	    field		U;
 	    gamma		1.4; // Air is 1.4, H2 is 1.41
 	    phi			phi;
