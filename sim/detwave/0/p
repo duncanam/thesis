@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  7
+    \\  /    A nd           | Version:  6
      \\/     M anipulation  |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -80031,15 +80031,12 @@ boundaryField
     }
     outlet
     {
-        type           	waveTransmissive;
-	value		uniform 101325;
-	field		p;
-	gamma		1.4; // Air is 1.4, H2 is 1.41
-        phi		phi;
-        rho		thermo:rho;
-        psi		thermo:psi;
-        lInf		0.05;
-        fieldInf	101325;
+        type            waveTransmissive;
+        rho             thermo:rho;
+        gamma           1.29;
+        fieldInf        101325;
+        lInf            0.05;
+        value           uniform 101325;
     }
     bottom
     {

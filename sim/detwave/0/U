@@ -38,7 +38,7 @@ boundaryField
 	    type           	waveTransmissive;
 	    value		uniform (0 0 0);
 	    field		U;
-	    gamma		1.4; // Air is 1.4, H2 is 1.41
+	    gamma		1.29; // Air is 1.4, H2 is 1.41
 	    phi			phi;
 	    rho			thermo:rho;
 	    psi			thermo:psi;

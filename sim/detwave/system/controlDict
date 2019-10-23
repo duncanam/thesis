@@ -23,9 +23,9 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         0.1;
+endTime         1e-3;
 
-deltaT          1e-7;
+deltaT          1e-8;
 
 writeControl    adjustableRunTime;
 
@@ -47,8 +47,11 @@ runTimeModifiable true;
 
 adjustTimeStep  yes;
 
-maxCo           1;
+maxCo           0.5;
 
-
+functions
+{
+	#includeFunc residuals
+}
 
 // ************************************************************************* //

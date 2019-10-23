@@ -23,13 +23,6 @@ FoamFile
     object      reactions;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-//elements
-//3
-//(
-// O
-// H
-// N
-//);
 
 species
 4
@@ -46,9 +39,11 @@ reactions
     {
         type     irreversibleArrheniusReaction;
         reaction "2H2 + O2 = 2H2O";
-        A        7.5e12; // e9
+        //A        7.5e9; // e9
+	A	9.9e17;
         beta     0;
         Ta       12995; // Ea/R = (4.794e6 J/kg)/(368.9 J/kg K) 
+	//Ta	15155;
     }
 }
 
