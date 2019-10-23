@@ -40,10 +40,10 @@ reactions
         type     irreversibleArrheniusReaction;
         reaction "2H2 + O2 = 2H2O";
         //A        7.5e9; // e9
-	A	9.9e17;
+	A	9.9e17; // from new paper
         beta     0;
-        Ta       12995; // Ea/R = (4.794e6 J/kg)/(368.9 J/kg K) 
-	//Ta	15155;
+        //Ta       12995; // Ea/R = (4.794e6 J/kg)/(368.9 J/kg K) 
+	Ta	15155; // from new paper
     }
 }
 

@@ -17,6 +17,7 @@ FoamFile
 
 solvers
 {
+/*	KEEPING CODE LEGACY CODE FOR COMPARISON WITH SOD SETUP
     "(p|rho)"
     {
         solver           GAMG;
@@ -45,20 +46,51 @@ solvers
         $U;
         relTol          0;
     }
+*/
 
-    "Yi.*"
-    {
-        $hFinal;
-    }
+	"(p|U|e|h).*"
+	{
+		solver 		PBiCGStab;
+		preconditioner	DILU;
+		tolerance	1e-12;
+		relTol		0.0; // try 0.001 if fail
+		minIter		2;
+	}
+
+	"rho.*"
+	{
+		solver		PCG;
+		preconditioner	DIC;
+		tolerance	1e-12;
+		relTol		0;
+	}
+
+	"Yi.*"
+    	{
+        	$hFinal;
+    	}
 }
 
 PIMPLE
 {
 	transonic yes;
-    momentumPredictor no;
-    nOuterCorrectors  10;
-    nCorrectors     3;
-    nNonOrthogonalCorrectors 0;
+	consistent yes;
+    	momentumPredictor no;
+    	nOuterCorrectors  3;
+    	nCorrectors     1;
+    	nNonOrthogonalCorrectors 1;
+}
+
+relaxationFactors
+{
+	fields
+	{
+		".*" 	1; // set 1 to ensure diagonal equality
+	}
+	equations
+	{
+		".*" 	1; // set 1 to ensure diagonal equality
+	}
 }
 
 
