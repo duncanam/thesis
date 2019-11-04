@@ -42,7 +42,7 @@ boundaryField
 	    phi			phi;
 	    rho			thermo:rho;
 	    psi			thermo:psi;
-	    lInf		0.05;
+	    lInf		1.00;
 	    fieldInf		(0 0 0);
 	}
 	frontAndBack

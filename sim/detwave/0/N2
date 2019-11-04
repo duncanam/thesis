@@ -17,7 +17,9 @@ FoamFile
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0.743484;
+//internalField   uniform 0.743484;
+internalField   uniform 0.745; // from Marcantoni
+
 
 boundaryField
 {
