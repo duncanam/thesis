@@ -27,7 +27,7 @@ regions
         box (0 0 -0.001) (0.001 0.04 0);
         fieldValues
         (
-		volScalarFieldValue T 3000 // [K]
+				volScalarFieldValue T 3000 // [K]
                 volScalarFieldValue p 2.0265e6 // [Pa]
         );
     }

@@ -35,15 +35,21 @@ boundaryField
         }
 	outlet
 	{
-	    type           	waveTransmissive;
+	    type        waveTransmissive;
 	    value		uniform (0 0 0);
 	    field		U;
 	    gamma		1.29; // Air is 1.4, H2 is 1.41
 	    phi			phi;
 	    rho			thermo:rho;
 	    psi			thermo:psi;
-	    lInf		10;
-	    fieldInf		(0 0 0);
+	    lInf		5;
+	    fieldInf	(0 0 0);
+
+	    //type                pressureInletOutletVelocity;
+		//tangentialVelocity  uniform (0 0 0);
+		//value               uniform (0 0 0);
+		//phi                 phi;	
+
 	}
 	frontAndBack
 	{
