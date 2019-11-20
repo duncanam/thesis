@@ -42,14 +42,8 @@ boundaryField
 	    phi			phi;
 	    rho			thermo:rho;
 	    psi			thermo:psi;
-	    lInf		5;
+	    lInf		1;
 	    fieldInf	(0 0 0);
-
-	    //type                pressureInletOutletVelocity;
-		//tangentialVelocity  uniform (0 0 0);
-		//value               uniform (0 0 0);
-		//phi                 phi;	
-
 	}
 	frontAndBack
 	{

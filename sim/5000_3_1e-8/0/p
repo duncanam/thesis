@@ -15032,13 +15032,10 @@ boundaryField
     outlet
     {
         type            waveTransmissive;
-		field			p;
         rho             thermo:rho;
-		psi				thermo:psi;
-		phi				phi;
         gamma           1.29;
         fieldInf        101325;
-        lInf            50;
+        lInf            100;
         value           uniform 101325;
     }
     bottom
