@@ -17,58 +17,13 @@ FoamFile
 
 solvers
 {
-/*	KEEPING CODE LEGACY CODE FOR COMPARISON WITH SOD SETUP
-    "(p|rho)"
-    {
-        solver           GAMG;
-        smoother	symGaussSeidel;
-        tolerance        1e-10;
-        relTol           1e-5;
-    }
-
-    "(p|rho)Final"
-    {
-        $p;
-        tolerance        1e-10;
-        relTol           0.0;
-    }
-
-    "(U|h|k|epsilon)"
-    {
-        solver          PBiCGStab;
-        preconditioner  DILU;
-        tolerance       1e-10;
-        relTol          1e-5;
-    }
-
-    "(U|h|k|epsilon)Final"
-    {
-        $U;
-        relTol          0;
-    }
-*/
-
-	//"(U|h|e|R|k|epsilon|omega).*"
-	//{
-	//	solver 		smoothSolver;
-	//	smoother	symGaussSeidel;
-	//	tolerance	1e-05;
-	//	relTol		0.01; 
-	//}
-
-	//"(U|h|e|R|k|epsilon|omega)Final"
-	//{
-	//	$U;
-	//	relTol			0;
-	//}
-	
-	"(U|e).*"
+	U
 	{
 		solver		smoothSolver;
 		smoother	GaussSeidel;
 		nSweeps		2;
-		tolerance	1e-09;
-		relTol		0.01;
+		tolerance	1e-10;
+		relTol		0;
 	}
 	
 	h
@@ -78,39 +33,19 @@ solvers
 		relTol		0;
 	}
 
-	//p
-	//{
-	//	solver			PBiCGStab;
-	//	preconditioner	DILU;
-	//	tolerance		1e-06;
-	//	relTol			0.01;
-	//}
-
-	//pFinal
-	//{
-	//	$p;
-	//	relTol		0;
-	//}
-
-	//"pcorr.*"
-	//{
-	//	solver			PCG;
-	//	preconditioner	DIC;
-	//	tolerance		1e-2;
-	//	relTol			0;
-	//}
+	e
+	{
+		$U;
+		tolerance	1e-10;
+		relTol		0;
+	}
 
 	"rho.*"
 	{
 		solver		diagonal;
-		tolerance	1e-05;
-		relTol		0;
+		//tolerance	1e-05;
+		//relTol		0;
 	}
-
-	//"Yi.*"
-    //{
-    //    	$hFinal;
-    //}
 
 	"(O2|H2|H2O|N2)"
 	{
@@ -122,30 +57,6 @@ solvers
 
 	
 }
-
-
-//PIMPLE
-//{
-//		transonic			yes;
-//		correctPhi			yes;
-//		//consistent yes;
-//    	momentumPredictor	yes;
-//    	nOuterCorrectors	0;
-//    	nCorrectors			2;
-//    	nNonOrthogonalCorrectors 0;
-//}
-
-//relaxationFactors
-//{
-//	/*fields
-//	{
-//		".*" 	1; // set 1 to ensure diagonal equality
-//	}*/
-//	equations
-//	{
-//		".*" 	1; // set 1 to ensure diagonal equality
-//	}
-//}
 
 CENTRAL
 {
