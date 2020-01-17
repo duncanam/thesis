@@ -1,0 +1,141 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+/*	KEEPING CODE LEGACY CODE FOR COMPARISON WITH SOD SETUP
+    "(p|rho)"
+    {
+        solver           GAMG;
+        smoother	symGaussSeidel;
+        tolerance        1e-10;
+        relTol           1e-5;
+    }
+
+    "(p|rho)Final"
+    {
+        $p;
+        tolerance        1e-10;
+        relTol           0.0;
+    }
+
+    "(U|h|k|epsilon)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          1e-5;
+    }
+
+    "(U|h|k|epsilon)Final"
+    {
+        $U;
+        relTol          0;
+    }
+*/
+/*
+	"(p|U|e|h).*"
+	{
+		solver 		PBiCGStab;
+		preconditioner	DILU;
+		tolerance	1e-12;
+		relTol		0.0; // try 0.001 if fail
+		minIter		2;
+	}
+
+	"rho.*"
+	{
+		solver		PCG;
+		preconditioner	DIC;
+		tolerance	1e-12;
+		relTol		0;
+	}
+
+	"Yi.*"
+    	{
+        	$hFinal;
+    	}
+}
+*/
+
+//PIMPLE
+//{
+//	transonic yes;
+//	consistent yes;
+//    	momentumPredictor no;
+//    	nOuterCorrectors  3;
+//    	nCorrectors     1;
+//    	nNonOrthogonalCorrectors 1;
+//}
+//
+//relaxationFactors
+//{
+//	fields
+//	{
+//		".*" 	1; // set 1 to ensure diagonal equality
+//	}
+//	equations
+//	{
+//		".*" 	1; // set 1 to ensure diagonal equality
+//	}
+//}
+
+solvers
+{
+	"(rho|rhoU|rhoE)"
+	{
+		solver			diagonal;
+	}
+
+	U
+	{
+		solver			smoothSolver;
+		smoother		GaussSeidel;
+		nSweeps			2;
+		tolerance		1e-09;
+		relTol			0.01;
+	}
+
+	h
+	{
+		$U;
+		tolerance		1e-10;
+		relTol			0;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ************************************************************************* //

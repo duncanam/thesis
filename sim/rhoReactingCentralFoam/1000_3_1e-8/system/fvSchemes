@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fluxScheme		Kurganov;
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+	default         Gauss linear;
+	//default 	leastSquares;
+	//grad(U)		cellLimited leastSquares 1;
+}
+
+divSchemes
+{
+    	default         none;
+
+	// disable legacy to test Sod
+    	//div(phi,U)      Gauss limitedLinearV 1;
+		div(phi,U)		Gauss MinmodV;
+    	div(phi,Yi_h)   Gauss limitedLinear 1;
+    	div(phi,K)      Gauss limitedLinear 1;
+    	div(phid,p)     Gauss limitedLinear 1;
+    	div(phi,epsilon) Gauss limitedLinear 1;
+    	div(phi,k) Gauss limitedLinear 1;
+    	div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+		div(tauMC)		Gauss linear;
+		div(phi,O2)		Gauss limitedLinear 1;
+		div(phi,H2)		Gauss limitedLinear 1;
+		div(phi,H2O)	Gauss limitedLinear 1;
+		div(phi,N2)		Gauss limitedLinear 1;
+
+}
+
+laplacianSchemes
+{
+    	//default         Gauss linear orthogonal;
+	//default		Gauss linear limited 1;
+		default				Gauss linear corrected;	
+}
+
+interpolationSchemes
+{
+    	default				linear;
+		reconstruct(rho)	vanLeer;
+		reconstruct(U)		vanLeerV;
+		reconstruct(T)		vanLeer;
+}
+
+snGradSchemes
+{
+    	//default         orthogonal;
+	//default limited 1;
+		default				corrected;
+}
+
+
+// ************************************************************************* //
