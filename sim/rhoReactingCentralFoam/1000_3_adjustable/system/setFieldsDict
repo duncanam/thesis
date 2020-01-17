@@ -18,6 +18,9 @@ defaultFieldValues
 (
     volScalarFieldValue T 300 // [K]
     volScalarFieldValue p 101325 // [Pa]
+	volScalarFieldValue H2 0.02851 // Marcantoni mass fraction
+	volScalarFieldValue O2 0.226 // Marcantoni mass fraction
+	volScalarFieldValue H2O 0 // mass fraction
 );
 
 regions
@@ -29,6 +32,9 @@ regions
         (
 				volScalarFieldValue T 3000 // [K]
                 volScalarFieldValue p 2.0265e6 // [Pa]
+				volScalarFieldValue H2 0 // mass fraction
+				volScalarFieldValue O2 0 // mass fraction
+				volScalarFieldValue H2O 0.255 // mass fraction 
         );
     }
 );
