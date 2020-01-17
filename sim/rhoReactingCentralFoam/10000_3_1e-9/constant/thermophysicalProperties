@@ -21,7 +21,7 @@ thermoType
     mixture         reactingMixture;
     transport       sutherland;
     thermo          janaf;
-    energy          sensibleEnthalpy;
+    energy          sensibleInternalEnergy;
     equationOfState perfectGas;
     specie          specie;
 }

@@ -11,40 +11,43 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      p;
+    object      N2;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [1 -1 -2 0 0 0 0];
+dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0; // to be overwritten 
+//internalField   uniform 0.743484;
+internalField   uniform 0.745; // from Marcantoni
+
 
 boundaryField
 {
-    inlet
-    {
-        type            zeroGradient;
-    }
-    outlet
-    {
-        type            waveTransmissive;
-        gamma           1.29;
-        fieldInf        101325;
-        lInf            100;
-        value           uniform 101325;
-    }
-    bottom
-    {
-        type            zeroGradient;
-    }
-    top
-    {
-        type            zeroGradient;
-    }
-    frontAndBack
-    {
-        type            empty;
-    }
+	inlet
+	{
+	    type            fixedValue;
+	    value           uniform 0;
+	}
+	top
+	{
+	    type            fixedValue;
+	    value           uniform 0;
+	}
+	bottom
+        {
+            type            fixedValue;
+            value           uniform 0;
+        }
+	outlet
+	{
+	    type            inletOutlet;
+	    inletValue      uniform 0;
+	    value           uniform 0;
+	}
+	frontAndBack
+	{
+	    type            empty;
+	}
 }
 
 

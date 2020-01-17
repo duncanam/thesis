@@ -10,31 +10,30 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      chemistryProperties;
+    location    "system";
+    object      sample;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-chemistryType
-{
-    solver          ode;
-}
+type sets;
+libs            ("libsampling.so");
 
-chemistry           on;
+interpolationScheme cellPoint;
 
-initialChemicalTimeStep 1e-12;
+setFormat       raw;
 
-EulerImplicitCoeffs
-{
-    cTauChem        1;
-    equilibriumRateLimiter off;
-}
+sets
+(
+    data
+    {
+        type    lineUniform;
+        axis    x;
+        start   (0 0.02 0);
+        end     (0.5 0.02 0);
+        nPoints 1000;
+    }
+);
 
-odeCoeffs
-{
-    solver          RKF45;
-    absTol          1e-9;
-    relTol          0;
-}
+fields          (T p U);
 
 // ************************************************************************* //

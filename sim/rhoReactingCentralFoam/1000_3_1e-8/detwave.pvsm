@@ -18493,7 +18493,7 @@
         <Domain name="bool" id="8083.DecomposePolyhedra.bool"/>
       </Property>
       <Property name="FileName" id="8083.FileName" number_of_elements="1">
-        <Element index="0" value="/home/duncan/github/school/thesis/sim/rhoReactingCentralFoam/1000_3_1e-8/detwave.foam"/>
+        <Element index="0" value="./detwave.foam"/>
         <Domain name="files" id="8083.FileName.files"/>
       </Property>
       <Property name="LagrangianArrayInfo" id="8083.LagrangianArrayInfo"/>

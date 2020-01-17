@@ -17,92 +17,42 @@ FoamFile
 
 solvers
 {
-	"(U|h|e)"
+	U
 	{
 		solver		smoothSolver;
-		smoother	symGaussSeidel;
+		smoother	GaussSeidel;
 		nSweeps		2;
-		tolerance	1e-06;
-		relTol		1e-04;
+		tolerance	1e-12;
+		relTol		0;
 	}
-
-	"(U|h|e|R|k|epsilon|omega)Final"
+	
+	h
 	{
 		$U;
-		relTol			0;
-	}
-
-	p
-	{
-		solver			PBiCGStab;
-		preconsitioner	DILU;
-		tolerance		1e-06;
-		relTol			1e-04;
-	}
-
-	pFinal
-	{
-		$p;
+		tolerance	1e-12;
 		relTol		0;
 	}
 
-	"pcorr.*"
+	e
 	{
-		solver			PCG;
-		preconditioner	DIC;
-		tolerance		1e-2;
-		relTol			0;
+		$U;
+		tolerance	1e-12;
+		relTol		0;
 	}
 
 	"rho.*"
 	{
 		solver		diagonal;
-		tolerance	1e-06;
-		relTol		0;
 	}
-
-	"Yi.*"
-    {
-        	$hFinal;
-    }
 
 	"(O2|H2|H2O|N2)"
 	{
-		solver          GAMG;
-        smoother		symGaussSeidel;
+		solver          PBiCGStab;
+        preconditioner	DILU;
         tolerance       1e-12;
         relTol          0;
 	}
- 
-	"(rho|rhoU|rhoE)"
-	{
-		solver			diagonal;
-	}
-
-}
-
-
-PIMPLE
-{
-		transonic			yes;
-		correctPhi			yes;
-		//consistent			yes;
-    	momentumPredictor	no;
-    	nOuterCorrectors	3;
-    	nCorrectors			2;
-    	nNonOrthogonalCorrectors 0;
-}
-
-relaxationFactors
-{
-	/*fields
-	{
-		".*" 	1; // set 1 to ensure diagonal equality
-	}*/
-	equations
-	{
-		".*" 	1; // set 1 to ensure diagonal equality
-	}
+	
 }
 
 CENTRAL

@@ -15,16 +15,16 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-fluxScheme				Kurganov;
+fluxScheme		Kurganov;
 
 ddtSchemes
 {
-		default			Euler;
+    default         Euler;
 }
 
 gradSchemes
 {
-		default			Gauss linear;
+	default         Gauss linear;
 }
 
 divSchemes
@@ -45,9 +45,9 @@ laplacianSchemes
 interpolationSchemes
 {
     	default				linear;
-		reconstruct(rho)	vanLeer;
-		reconstruct(U)		vanLeerV;
-		reconstruct(T)		vanLeer;
+		reconstruct(rho)	vanAlbada;
+		reconstruct(U)		vanAlbadaV;
+		reconstruct(T)		vanAlbada;
 }
 
 snGradSchemes
