@@ -8,3 +8,5 @@
 # Ignore postProcessing
 **/postProcessing/**
 
+# Ignore legacy rhoReactingFoam cases (for now)
+**/rhoReactingFoam/**
