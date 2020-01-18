@@ -20,11 +20,8 @@ thermoType
     type            hePsiThermo;
     mixture         reactingMixture;
     transport       sutherland;
-	//transport		const;
     thermo          janaf;
-	//thermo			eConst;
-    //energy          sensibleEnthalpy;
-	energy			sensibleInternalEnergy;
+    energy          sensibleInternalEnergy;
     equationOfState perfectGas;
     specie          specie;
 }

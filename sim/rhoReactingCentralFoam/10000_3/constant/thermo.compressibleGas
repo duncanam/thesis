@@ -22,7 +22,6 @@ O2
     }
     thermodynamics
     {
-		Cv				659;
         Tlow            200;
         Thigh           5000;
         Tcommon         1000;
@@ -48,7 +47,6 @@ H2
     }
     thermodynamics
     {
-		Cv				1016;
         Tlow            200;
         Thigh           5000;
         Tcommon         1000;
@@ -74,7 +72,6 @@ H2O
     }
     thermodynamics
     {
-		Cv				1460;
         Tlow            200;
         Thigh           5000;
         Tcommon         1000;
@@ -101,7 +98,6 @@ N2
     }
     thermodynamics
     {
-		Cv				743;
         Tlow            250;
         Thigh           5000;
         Tcommon         1000;
