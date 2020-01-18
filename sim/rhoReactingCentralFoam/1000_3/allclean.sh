@@ -2,5 +2,5 @@
 
 shopt -s extglob
 
-rm -rv !("0"|"constant"|"system"|"allclean.sh"|"detwave.pvsm"|"postProcessing")
+rm -rv !("0.orig"|"constant"|"system"|"allclean.sh"|"detwave.pvsm")
 

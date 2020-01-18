@@ -13,3 +13,6 @@
 
 # Ignore legacy rhoReactingFoam cases (for now)
 **/rhoReactingFoam/**
+
+# Ignore Jupyter checkpoint folder
+**/.ipynb_checkpoints/**
