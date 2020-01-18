@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7  
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version		2.0;
+    format      ascii;
+    //root            "/.automount/werner/Werner/bgschaid/bgschaid-foamStuff/DepositionTests";
+    //case            "neutralTest";
+    //instance        "system";
+    //local           "";
+    class           dictionary;
+	location		"system";
+    object          funkySetFieldsDict;
+}
+
+expressions
+(
+	//mainFieldPressure
+	//{
+	//	field		p;
+	//	expression	"101325"; // [Pa] set default tube pressure 
+	//}
+
+	//mainFieldTemp
+	//{
+	//	field		T;
+	//	expression	"300"; // [K] set default tube temp 
+	//}
+
+	TGradLHS
+	{
+		field		T;
+		expression	"-70000 * pos().x + 1000"; // vary T from 1000 to 300 over:
+		condition	"pos().x<=0.01"; //				0.01m from x=0m to x=0.01m
+		keepPatches true; // keep BCs that were set before (?)
+	}	
+
+	pGradLHS
+	{
+		field		p;
+		expression	"-1.925175e8 * pos().x + 2.0265e6"; // vary p from 20 atm to 1 atm over:
+		condition	"pos().x<=0.01"; //						0.01m from x=0m to x=0.01m
+		keepPatches	true; // keep BCs that were set before (?)
+	}
+
+	//initLower
+	//{
+	//	field lowerPatch;
+	//	create true;
+	//	expression "1";
+	//	condition "pos().y<0";
+	//	valuePatches ( zminus );
+	//	dimension [0 1 -1 0 0];
+	//}
+	//clearLower
+	//{
+	//	field lowerPatch;
+	//	expression "0";
+	//	keepPatches true;
+	//}
+
+	//setTube
+	//{
+	//	field tubeField;
+	//	create true;
+	//	expression "pos().z";
+	//	condition "sqrt(pow(pos().x,2)+pow(pos().y,2))<0.0001";
+	//}
+
+);

@@ -5,6 +5,9 @@
 [0-9]*.[0-9]**
 [0-9]*e**
 
+# Ignore post-setFields ICs
+**/0/**
+
 # Ignore postProcessing
 **/postProcessing/**
 
