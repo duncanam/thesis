@@ -9,10 +9,6 @@ FoamFile
 {
     version		2.0;
     format      ascii;
-    //root            "/.automount/werner/Werner/bgschaid/bgschaid-foamStuff/DepositionTests";
-    //case            "neutralTest";
-    //instance        "system";
-    //local           "";
     class           dictionary;
 	location		"system";
     object          funkySetFieldsDict;
@@ -20,18 +16,6 @@ FoamFile
 
 expressions
 (
-	//mainFieldPressure
-	//{
-	//	field		p;
-	//	expression	"101325"; // [Pa] set default tube pressure 
-	//}
-
-	//mainFieldTemp
-	//{
-	//	field		T;
-	//	expression	"300"; // [K] set default tube temp 
-	//}
-
 	TGradLHS
 	{
 		field		T;
@@ -47,29 +31,4 @@ expressions
 		condition	"pos().x<=0.01"; //						0.01m from x=0m to x=0.01m
 		keepPatches	true; // keep BCs that were set before (?)
 	}
-
-	//initLower
-	//{
-	//	field lowerPatch;
-	//	create true;
-	//	expression "1";
-	//	condition "pos().y<0";
-	//	valuePatches ( zminus );
-	//	dimension [0 1 -1 0 0];
-	//}
-	//clearLower
-	//{
-	//	field lowerPatch;
-	//	expression "0";
-	//	keepPatches true;
-	//}
-
-	//setTube
-	//{
-	//	field tubeField;
-	//	create true;
-	//	expression "pos().z";
-	//	condition "sqrt(pow(pos().x,2)+pow(pos().y,2))<0.0001";
-	//}
-
 );
