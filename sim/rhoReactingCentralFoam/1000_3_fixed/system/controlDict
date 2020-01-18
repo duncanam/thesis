@@ -15,6 +15,14 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+// swak4Foam libraries
+libs (
+      "libOpenFOAM.so"
+      "libsimpleSwakFunctionObjects.so"
+      "libswakFunctionObjects.so"
+      "libgroovyBC.so"
+     );
+
 application     rhoReactingCentralFoam;
 
 startFrom       latestTime;
@@ -30,7 +38,8 @@ deltaT          1e-8;
 
 writeControl    adjustableRunTime;
 
-writeInterval   2.5e-5;
+//writeInterval   2.5e-5;
+writeInterval	1e-6;
 
 purgeWrite      0;
 
