@@ -19,7 +19,7 @@ expressions
 	TGradLHS
 	{
 		field		T;
-		expression	"-60000 * pos().x + 900"; // vary T from 900K to 300K over:
+		expression	"-55000 * pos().x + 850"; // vary T from 850K to 300K over:
 		condition	"pos().x<=0.01"; //				0.01m from x=0m to x=0.01m
 		keepPatches true; // keep BCs that were set before (?)
 	}	
@@ -27,7 +27,7 @@ expressions
 	pGradLHS
 	{
 		field		p;
-		expression	"-2.0265e7 * pos().x + 303975"; // vary p from 3 atm to 1 atm over:
+		expression	"-1.85728e7 * pos().x + 287053"; // vary p from 2.833 atm to 1 atm over:
 		condition	"pos().x<=0.01"; //						0.01m from x=0m to x=0.01m
 		keepPatches	true; // keep BCs that were set before (?)
 	}
