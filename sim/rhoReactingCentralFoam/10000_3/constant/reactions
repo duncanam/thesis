@@ -39,9 +39,9 @@ reactions
     {
         type     irreversibleArrheniusReaction;
         reaction "2H2 + O2 = 2H2O";
-		A		6.85e12; // from Colin Towery
+		A		1.4e13;
         beta    0;
-		Ta		13500; // from Colin Towery
+		Ta		12995; 
     }
 }
 
