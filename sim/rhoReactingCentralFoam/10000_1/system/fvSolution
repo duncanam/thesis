@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+	U
+	{
+		solver		smoothSolver;
+		smoother	GaussSeidel;
+		nSweeps		2;
+		tolerance	1e-12;
+		relTol		0;
+	}
+	
+	h
+	{
+		$U;
+		tolerance	1e-12;
+		relTol		0;
+	}
+
+	e
+	{
+		$U;
+		tolerance	1e-12;
+		relTol		0;
+	}
+
+	"rho.*"
+	{
+		solver		diagonal;
+	}
+
+	"(O2|H2|H2O|N2)"
+	{
+		solver          PBiCGStab;
+        preconditioner	DILU;
+        tolerance       1e-12;
+        relTol          0;
+	}
+	
+}
+
+CENTRAL
+{
+}
+
+// ************************************************************************* //
