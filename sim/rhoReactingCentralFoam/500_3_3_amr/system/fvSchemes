@@ -39,7 +39,7 @@ divSchemes
 
 laplacianSchemes
 {
-		default			Gauss linear corrected;	
+		default			Gauss linear uncorrected;	
 }
 
 interpolationSchemes
@@ -53,7 +53,7 @@ interpolationSchemes
 
 snGradSchemes
 {
-		default				corrected;
+		default				uncorrected;
 }
 
 
