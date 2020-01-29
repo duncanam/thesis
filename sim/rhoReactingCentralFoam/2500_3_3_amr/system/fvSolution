@@ -22,21 +22,21 @@ solvers
 		solver		smoothSolver;
 		smoother	GaussSeidel;
 		nSweeps		2;
-		tolerance	1e-15;
+		tolerance	1e-17;
 		relTol		0;
 	}
 	
 	h
 	{
 		$U;
-		tolerance	1e-15;
+		tolerance	1e-17;
 		relTol		0;
 	}
 
 	e
 	{
 		$U;
-		tolerance	1e-15;
+		tolerance	1e-17;
 		relTol		0;
 	}
 
@@ -49,7 +49,7 @@ solvers
 	{
 		solver          PBiCGStab;
         preconditioner	DILU;
-        tolerance       1e-15;
+        tolerance       1e-17;
         relTol          0;
 	}
 	
