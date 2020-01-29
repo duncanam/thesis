@@ -60,6 +60,7 @@ adjustTimeStep  no; // disable for now
 
 maxCo           0.2;
 maxDeltaT		0.01;
+maxAcousticCo	0.2;
 
 functions
 {
