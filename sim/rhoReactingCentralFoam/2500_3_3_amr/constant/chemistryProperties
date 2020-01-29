@@ -17,7 +17,7 @@ FoamFile
 
 chemistryType
 {
-    solver          EulerImplicit;
+    solver          ode;
 }
 
 chemistry           on;
@@ -32,9 +32,9 @@ EulerImplicitCoeffs
 
 odeCoeffs
 {
-    solver          Rosenbrock43;
-    absTol          1e-15;
-    relTol          1e-9;
+    solver          seulex;
+    absTol          1e-12;
+    relTol          1e-1;
 }
 
 // ************************************************************************* //
