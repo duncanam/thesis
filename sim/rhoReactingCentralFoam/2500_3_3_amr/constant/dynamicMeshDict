@@ -49,6 +49,7 @@ correctFluxes
     (rhoPhi none)
     (alphaPhi0.water none)
     (ghf none)
+	(neg none)
 );
 
 // Write the refinement level as a volScalarField
