@@ -21,23 +21,23 @@ dynamicFvMesh   dynamicRefineFvMesh;
 refineInterval  1;
 
 // Field to be refinement on
-field           T;
+field           normalisedGradP;
 
 // Refine field in between lower..upper
-lowerRefineLevel 2000;
-upperRefineLevel 5000;
+lowerRefineLevel 0.9;
+upperRefineLevel 1;
 
 // If value < unrefineLevel unrefine
-unrefineLevel   50;
+unrefineLevel   0.8;
 
 // Have slower than 2:1 refinement
 nBufferLayers   1;
 
 // Refine cells only up to maxRefinement levels
-maxRefinement   2;
+maxRefinement   1;
 
 // Stop refinement if maxCells reached
-maxCells        10000;
+maxCells        100000;
 
 // Flux field and corresponding velocity field. Fluxes on changed
 // faces get recalculated by interpolating the velocity. Use 'none'
