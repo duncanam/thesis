@@ -56,7 +56,7 @@ timePrecision   6;
 
 runTimeModifiable true;
 
-adjustTimeStep  no; // disable for now
+adjustTimeStep  yes;
 
 maxCo           0.2;
 maxDeltaT		0.01;
