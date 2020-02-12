@@ -58,9 +58,11 @@ runTimeModifiable true;
 
 adjustTimeStep  yes;
 
-maxCo           0.2;
+useAcousticCourant yes;
+
+maxCo           0.1;
 maxDeltaT		0.01;
-maxAcousticCo	0.2;
+maxAcousticCo	0.1;
 
 functions
 {
