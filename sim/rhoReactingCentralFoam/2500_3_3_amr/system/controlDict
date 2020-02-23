@@ -33,7 +33,7 @@ stopAt          endTime;
 
 //endTime       2.5e-4;	// full run  
 //endTime		3e-5;	// quick test
-endTime			1.5e-5;	// AMR stable start test
+endTime			2e-5;	// AMR stable start test
 //endTime		6e-5;	// quick test verify
 
 deltaT          1e-9;

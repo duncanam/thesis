@@ -19,11 +19,16 @@ solvers
 {
 	U
 	{
-		solver		smoothSolver;
-		smoother	GaussSeidel;
-		nSweeps		2;
-		tolerance	1e-17;
-		relTol		0;
+		//solver		smoothSolver;
+		//smoother	GaussSeidel;
+		//nSweeps		2;
+		//tolerance	1e-17;
+		//relTol		0;
+
+		solver			PBiCGStab;
+		preconditioner	DILU;
+		tolerance		1e-15;
+		relTol			0;
 	}
 	
 	h
