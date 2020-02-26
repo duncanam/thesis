@@ -31,9 +31,10 @@ startTime       0;
 
 stopAt          endTime;
 
-//endTime         2.5e-4;
-endTime			3e-5;
-//endTime				6e-5;
+//endTime       2.5e-4;	// full run  
+endTime		3e-5;	// quick test
+//endTime			2e-5;	// AMR stable start test
+//endTime		6e-5;	// quick test verify
 
 deltaT          1e-9;
 
@@ -56,10 +57,13 @@ timePrecision   6;
 
 runTimeModifiable true;
 
-adjustTimeStep  no; // disable for now
+adjustTimeStep  yes;
 
-maxCo           0.2;
-maxDeltaT		0.01;
+useAcousticCourant yes;
+
+maxCo           0.1;
+maxDeltaT		1e-6;
+maxAcousticCo	0.1;
 
 functions
 {

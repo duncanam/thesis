@@ -10,58 +10,29 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      fvSolution;
+    location    "constant";
+    object      thermophysicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+thermoType
 {
-	U
-	{
-		//solver		smoothSolver;
-		//smoother	GaussSeidel;
-		//nSweeps		2;
-		//tolerance	1e-17;
-		//relTol		0;
-
-		solver			PBiCGStab;
-		preconditioner	DIC;
-		tolerance		1e-15;
-		relTol			0;
-	}
-	
-	h
-	{
-		$U;
-		tolerance	1e-17;
-		relTol		0;
-	}
-
-	e
-	{
-		$U;
-		tolerance	1e-17;
-		relTol		0;
-	}
-
-	"rho.*"
-	{
-		solver		diagonal;
-	}
-
-	"(O2|H2|H2O|N2|Yi)"
-	{
-		solver          PBiCGStab;
-        preconditioner	DILU;
-        tolerance       1e-17;
-        relTol          0;
-	}
-	
+    type            hePsiThermo;
+    mixture         reactingMixture;
+    transport       sutherland;
+    thermo          janaf;
+    energy          sensibleInternalEnergy;
+    equationOfState perfectGas;
+    specie          specie;
 }
 
-CENTRAL
-{
-}
+inertSpecie N2;
+
+chemistryReader foamChemistryReader;
+
+foamChemistryFile "$FOAM_CASE/constant/reactions";
+
+foamChemistryThermoFile "$FOAM_CASE/constant/thermo.compressibleGas";
+
 
 // ************************************************************************* //

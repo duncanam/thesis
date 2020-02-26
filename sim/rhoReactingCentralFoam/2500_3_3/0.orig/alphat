@@ -9,59 +9,43 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      fvSolution;
+    class       volScalarField;
+    location    "0";
+    object      alphat;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+dimensions      [1 -1 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
 {
-	U
+    	inlet
+    	{
+    	    type            fixedValue;
+    	    value           uniform 0;
+    	}
+    	top
+    	{
+    	    type            fixedValue;
+    	    value           uniform 0;
+    	}
+	bottom
 	{
-		//solver		smoothSolver;
-		//smoother	GaussSeidel;
-		//nSweeps		2;
-		//tolerance	1e-17;
-		//relTol		0;
-
-		solver			PBiCGStab;
-		preconditioner	DIC;
-		tolerance		1e-15;
-		relTol			0;
+	    type            fixedValue;
+	    value           uniform 0;
 	}
-	
-	h
+	outlet
 	{
-		$U;
-		tolerance	1e-17;
-		relTol		0;
+	    type            zeroGradient;
 	}
-
-	e
+	frontAndBack
 	{
-		$U;
-		tolerance	1e-17;
-		relTol		0;
+	    type            fixedValue;
+		value			uniform 0;
 	}
-
-	"rho.*"
-	{
-		solver		diagonal;
-	}
-
-	"(O2|H2|H2O|N2|Yi)"
-	{
-		solver          PBiCGStab;
-        preconditioner	DILU;
-        tolerance       1e-17;
-        relTol          0;
-	}
-	
 }
 
-CENTRAL
-{
-}
 
 // ************************************************************************* //

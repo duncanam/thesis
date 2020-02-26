@@ -31,28 +31,30 @@ divSchemes
 {
     	default         none;
 		div(tauMC)		Gauss linear;
-		div(phi,O2)		Gauss linear;
-		div(phi,H2)		Gauss linear;
-		div(phi,H2O)	Gauss linear;
-		div(phi,N2)		Gauss linear;
+		div(phi,O2)		Gauss vanLeer01;
+		div(phi,H2)		Gauss vanLeer01;
+		div(phi,H2O)	Gauss vanLeer01;
+		div(phi,N2)		Gauss vanLeer01;
+		div(phi,Yi_h)	Gauss vanLeer;
 }
 
 laplacianSchemes
 {
-		default			Gauss linear corrected;	
+		default			Gauss linear uncorrected;	
 }
 
 interpolationSchemes
 {
     	default				linear;
-		reconstruct(rho)	vanAlbada;
-		reconstruct(U)		vanAlbadaV;
-		reconstruct(T)		vanAlbada;
+		reconstruct(rho)	Minmod;
+		reconstruct(U)		MinmodV;
+		reconstruct(T)		Minmod;
+		reconstruct(Yi)		Minmod;
 }
 
 snGradSchemes
 {
-		default				corrected;
+		default				uncorrected;
 }
 
 
