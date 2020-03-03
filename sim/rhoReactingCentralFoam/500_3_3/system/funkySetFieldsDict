@@ -21,7 +21,7 @@ expressions
 		field		T;
 		expression	"-90000 * pos().x + 1200"; // vary T from 1200K to 300K over:
 		condition	"pos().x<=0.01"; //				0.01m from x=0m to x=0.01m
-		keepPatches true; // keep BCs that were set before 
+		keepPatches true; // keep BCs that were set before (?)
 	}	
 
 	pGradLHS
@@ -29,6 +29,6 @@ expressions
 		field		p;
 		expression	"-3.03975e7 * pos().x + 405300"; // vary p from 4 atm to 1 atm over:
 		condition	"pos().x<=0.01"; //						0.01m from x=0m to x=0.01m
-		keepPatches	true; // keep BCs that were set before 
+		keepPatches	true; // keep BCs that were set before (?)
 	}
 );

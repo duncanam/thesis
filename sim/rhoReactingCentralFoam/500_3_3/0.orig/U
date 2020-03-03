@@ -9,59 +9,47 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      fvSolution;
+    class       volVectorField;
+    location    "0";
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
 {
-	U
+	inlet
 	{
-		//solver		smoothSolver;
-		//smoother	GaussSeidel;
-		//nSweeps		2;
-		//tolerance	1e-17;
-		//relTol		0;
-
-		solver			PBiCGStab;
-		preconditioner	DIC;
-		tolerance		1e-15;
-		relTol			0;
+	    type            slip;
 	}
-	
-	h
+	top
 	{
-		$U;
-		tolerance	1e-17;
-		relTol		0;
+	    type            slip;
 	}
-
-	e
+	bottom
+        {
+            type            slip;
+        }
+	outlet
 	{
-		$U;
-		tolerance	1e-17;
-		relTol		0;
+	    type        waveTransmissive;
+	    value		uniform (0 0 0);
+	    field		U;
+	    gamma		1.29; // Air is 1.4, H2 is 1.41
+	    phi			phi;
+	    //rho			thermo:rho;
+	    psi			thermo:psi;
+	    lInf		1;
+	    fieldInf	(0 0 0);
 	}
-
-	"rho.*"
+	frontAndBack
 	{
-		solver		diagonal;
+	    type            slip;
 	}
-
-	"(O2|H2|H2O|N2|Yi)"
-	{
-		solver          PBiCGStab;
-        preconditioner	DILU;
-        tolerance       1e-17;
-        relTol          0;
-	}
-	
 }
 
-CENTRAL
-{
-}
 
 // ************************************************************************* //

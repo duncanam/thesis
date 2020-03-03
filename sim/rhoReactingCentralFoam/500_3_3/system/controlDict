@@ -31,8 +31,9 @@ startTime       0;
 
 stopAt          endTime;
 
-//endTime       2.5e-4;	// full run  
-endTime		3e-5;	// quick test
+//endTime         2.5e-4;
+endTime			3e-5;
+//endTime				6e-5;
 
 deltaT          1e-9;
 
@@ -55,13 +56,10 @@ timePrecision   6;
 
 runTimeModifiable true;
 
-adjustTimeStep  yes;
+adjustTimeStep  no; // disable for now
 
-useAcousticCourant yes;
-
-maxCo           0.1;
-maxDeltaT		1e-6;
-maxAcousticCo	0.1;
+maxCo           0.2;
+maxDeltaT		0.01;
 
 functions
 {
