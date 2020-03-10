@@ -19,11 +19,18 @@ expressions
 	TGradLHS
 	{
 		field		T;
-		//expression	"-90000 * pos().x + 1200"; // vary T from 1200K to 300K over:
-		expression	"-90000 * pos().x + 900 + 1200 * rand()"; // vary T from 1200K to 600K +/- 600K over:
+		expression	"-90000 * pos().x + 1200"; // vary T from 1200K to 300K over:
+		//expression	"-90000 * pos().x + 900 + 1200 * rand()"; // vary T from 1200K to 600K +/- 600K over:
 		condition	"pos().x<=0.01"; //				0.01m from x=0m to x=0.01m
 		keepPatches true; // keep BCs that were set before 
 	}	
+
+	Trand
+	{
+		field		T;
+		expression	"T + 240 * rand()"; // add randomization throughout the entire domain
+		keepPatches	true; // keep BCs that were set before	
+	}
 
 	pGradLHS
 	{
