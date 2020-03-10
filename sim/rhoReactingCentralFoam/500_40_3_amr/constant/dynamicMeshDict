@@ -24,11 +24,11 @@ refineInterval  1;
 field           normalisedGradP;
 
 // Refine field in between lower..upper
-lowerRefineLevel 0.2;
+lowerRefineLevel 0.1;
 upperRefineLevel 1;
 
 // If value < unrefineLevel unrefine
-unrefineLevel   0.1;
+unrefineLevel   0.005;
 
 // Have slower than 2:1 refinement
 nBufferLayers   1;

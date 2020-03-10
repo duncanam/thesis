@@ -16,3 +16,6 @@
 
 # Ignore Jupyter checkpoint folder
 **/.ipynb_checkpoints/**
+
+# Ignore all log files
+*.log
