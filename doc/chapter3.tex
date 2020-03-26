@@ -1,12 +1,45 @@
 \chapter{The OpenFOAM Toolbox}
-\label{chap:of}
+\label{ofchap}
 
 \section{Overview}
-OpenFOAM is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. The solvers tested during this research include 
+OpenFOAM is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. The solvers tested during this research include:
 \begin{itemize}
     \item \textbf{rhoReactingFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``[s]olver for combustion with chemical reactions using density-based thermodynamics package."
     \item \textbf{rhoCentralFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``Density-based compressible flow solver based on central-upwind schemes of Kurganov and Tadmor with support for mesh-motion and topology changes."
     \item \textbf{rhoReactingCentralFoam}: a solver developed by Caelan Lapoint at the University of Colorado Boulder, combining \verb|rhoReactingFoam| and \verb|rhoCentralFoam| together as well adaptive mesh refinement support. 
 \end{itemize}
+
+In addition to these solvers, several additional tools outside the standard OpenFOAM installation were utilized. These include \verb|funkySetFields| and \verb|groovyBC|, both included with \verb|swak4Foam|. \verb|funkySetFields| is a tool much like the OpenFOAM-included \verb|setFields| utility, which allows the user to define set values of variables within certain regions of the computational domain (e.g. allows the user to set a cube within a domain to a certain temperature which is different than what is set globally). \verb|funkySetFields| extends this functionality, allowing for time and position-dependent defining of variables, such that an initial condition such as a temperature ramp, or randomization of temperature within the domain is possible. 
+
+\section{Setup and Structure}
+In order to simulate a fluids or combustion problem in OpenFOAM, the directory structure in which the simulation is to be run needs to be correct. Each OpenFOAM simulation contains a directory \verb|0/| which holds initial conditions for the domain as well as boundary conditions. Inside this directory are files named like the quantities they represent, such as \verb|p|, \verb|T|, and \verb|U|. \verb|funkySetFields| edits these files to apply the special initial conditions. As the simulation progresses, more folders representing timesteps will appear with data saved for that timestep. The folder name will represent the specific timestep exactly. 
+
+The next important directory is \verb|constant/|. This directory holds physical quantities as well as mesh information once it is formed. For reacting flows, some files of interest within this folder may be:
+
+\begin{itemize}
+    \item \textbf{chemistryProperties}: a file that contains definitions for which chemistry solver is used as well as tolerances.
+    \item \textbf{combustionProperties}: contains the combustion model (laminar, or turbulence model) definition.
+    \item \textbf{dynamicMeshDict}: defines adaptive mesh refinement options. One can define which variable is tracked during adaptive meshing as well as how often and refined the meshing is. 
+    \item \textbf{reactions}: contains all the reactions that occur during the simulation. The active species are defined here as well as the rate model (such as Arrhenius). 
+    \item \textbf{thermo.compressibleGas}: included are the thermodynamic properties such as temperature-dependent specific heat coefficients and molecular weights of the species that are included within the chemistry models.
+    \item \textbf{thermophysicalProperties}: defines things such as the equation of state, inert species, locations of \verb|reactions| and \verb|thermo.compressibleGas|, if the mixture is reacting, if the thermodynamic properties are temperature-dependent, and how the energy equation is defined (e.g. one can have the model focused on sensible enthalpy or sensible internal energy).
+    \item \textbf{turbulenceProperties}: defines turbulence modeling for the flow in general. 
+\end{itemize}
+
+The last necessary directory is \verb|system/|. This directory contains files that will define some generic solver tolerances as well mesh setup and simulation setup. Specifically, it could contain:
+
+\begin{itemize}
+    \item \textbf{blockMeshDict}: defines the mesh. A user will input dimensions and how the hex mesh will be partitioned. This could also be placed within \verb|constant/polyMesh/|. 
+    \item \textbf{controlDict}: the overarching control file for OpenFOAM. This contains start and end times, time increments, write-to-file frequency, save file compression and format, and adaptive time stepping parameters such as maximum Courant number. Other options such as functions for residual tracking and libraries for functions like \verb|funkySetFields| can be placed here. 
+    \item \textbf{decomposeParDict}: defines parallel processing domain decomposition for MPI. The number of processors as well as where domain splits should occur or algorithm definitions for automatic domain decomposition are set here. 
+    \item \textbf{setFieldsDict}/\textbf{funkySetFieldsDict}: defines custom field setting, as discussed earlier. Blocks of pressure or temperature ramps are defined here. 
+    \item \textbf{fvSchemes}: finite volume methods are defined here, such as Gauss linear or van Leer MUSCL schemes. It is broken into derivative, gradient, divergence, laplacian, and more sections. 
+    \item \textbf{fvSolution}: defines the specific differential equation solvers as well as their tolerances. This can also contain smoothers and other solver-specific settings. 
+    \item any files that define sampling for post processing, such as line plots through a region in the domain.  
+\end{itemize}
+
+Together, these directories comprise the OpenFOAM directory structure. A user then will run the solver of interest within the directory containing these subdirectories, and the solver will look within these subdirectories for the files just discussed and apply them to the solution process. Pre-processing and post-processing steps are also run from this directory, such as creating the mesh from \verb|blockMesh|, placing special initial conditions with \verb|funkySetFields|, or obtaining results at a timestep with a line plot with \verb|postProcess|. Results can also be viewed graphically with \verb|paraview| or \verb|paraFoam|. 
+
+
 
 
