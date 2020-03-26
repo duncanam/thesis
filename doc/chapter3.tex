@@ -1,0 +1,12 @@
+\chapter{The OpenFOAM Toolbox}
+\label{chap:of}
+
+\section{Overview}
+OpenFOAM is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. The solvers tested during this research include 
+\begin{itemize}
+    \item \textbf{rhoReactingFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``[s]olver for combustion with chemical reactions using density-based thermodynamics package."
+    \item \textbf{rhoCentralFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``Density-based compressible flow solver based on central-upwind schemes of Kurganov and Tadmor with support for mesh-motion and topology changes."
+    \item \textbf{rhoReactingCentralFoam}: a solver developed by Caelan Lapoint at the University of Colorado Boulder, combining \verb|rhoReactingFoam| and \verb|rhoCentralFoam| together as well adaptive mesh refinement support. 
+\end{itemize}
+
+
