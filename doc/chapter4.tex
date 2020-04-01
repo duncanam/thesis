@@ -1,9 +1,9 @@
-\chapter{OpenFOAM PDE and RDE Modeling}
+\chapter{OpenFOAM Detonation Modeling}
 \label{solvtestchap}
 
 \section{Preface}
 
-This chapter will go through progression of research on efficacy for the different solvers and PDE/RDE modeling techniques performed during the duration of this thesis work. In an effort to assist the University of Colorado's Turbulence and Energy Systems Laboratory (TESLa), several solvers and methods will be tested for potential for detonation modeling, stability, and accuracy, typically in that order. 
+This chapter will go through progression of research on efficacy for the different solvers and detonation modeling techniques performed during the duration of this thesis work. In an effort to assist the University of Colorado's Turbulence and Energy Systems Laboratory (TESLa), several solvers and methods will be tested for potential for detonation modeling, stability, and accuracy, typically in that order. Additional focus will be on the effects of AMR on the results. 
 
 \section{Modeling Progression}
 \subsection{Initial Attempts}
@@ -20,10 +20,24 @@ Firstly, the detonation of methane fuel and oxygen oxidizer without inert nitrog
 
 The next step with \verb|rhoReactingFoam| was to start progressing towards testable detonation results. To do this, a change from methane to hydrogen for the fuel was selected. This fuel change was done to better match papers such as those being produced by TESLa as well as the general experimental and computational detonation modeling community. The exact geometric detontion tube was taken from Towery\cite{towery1} for comparison as well as the initial detonation size and thermodynamic conditions. Additionally, inert nitrogen was added into the tube to transition from hydrogen-oxygen to hydrogen-air. In accordance with trying to double check whether results made sense with Towery\cite{towery1}, the Arrhenius rate equation was used for reaction rates. An issue that was problematic starting this research was that the documentation for the units within the \verb|reactions| file were conflicting. Much testing was performed at this stage in an attempt to determine the units that OpenFOAM uses for the reactions given in this file, especially regarding the pre-exponential factor. While some ground was gained on this, a shift of focus towards the solver performed in order to determine if \verb|rhoReactingFoam| was appropriate for capturing shocks. 
 
-The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. 
+The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. This problem typically consists of placing a region of higher pressure and density fluid in one region and a lower pressure and density fluid in another adjacent region. Typically the regions are rectangular and share a face, both comprising a large cube. When the simulation starts, a shock will form due to the immediate differential in pressure and density from one region to the next. This problem cannot be verified perfectly experimentally, but it can be solved analytically, making this a good method to test numerical CFD solvers for compressible flow accuracy as well as their ability to capture shocks. The results for \verb|rhoReactingFoam| matched published analytical results as well as a \verb|rhoPimpleFoam| case that was matched to the analytical results. Due to this, it was thought that \verb|rhoReactingFoam| would be a good candidate for detonation modeling. 
+
+The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
+
+\subsection{Final Solver}
+
+The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
+\begin{figure}[b]
+\centering
+\includegraphics[width=0.8\linewidth]{./figs/shocktube.png} 
+\caption{Shock tube validated test case included with OpenFOAM compared to hybrid solver}
+\label{fig:sod}
+\end{figure}%
+\noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. 
+
+\section{Solver Parameter Testing}
+Now that an appropriate solver was selected, the solver settings needed to be dialed in. To start, some further testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file.
 
 
-
-
-
-
+\subsection{Time Step Variation}
+One of the important tests was to determine how large the timestep of the simulation could be taken. 
