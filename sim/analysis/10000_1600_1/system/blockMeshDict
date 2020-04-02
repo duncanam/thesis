@@ -78,7 +78,7 @@ boundary
 
 	frontAndBack
 	{
-		type wall;
+		type empty;
 		faces
 		(
 			(0 1 2 3)
