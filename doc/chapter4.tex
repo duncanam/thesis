@@ -29,14 +29,69 @@ The next stage consisted of testing different mesh refinement levels, before AMR
 The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
 \begin{figure}[b]
 \centering
-\includegraphics[width=0.8\linewidth]{./figs/shocktube.png} 
+\includegraphics[width=0.85\linewidth]{./figs/shocktube.png} 
 \caption{Shock tube validated test case included with OpenFOAM compared to hybrid solver}
 \label{fig:sod}
 \end{figure}%
 \noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. 
 
-\section{Solver Parameter Testing}
-Now that an appropriate solver was selected, the solver settings needed to be dialed in. To start, some further testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file.
+\section{Solver Parameter Testing and Sensitivity}
+Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess|, using 1000 sampling points. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. 
+
+
+\subsection{Arrhenius Pre-exponential Factor}
+Now that an appropriate solver was selected, the solver settings needed to be dialed in. To start, some further testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest/p.png}
+\caption{Pressure distribution in detonation tube for pre-exponential factor exponent sweep test}
+\label{fig:atestp}
+\end{figure}
+
+\begin{figure}[b]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest/t.png}
+\caption{Temperature distribution in detonation tube for pre-exponential factor exponent sweep test}
+\label{fig:atestt}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest/u.png}
+\caption{Velocity distribution in detonation tube for pre-exponential factor exponent sweep test}
+\label{fig:atestu}
+\end{figure}
+
+From these figures, we can see the importance of having an accurate order of magnitude on the exponent for results. As the exponent was increased beyond the power of 12, plateaus emerge in the results for all thermodynamic variables. Under the power of 12, there is a large jump in solution, and a transition from between detonation states from a more nonphysical and unstable region to a more physical and stable one, seen in Figure \ref{fig:pjump}. 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest_refined/p_large.png}
+\caption{Pressure distribution in detonation tube for expanded and refined pre-exponential factor exponent sweep test, showing detonation stability transition. See Figures \ref{fig:atestrp} and r\ref{fig:atestrt} for a filtered version.}
+\label{fig:pjump}
+\end{figure}
+
+
+The exponent in this region was explored further since plateaus in thermodynamic properties values are not physical for real-world detonations. Note that the velocity plotted in Figure \ref{fig:atestu} is a fluid velocity, not a wave velocity. When instead we swept over a smaller interval, with the Chapman-Jouguet (CJ) targets from Towery\cite{towery1} plotted, we can see that there is a very abrupt transition in detonation stability (Figures \ref{fig:atestrp} and \ref{fig:atestrt}). 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest_refined/p.png}
+\caption{Pressure distribution in detonation tube for refined pre-exponential factor exponent sweep test, filtered from Figure \ref{fig:pjump} and refined from Figure \ref{fig:atestp}}
+\label{fig:atestrp}
+\end{figure}
+
+\begin{figure}[b]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest_refined/t.png}
+\caption{Temperature distribution in detonation tube for refined pre-exponential factor exponent sweep test, refined from Figure \ref{fig:atestt}}
+\label{fig:atestrt}
+\end{figure}
+
+With these tests, \(10^{13}\) was selected as an appropriate order of magnitude as it not only agreed with the results seen in Towery\cite{towery1}, but also with the value given for a single-step hydrogen-oxygen detonation in other published works\cite{hashemi}. 
+
+
 
 
 \subsection{Time Step Variation}
