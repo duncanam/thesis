@@ -5,6 +5,7 @@
 \usepackage{hyperref}		% PDF hyperreferences??
 \usepackage{xcolor}			% Coloring
 \usepackage{float}			% for figure [H]
+\usepackage{placeins}		% \FloatBarrier
 \definecolor{background}{HTML}{fdf6e3}
 \pagecolor{background}
 
@@ -73,7 +74,7 @@
 
 
 %%%%%%%%%   then the Bibliography, if any   %%%%%%%%%
-\bibliographystyle{plain}	% or "siam", or "alpha", etc.
+\bibliographystyle{unsrt}	% or "siam", or "alpha", etc.
 \nocite{*}		% list all refs in database, cited or not
 \bibliography{refs}		% Bib database in "refs.bib"
 

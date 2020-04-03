@@ -24,6 +24,7 @@ The Sod shock tube problem was utilized to determine if the OpenFOAM solvers use
 
 The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
 
+\FloatBarrier
 \subsection{Final Solver}
 
 The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
@@ -34,6 +35,7 @@ The final solver settled on for this research was \verb|rhoReactingCentralFoam|.
 \label{fig:sod}
 \end{figure}%
 \noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. 
+
 
 \section{Solver Parameter Testing and Sensitivity}
 Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess|, using 1000 sampling points. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. 
@@ -63,12 +65,12 @@ Now that an appropriate solver was selected, the solver settings needed to be di
 \label{fig:atestu}
 \end{figure}
 
-From these figures, we can see the importance of having an accurate order of magnitude on the exponent for results. As the exponent was increased beyond the power of 12, plateaus emerge in the results for all thermodynamic variables. Under the power of 12, there is a large jump in solution, and a transition from between detonation states from a more nonphysical and unstable region to a more physical and stable one, seen in Figure \ref{fig:pjump}. 
+From these figures, we can see the importance of having an accurate order of magnitude on the exponent for results. As the exponent was increased beyond the power of 12, plateaus emerge in the results for all thermodynamic variables. Under the power of 12, there is a large jump in solution, and a transition from between detonation states, seen in Figure \ref{fig:pjump}. The differences in these states is due to the coupling of the shockwave and the reactions. The grouping of plots with higher pressure values have the reactions coupled with the shock, and the smaller pressure value grouping has the reaction occurring more slowly and trailing behind the shock. This is more evident in Figures \ref{fig:atestrp} and \ref{fig:atestrt} where we see that there is still a shockwave present in the ``lower'' group, but it is clear by Figure \ref{fig:atestrt} that the reaction process is happening much later than the shockwave instead right at the shock front. Thus presence of a shockwave in this scenario is not due to the sustained reaction, and was triggered by high pressure (and temperature) region used to initialize detonations in the simulation. 
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{./figs/Atest_refined/p_large.png}
-\caption{Pressure distribution in detonation tube for expanded and refined pre-exponential factor exponent sweep test, showing detonation stability transition. See Figures \ref{fig:atestrp} and r\ref{fig:atestrt} for a filtered version.}
+\caption{Pressure distribution in detonation tube for expanded and refined pre-exponential factor exponent sweep test, showing detonation shock-reaction coupling transition. See Figures \ref{fig:atestrp} and r\ref{fig:atestrt} for a filtered version.}
 \label{fig:pjump}
 \end{figure}
 
@@ -95,4 +97,29 @@ With these tests, \(10^{13}\) was selected as an appropriate order of magnitude 
 
 
 \subsection{Time Step Variation}
-One of the important tests was to determine how large the timestep of the simulation could be taken. 
+One of the important tests was to determine how large the time step of the simulation could be taken. In OpenFOAM, one has several options for how the time step should be selected. By default, time steps are fixed, and set within \verb|controlDict|. Setting different values for how large the time step should be will affect the stability and solution of the simulation. Larger time steps will be more unstable, increasing the Courant number and sometimes leading towards the inability for solutions at a time step to converge. If we consider a fluid particle, the faster it moves, the more distance it can cover in a unit of time. If it is moving very quickly, large time steps mean this fluid particle could have traversed very far, leading to uncertainty in the solution. In a more general sense, we consider information and how it progresses throughout the gridded domain. For Courant numbers larger than one, the fluid is moving through more than one grid point per time step, and this is very difficult for the time integrators solving the flow equations to assess accurately. The logical choice would be to always select a very small time step to ensure a more stable and accurate solution. However, with decreased time step intervals comes increased computational cost, as the computer must solve the fluid equations much more often to arrive at a specific point in time. Instead, a smarter approach can be taken, where the time step is allowed to vary based on the Courant number. 
+
+Inside \verb|controlDict| for \verb|rhoReactingCentralFoam|, we can set a maximum for both the typically-used fluid velocity Central Courant number as well as the acoustic (wave speed) Courant number. Each iteration, the solver will check the value of both these Courant numbers, and decrease the time step accordingly if the Courant number maximum is exceeded. In an effort to best determine how large the Courant number and therefore the time step can be, the maximum Courant number was set and swept across for various values. For these tests, a domain size of \( (x,y,z) = (0.5,0.04,0.04) \) meters was used with a 5000-3-3 mesh. This is pseudo-one-dimensional setup. Several maximum Courant (CFL) numbers were swept across, and the results at \(3\times 10^{ - 5}\)s are plotted in Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figs/cfl_test/p.png}
+    \caption{Pressure distribution for max CFL sweep}
+    \label{fig:cflp}
+\end{figure}
+
+\begin{figure}[b]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figs/cfl_test/t.png}
+    \caption{Temperature distribution for max CFL sweep}
+    \label{fig:cflt}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figs/cfl_test/u.png}
+    \caption{Velocity distribution for max CFL sweep}
+    \label{fig:cflu}
+\end{figure}
+
+From Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}, it is seen that there is decreased noise in the solution as well as convergence as the time step and therefore maximum CFL is decreased. 
