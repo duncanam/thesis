@@ -1,4 +1,4 @@
-\chapter{Math? Math.}
+\chapter{Governing Equations}
 \label{math}
 
 \section{Fluid Modeling}
@@ -14,8 +14,20 @@ and the energy equation is
 \[last thing.\]
 These sets of equations are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. 
 
+\textbf{\color{red} Add more here please}
+
 
 \section{Reaction Modeling and Chemistry}
+Since detonation modeling consists of both a fluids problem as well as chemical problem, chemical reactions must also be considered. Like a fire, a detonation requires a fuel and an oxidizer. Typically detonations in experimental and computational modeling will utilize gaseous hydrogen or methane fuels mixed with air or pure oxygen oxidizers. For the computational modeling here, hydrogen-air was the primary respective fuel-oxidizer combination utilized for exploring detonation modeling. This was due to the highly reactive nature of hydrogen as well as previous computational and experimental modeling resources available. The reaction used for the hydrogen detonation modeling here is
+\begin{center}
+%\ch{Na2SO4 ->[ H2O ] Na+ + SO4^2-}
+\ch{2 H2 + 2 (O2 + 3.76 N2) -> 2 H2O + 7.52 N2}
+\end{center}
+This is a stoichiometric reaction between diatomic hydrogen gas and air. Other trace elements present in air are not modeled here, and this could be a topic of further study within the context of OpenFOAM detonation modeling with AMR. Additionally, a single-step reaction was modeled as opposed to several reactions together to model hydrogen-air detonations. While more steps are certainly more realistic, adding further reaction complexity was found to significantly increase computational expense. It was decided that gaining a better baseline understanding of how AMR could improve modeling efficiency in OpenFOAM was the focus here and thus further work on increasing the reaction complexity and accuracy was not performed. 
+
+\textbf{\color{red} Start Arrhenius discussion here}
+
+
 
 \section{}
 

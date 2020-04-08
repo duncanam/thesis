@@ -1,5 +1,7 @@
-\chapter{The OpenFOAM Toolbox}
+\chapter{OpenFOAM Detonation Modeling}
 \label{ofchap}
+
+% TODO add previous work
 
 \section{Overview}
 OpenFOAM is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. The solvers tested during this research include:
@@ -45,4 +47,73 @@ At this stage, some modeling notation should be introduced to simplify some thin
 \section{Parallel Computing}
 
 \section{Adaptive Mesh Refinement}
+
+\section{Modeling Progression}
+\subsection{Domain Setup}
+The geometry used for this research is seen in Figure \ref{fig:domainBC}.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{./figs/domainBC.png}
+\caption{Geometry and domain setup with boundary conditions}
+\label{fig:domainBC}
+\end{figure}%
+The so-called ``inlet'' (even though fluid is not actively moving through this face) is the region where the detonation is initiated. The inlet is a solid adiabatic wall with velocity slip conditions such that the fluid can slide across it without effects from viscosity. This was chosen such that just the detonation itself can be studied in a pure form. Other walls are like this, such as the walls that make up the sides. It should be noted that the sides located in the x-y planes (``front and back'') change their type depending on the simulation. Since OpenFOAM does not have a two-dimensional mesh mode, for static mesh two-dimensional simulations these faces are set as a special ``empty'' patch type in order to tell OpenFOAM that it is a two-dimensional simulation taking place. For three-dimensional simulations the front and back faces are identical to the x-z ``top and bottom'' planes, which like the inlet are velocity-slip adiabatic walls. Two-dimensional AMR runs also use the three-dimensional wall setup here as the oct-tree cell splitting algorithm for mesh refinement is inherently three-dimensional even if we are simulating a two-dimensional domain. Due to this, two-dimensional simulations are actually pseudo-two-dimensional. 
+
+The exit plane of the domain utilizes a ``waveTransmissive'' boundary condition. This is a special boundary condition that allows for waves such as shockwaves to not reflect at the boundary while expelling gases. A traditional OpenFOAM pressure outlet was seen to reflect the shockwave coupled with the detonation wave. 
+
+\subsection{Initial Meshing}
+While the primary topic of interest in this work is adaptive meshing, a primary static mesh is required in order for the adaptive mesh refinement routines within OpenFOAM to refine from. Structured meshes are utilized, with hexahedrons making up the mesh. Meshes used for static mesh and initial AMR simulations can be seen in Figure \ref{fig:meshcompare}. The meshes displayed utilize 125 partitions along detonation ``tube'' and 20 partitions in width, depending on two or three dimensionality in order to be visible for the reader. Real meshes used in simulation are much more fine in order to capture the thin detonation and shock region. Meshes used in this research were created with the OpenFOAM utility \verb|blockMesh|, which generates structured hex meshes based on use input of ``blocks'' which define rectangular prisms that \verb|blockMesh| then uses to form faces and patches for boundary conditions as well as to partition into the mesh. 
+
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/mesh/2Dmesh.png}
+        \caption{Two-dimensional mesh}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/mesh/3Dmesh.png}
+        \caption{Three-dimensional mesh}
+    \end{subfigure}
+    \caption{Static meshes used in OpenFOAM for detonation modeling, at an exaggerated unrefined resolution for example purposes}
+    \label{fig:meshcompare}
+\end{figure}
+
+\subsection{Detonation Initiation}
+
+\subsection{Initial Attempts}
+To begin on the problem of modeling detonations in OpenFOAM, the included tutorials folder as well as the geometric and initial condition setup of located in a related TESLa paper by Towery\cite{towery1} was utilized to begin the work towards an OpenFOAM model of a linear detonation tube/PDE.
+
+Firstly, the detonation of methane fuel and oxygen oxidizer without inert nitrogen filler was explored within a 2D detonation tube with the solver \verb|rhoReactingFoam|. A region of high temperature methane and oxygen on the left hand side was used to initiate the detonation. In the PDE and detonation simulations presented in this paper, stoichiometric fuel and oxidizer was premixed and available thoughout the domain. 
+%Solid walls on the left, top, and bottom of the tube were used. The exit was set as a special \verb|waveTransmissive| boundary condition that allows for shockwaves to not reflect at the exit and for gases to expel as well. 
+A detonation was successfully created with this, but the accuracy and stability were still untested. In order to check that the boundary conditions being applied were correct, a small detonation cell of high pressure and temperature was set in the bottom left corner of the tube. As the simulation progressed, correct wave reflection was seen on the sides of the tube as well as some wave transmissive behavior from the exit was seen (Figure \ref{fig:cornerdet}). 
+\begin{figure}[b]
+\centering
+\includegraphics[width=\linewidth]{figs/cornerdet.png}
+\caption{Initial methane and oxygen detonation boundary condition test with corner detonation. Velocity magnitude is plotted here without scale to just check the solver and boundary conditions for modeling potential. Detonation was initiated in the lower left corner.}
+\label{fig:cornerdet}
+\end{figure}%
+\noindent It was noticed that the exit boundary condition was expelling gas in a rectangular region long before the detonation wave(s) reached the exit, so some tweaking was done on this \verb|waveTransmissive| boundary condition in order to make it more accurate. The boundary condition option accepts inputs such as ratio of specific heats, expected flow velocity, far-field conditions and distance from exit plane, and names of some variables such as the condition to track at the exit as well as some flux variables. 
+
+The next step with \verb|rhoReactingFoam| was to start progressing towards testable detonation results. To do this, a change from methane to hydrogen for the fuel was selected. This fuel change was done to better match papers such as those being produced by TESLa as well as the general experimental and computational detonation modeling community. The exact geometric detontion tube was taken from Towery\cite{towery1} for comparison as well as the initial detonation size and thermodynamic conditions. Additionally, inert nitrogen was added into the tube to transition from hydrogen-oxygen to hydrogen-air. In accordance with trying to double check whether results made sense with Towery\cite{towery1}, the Arrhenius rate equation was used for reaction rates. An issue that was problematic starting this research was that the documentation for the units within the \verb|reactions| file were conflicting. Much testing was performed at this stage in an attempt to determine the units that OpenFOAM uses for the reactions given in this file, especially regarding the pre-exponential factor. While some ground was gained on this, a shift of focus towards the solver performed in order to determine if \verb|rhoReactingFoam| was appropriate for capturing shocks. 
+
+The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. This problem typically consists of placing a region of higher pressure and density fluid in one region and a lower pressure and density fluid in another adjacent region. Typically the regions are rectangular and share a face, both comprising a large cube. When the simulation starts, a shock will form due to the immediate differential in pressure and density from one region to the next. This problem cannot be verified perfectly experimentally, but it can be solved analytically, making this a good method to test numerical CFD solvers for compressible flow accuracy as well as their ability to capture shocks. The results for \verb|rhoReactingFoam| matched published analytical results as well as a \verb|rhoPimpleFoam| case that was matched to the analytical results. Due to this, it was thought that \verb|rhoReactingFoam| would be a good candidate for detonation modeling. 
+
+The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
+
+
+\subsection{Final Solver}
+
+The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/shocktube.png} 
+\caption{Shock tube validated test case included with OpenFOAM compared to hybrid solver}
+\label{fig:sod}
+\end{figure}%
+\noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. 
+
+
 
