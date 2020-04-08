@@ -42,5 +42,7 @@ Together, these directories comprise the OpenFOAM directory structure. A user th
 
 At this stage, some modeling notation should be introduced to simplify some things. Initial and static grid resolutions will take the form ``Nx-Ny-Nz'' with N representing the number of evenly-spaced cells that will fill the dimension, and x/y/z representing the dimension. A 500-40-3 grid represents 500 cell divisions in x, 40 divisions in y, and 3 divisions in z. This notation will be used later to quickly distinguish between resolutions and dimensionality of a mesh. Since OpenFOAM does not strictly have a one-dimensional or two-dimensional operating mode, three dimensions must always be realized. This is not a problem however, as a single cell can be used to represent a flattened dimension, with special boundary conditions for the faces that are in the ``dimensionless'' plane. For example, a two-dimensional geometry would be represented with a 500-40-1 mesh, and a one-dimensional geometry with a 500-1-1 mesh. 
 
+\section{Parallel Computing}
 
+\section{Adaptive Mesh Refinement}
 
