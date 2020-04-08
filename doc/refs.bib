@@ -17,18 +17,27 @@ pages = {},
 title = {Investigation of different chemical kinetics reaction rates and its relevant modelling for H2 -O2 combustion}
 }
 
-@unpublished{ajaero,
+@misc{ajaero,
            month = {January},
             year = {2019},
            title = {Validation Of The Kurganov-Tadmor/Kurganov-Noelle Petrova Scheme for Rotating Detonation Engine Simulations Using OpenFOAM},
           school = {Concordia University},
           author = {Chibuikem Ajaero},
              url = {https://spectrum.library.concordia.ca/984878/},
+    howpublished = {\url{https://spectrum.library.concordia.ca/984878/}},
         abstract = {Detonation waves are a challenging field of study given the short time and length scales involved in the phenomenon. Such waves exhibit a complex structure consisting of a lead shock and shock waves travelling transversely to a detonation?s normal propagation direction. The interaction between the shocks and the rapid chemical reactions they trigger results in the emergence of a natural length scale, the detonation cell size. There are still no complete theory or model that can accurately predict the cell size or a detonation waves initiation, propagation and failure dynamics. The numerical simulation of detonation waves is also challenging, due to the rapid reaction rates encountered. The Open source Field Operation And Manipulation (OpenFOAM) framework, commonly referred to as OpenFOAM, Computational Fluid Mechanics (CFD) package is increasingly used and referenced.
 One drawback of the stock OpenFOAM package is that the only finite volume numerical scheme available for the solution of the Euler equations in conservative form is the Kuganov-Tadmor (KT)/Kuganov-Noelle-Petrova (KNP) numerical scheme. Moreover, combustion is not implemented, hence which needs to be modified to simulate detonation waves; a coupling of compressible flows and reaction. This particular scheme is 2nd order accurate in smooth region based on the idea behind the Lax-Friedrichs scheme and which does not involve the solution to a Riemann problem in order to evaluate the intercell fluxes. This is unlike the methods currently used in detonation research, which nearly always consist of Godunov-type schemes with an approximate Riemann Solver such as Harten-Lax-van Leer-Contact (HLLC). OpenFOAM, with the KNP scheme, was recently used to simulate
 the two-dimensional structure of detonation waves despite having not been fully validated for the detonation simulation. Efforts to get access to the codes used proved abortive. In this work, we create a custom solver named rhoCentralFoamreac which we used to evaluate (validate) the KNP scheme for detonation cases, by simulating a standard 1D detonation
 case that usually results in pulsating propagation with a single mode. Metrics for detailed comparison and convergence studies are the oscillation peak pressure and period. Using the KNP scheme, we then examine OpenFoam as a CFD tool for the simulation of a detonation based engine, where an initiated wave propagates circumferentially in a combustion chamber, commonly referred to as a rotating detonation engine. We study the effect of different
 ignition methods, and initiation flow fields (subsonic and supersonic) on the formation of these rotating detonation waves.}
+}
+
+@misc{ofug,
+          title = "OpenFOAM v7 User Guide",
+          author = "The OpenFOAM Foundation",
+          url = "https://cfd.direct/openfoam/user-guide",
+          howpublished = {\url{https://cfd.direct/openfoam/user-guide}}
+
 }
 
 MISC{softy,

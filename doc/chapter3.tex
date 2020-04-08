@@ -14,7 +14,7 @@ OpenFOAM is a C++ toolbox that is a collection of various programs that is prima
 In addition to these solvers, several additional tools outside the standard OpenFOAM installation were utilized. These include \verb|funkySetFields| and \verb|groovyBC|, both included with \verb|swak4Foam|. \verb|funkySetFields| is a tool much like the OpenFOAM-included \verb|setFields| utility, which allows the user to define set values of variables within certain regions of the computational domain (e.g. allows the user to set a cube within a domain to a certain temperature which is different than what is set globally). \verb|funkySetFields| extends this functionality, allowing for time and position-dependent defining of variables, such that an initial condition such as a temperature ramp, or randomization of temperature within the domain is possible. 
 
 \section{Setup and Structure}
-In order to simulate a fluids or combustion problem in OpenFOAM, the directory structure in which the simulation is to be run needs to be correct. Each OpenFOAM simulation contains a directory \verb|0/| which holds initial conditions for the domain as well as boundary conditions. Inside this directory are files named like the quantities they represent, such as \verb|p|, \verb|T|, and \verb|U|. \verb|funkySetFields| edits these files to apply the special initial conditions. As the simulation progresses, more folders representing timesteps will appear with data saved for that timestep. The folder name will represent the specific timestep exactly. 
+In order to simulate a fluids or combustion problem in OpenFOAM, the directory structure in which the simulation is to be run needs to be correct. Each OpenFOAM simulation contains a directory \verb|0/| which holds initial conditions for the domain as well as boundary conditions \cite{ofug}. Inside this directory are files named like the quantities they represent, such as \verb|p|, \verb|T|, and \verb|U|. \verb|funkySetFields| edits these files to apply the special initial conditions. As the simulation progresses, more folders representing timesteps will appear with data saved for that timestep. The folder name will represent the specific timestep exactly. 
 
 The next important directory is \verb|constant/|. This directory holds physical quantities as well as mesh information once it is formed. For reacting flows, some files of interest within this folder may be:
 
@@ -44,12 +44,7 @@ Together, these directories comprise the OpenFOAM directory structure. A user th
 
 At this stage, some modeling notation should be introduced to simplify some things. Initial and static grid resolutions will take the form ``Nx-Ny-Nz'' with N representing the number of evenly-spaced cells that will fill the dimension, and x/y/z representing the dimension. A 500-40-3 grid represents 500 cell divisions in x, 40 divisions in y, and 3 divisions in z. This notation will be used later to quickly distinguish between resolutions and dimensionality of a mesh. Since OpenFOAM does not strictly have a one-dimensional or two-dimensional operating mode, three dimensions must always be realized. This is not a problem however, as a single cell can be used to represent a flattened dimension, with special boundary conditions for the faces that are in the ``dimensionless'' plane. For example, a two-dimensional geometry would be represented with a 500-40-1 mesh, and a one-dimensional geometry with a 500-1-1 mesh. 
 
-\section{Parallel Computing}
-
-\section{Adaptive Mesh Refinement}
-
-\section{Modeling Progression}
-\subsection{Domain Setup}
+\section{Domain Setup}
 The geometry used for this research is seen in Figure \ref{fig:domainBC}.
 \begin{figure}[H]
 \centering
@@ -61,7 +56,69 @@ The so-called ``inlet'' (even though fluid is not actively moving through this f
 
 The exit plane of the domain utilizes a ``waveTransmissive'' boundary condition. This is a special boundary condition that allows for waves such as shockwaves to not reflect at the boundary while expelling gases. A traditional OpenFOAM pressure outlet was seen to reflect the shockwave coupled with the detonation wave. 
 
-\subsection{Initial Meshing}
+
+
+\section{Parallel Computing}
+Included with the standard installation of OpenFOAM are solvers that are capable being scaled to make use of multiple processors \cite{ofug}. Solvers like \verb|rhoReactingCentralFoam| include this functionality. OpenFOAM's parallel processing is done through MPI, where several instances of a solver are run simultaneously and MPI passes information between the solvers. Each solver running in parallel computes on a different portion of the domain. 
+
+In order to be able to run a solver in parallel, the domain must be decomposed into smaller pieces first. This is done with the \verb|decomposePar| utility, which takes user input from the \verb|decomposeParDict| file. Within this file, a user dictates how many times the domain is broken up, and how or where the domain is broken up. Several different decomposition methods can be utilized:
+\begin{itemize}
+\item \textbf{simple}: this is the most common method used for decomposition. The domain is split into chunks based on direction, and the user specifies how many splits there should be in each direction. 
+\item \textbf{hierarchical}: similar to the \verb|simple| method, but instead an ordering to the domain splitting is used
+\item \textbf{scotch}: this method does not require geometric input from the user but rather it attempts to minimize boundaries between processors. Processor weighting can be set. 
+\item \textbf{manual}: cells are manually allocated to each processor here. 
+\end{itemize}
+In the researched performed here, the \verb|simple| method for domain decomposition was utilized due to the simplicity. Since detonations have small regions of high pressure, temperature, and velocity, some care must be done with respect to how the domain is decomposed, especially when considering AMR. If one were to decompose the domain into several pieces along the length of the tube, some processors would be working harder than other processors as the detonation passes into their respective domain chunks. We load balance the processors by not splitting the domain along the length of the detonation tube, and instead across it. This is shown in Figure \ref{fig:decomp}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/parallel_short.png}
+        \caption{Domain decomposed into typical chunks, bad for detonation and AMR load balancing}
+        \label{sfig:shortdecomp}
+    \end{subfigure}
+
+    \begin{subfigure}[]{0.7\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/parallel_long.png}
+        \caption{Domain decomposed into long chunks, better for detonation and AMR load balancing}
+        \label{sfig:longdecomp}
+    \end{subfigure}
+    \caption{Example domain decomposition techniques}
+    \label{fig:decomp}
+\end{figure}%
+\noindent Using long slivers seen in Figure \ref{sfig:longdecomp} instead of a typical aspect ratio consistent decomposition in Figure \ref{sfig:shortdecomp} allows for every processor to always have a small portion of the detonation in its domain. Otherwise, some processors would be waiting on other processors that have the detonation in them or heavy mesh refinement regions from the AMR routines.
+
+
+\section{Adaptive Mesh Refinement}
+
+Adaptive mesh refinement is the process of refining or unrefining the computational mesh based on a tracked parameter of interest at a specific point in time. In OpenFOAM, AMR is available with several solvers, and has been implemented into \verb|rhoReactingCentralFoam| by Caelan Lapoint. The AMR in this solver functions by looking within a mesh cell at a quantity of interest at a specific time interval, and deciding based on the value of that quantity of interest whether or not to refine the mesh in that cell. If the quantity is within the refinement bounds set by the user, the AMR routine will split the cell with an octree splitting method as shown in Figure \ref{fig:octree}. Additionally, the AMR can unrefine the mesh if the quantity of interest is outside the refinement bounds set by the user. The user settings are located within \verb|constant/dynamicMeshDict|, and several options exist for the user to tweak. Some of the most important ones include:
+\begin{itemize}
+\item \verb|dynamicFvMesh|: allows for the user to turn on and off the dynamic mesh refinement. 
+\item \verb|refineInterval|: how often to do mesh refinement in terms of time step iteration. For example, a value of 2 here would mean that the AMR would look to refine or unrefine every other time step. 
+\item \verb|field|: the variable of interest to track and refine based off of. If set as \verb|T|, AMR would check the temperature field values.  
+\item \verb|lowerRefineLevel|: the lower bound for the AMR \verb|field| value tracking to refine upon. If the solution is higher than this bound during a \verb|refineInterval|, the cell will be refined. If the value is lower, it will not refine. 
+\item \verb|upperRefineLevel|: the upper bound for the AMR \verb|field| value tracking to refine upon. If the solution is lower than this during a \verb|refineInterval|, the cell will be refined. If the value is higher, it will not refine. 
+\item \verb|unrefineLevel|: the value of \verb|field| that will trigger unrefinement. If the value is less than this quantity, the AMR will unrefine cells. 
+\item \verb|nBufferLayers|: how additional layers of cells will be refined around the cell that triggered a refinement. 
+\item \verb|maxRefinement|: how many additional times cells can be refined within an iteration. 
+\item \verb|maxCells|: the maximum number of cells in the computational domain that can be reached before adaptive mesh refinement is no longer performed. 
+\end{itemize}
+An exploration on how different selections in these parameters affects solution quality was performed in this research. 
+
+
+
+
+\begin{figure}[]
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/amr_example.png}
+\caption{Adaptive mesh refinement octree splitting method}
+\label{fig:octree}
+\end{figure}
+
+\section{Previous Detonation Modeling Work}
+
+\section{Initial Meshing}
 While the primary topic of interest in this work is adaptive meshing, a primary static mesh is required in order for the adaptive mesh refinement routines within OpenFOAM to refine from. Structured meshes are utilized, with hexahedrons making up the mesh. Meshes used for static mesh and initial AMR simulations can be seen in Figure \ref{fig:meshcompare}. The meshes displayed utilize 125 partitions along detonation ``tube'' and 20 partitions in width, depending on two or three dimensionality in order to be visible for the reader. Real meshes used in simulation are much more fine in order to capture the thin detonation and shock region. Meshes used in this research were created with the OpenFOAM utility \verb|blockMesh|, which generates structured hex meshes based on use input of ``blocks'' which define rectangular prisms that \verb|blockMesh| then uses to form faces and patches for boundary conditions as well as to partition into the mesh. 
 
 \begin{figure}[]
@@ -81,9 +138,9 @@ While the primary topic of interest in this work is adaptive meshing, a primary 
     \label{fig:meshcompare}
 \end{figure}
 
-\subsection{Detonation Initiation}
+\section{Detonation Initiation}
 
-\subsection{Initial Attempts}
+\section{Initial Attempts}
 To begin on the problem of modeling detonations in OpenFOAM, the included tutorials folder as well as the geometric and initial condition setup of located in a related TESLa paper by Towery\cite{towery1} was utilized to begin the work towards an OpenFOAM model of a linear detonation tube/PDE.
 
 Firstly, the detonation of methane fuel and oxygen oxidizer without inert nitrogen filler was explored within a 2D detonation tube with the solver \verb|rhoReactingFoam|. A region of high temperature methane and oxygen on the left hand side was used to initiate the detonation. In the PDE and detonation simulations presented in this paper, stoichiometric fuel and oxidizer was premixed and available thoughout the domain. 
@@ -104,7 +161,7 @@ The Sod shock tube problem was utilized to determine if the OpenFOAM solvers use
 The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
 
 
-\subsection{Final Solver}
+\section{Final Solver}
 
 The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
 \begin{figure}[H]
