@@ -15,11 +15,11 @@
 Now that \verb|rhoReactingCentralFoam| has been selected for use, the solver can be tested further to determine how different selections in solver parameters alter the solution. Parameters that were tested are the Arrhenius equations's pre-exponential factor exponent, the Courant number and time step variation, static mesh resolution, and adaptive mesh refinement variation. Sensitivities to certain solver parameters as well as mesh resolution on the solution were be explored. 
 
 
-\section{Solver Parameter Testing and Sensitivity}
+%\section{Solver Parameter Testing and Sensitivity}
 Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess| with the \verb|lineUniform| type, using 1000 sampling points interpolated from cell centers. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. 
 
 
-\subsection{Arrhenius Pre-exponential Factor}
+\section{Arrhenius Pre-exponential Factor}
 Now that an appropriate solver was selected, the solver settings needed to be dialed in. To start, some further testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
 
 \begin{figure}
@@ -74,31 +74,39 @@ With these tests, \(10^{13}\) was selected as an appropriate order of magnitude 
 
 
 
-\subsection{Time Step Variation}
+\section{Time Step Variation}
 One of the important tests was to determine how large the time step of the simulation could be taken. In OpenFOAM, one has several options for how the time step should be selected. By default, time steps are fixed, and set within \verb|controlDict|. Setting different values for how large the time step should be will affect the stability and solution of the simulation. Larger time steps will be more unstable, increasing the Courant number and sometimes leading towards the inability for solutions at a time step to converge. If we consider a fluid particle, the faster it moves, the more distance it can cover in a unit of time. If it is moving very quickly, large time steps mean this fluid particle could have traversed very far, leading to uncertainty in the solution. In a more general sense, we consider information and how it progresses throughout the gridded domain. For Courant numbers larger than one, the fluid is moving through more than one grid point per time step, and this is very difficult for the time integrators solving the flow equations to assess accurately. The logical choice would be to always select a very small time step to ensure a more stable and accurate solution. However, with decreased time step intervals comes increased computational cost, as the computer must solve the fluid equations much more often to arrive at a specific point in time. Instead, a smarter approach can be taken, where the time step is allowed to vary based on the Courant number. 
 
 Inside \verb|controlDict| for \verb|rhoReactingCentralFoam|, we can set a maximum for both the typically-used fluid velocity Central Courant number as well as the acoustic (wave speed) Courant number. Each iteration, the solver will check the value of both these Courant numbers, and decrease the time step accordingly if the Courant number maximum is exceeded. In an effort to best determine how large the Courant number and therefore the time step can be, the maximum Courant number was set and swept across for various values. For these tests, a domain size of \( (x,y,z) = (0.5,0.04,0.04) \) meters was used with a 5000-3-3 mesh. This is pseudo-one-dimensional setup. Several maximum Courant (CFL) numbers were swept across, and the results at \(3\times 10^{ - 5}\)s are plotted in Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}. Note that the notation used in the plot omits the decimal point for the maximum CFL number, so \verb|5000_3_3_005| represents a 5000-3-3 mesh with a maximum CFL of 0.05. 
 
-\begin{figure}
+\begin{figure}[]
     \centering
-    \includegraphics[width=0.85\linewidth]{figs/cfl_test/p.png}
-    \caption{Pressure distribution for max CFL sweep}
+    \begin{subfigure}[]{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/cfl_test/p.png}
+    \caption{Pressure distribution}
     \label{fig:cflp}
-\end{figure}
+    \end{subfigure}
 
-\begin{figure}
+    \begin{subfigure}[]{\textwidth}
     \centering
-    \includegraphics[width=0.85\linewidth]{figs/cfl_test/t.png}
-    \caption{Temperature distribution for max CFL sweep}
+    \includegraphics[width=\linewidth]{figs/cfl_test/t.png}
+    \caption{Temperature distribution}
     \label{fig:cflt}
+    \end{subfigure}
+\end{figure}
+\begin{figure}\ContinuedFloat
+    \begin{subfigure}[]{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/cfl_test/u.png}
+    \caption{Fluid velocity distribution}
+    \label{fig:cflu}
+    \end{subfigure}
+    \caption{Max CFL sweep test}
+    \label{fig:maxcfl}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.85\linewidth]{figs/cfl_test/u.png}
-    \caption{Velocity distribution for max CFL sweep}
-    \label{fig:cflu}
-\end{figure}
+
 
 From Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}, it is seen that there is decreased noise in the solution as well as convergence as the time step and therefore maximum CFL is decreased. More evident in the temperature plot \ref{fig:cflt}, noise and instability is especially clear in the detonation simulations with maximum CFLs of 0.2 and 0.3. The CFL of 0.1 was decided to be acceptably converged due to a small comparative error, seen in Table \ref{tab:cflerror}. 
 \begin{table}[]
@@ -116,8 +124,46 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 \end{table}% 
 \noindent Note that while the CFL of 0.2 has a smaller velocity error than the CFL of 0.1, it is a much noisier and unstable solution, so the values themselves have further uncertainty. The selection of a maximum CFL of 0.1  for detonations in OpenFOAM also matches with the work done by Ajaero\cite{ajaero}. 
 
-\subsection{Static Mesh Variation}
+\section{Static Mesh Variation}
+\label{sec:staticvar}
+In order to determine the performance gains, accuracy, and other comparative parameters between mesh resolutions, baseline meshes must be created. These meshes must not change adaptively in the simulation in order to provide clear comparisons. Additionally, the static meshes themselves should be compared with each other to determine when mesh convergence occurs. Once a mesh resolution is determined, the AMR parameters can be tuned in an attempt to match the static mesh resolution in the small region surrounding the detonation wave. 
 
-\subsection{Adaptive Mesh Refinement and Static Comparisons}
 
-\subsection{Sensitivities, efficiencies of AMR?}
+\subsection{One-dimensional}
+The first set of static mesh comparisons performed is between one-dimensional detonation tube simulations. These meshes only have resolution along the direction of the tube, which allows for capturing the detonation wave as simply as possible. However,  one-dimensional detonation tube simulations are not optimal for generic detonation modeling as the cellular detonation structure seen in experimental detonation modeling cannot be captured with a single dimension. The cellular detonation cells can be used to infer velocity and compare numerical simulation with experiments, so one-dimensional detonations must utilize other methods to compare with experiments or just be utilized for tuning numerical methods themselves. 
+
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static1d/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static1d/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static1d/u.png}
+        \caption{Fluid Velocity plot}
+    \end{subfigure}
+
+    \caption{One-dimensional static meshes used in detonation tube simulations}
+    \label{fig:1dstatic}
+\end{figure}
+
+
+\subsection{Two-dimensional}
+\section{Adaptive Mesh Refinement and Static Comparisons}
+As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parameters can be tuned to try and match the fine static mesh resolutions in important areas. Detonation waves are very thin with extremely high pressures, temperatures, and velocities within this small region. This makes them an ideal candidate for adaptive meshing. 
+
+
+
+\section{Sensitivities, efficiencies of AMR?}
