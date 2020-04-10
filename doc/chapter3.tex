@@ -84,7 +84,7 @@ In the researched performed here, the \verb|simple| method for domain decomposit
         \caption{Domain decomposed into long chunks, better for detonation and AMR load balancing}
         \label{sfig:longdecomp}
     \end{subfigure}
-    \caption{Example domain decomposition techniques}
+    \caption{Example domain decomposition techniques for parallel computing}
     \label{fig:decomp}
 \end{figure}%
 \noindent Using long slivers seen in Figure \ref{sfig:longdecomp} instead of a typical aspect ratio consistent decomposition in Figure \ref{sfig:shortdecomp} allows for every processor to always have a small portion of the detonation in its domain. Otherwise, some processors would be waiting on other processors that have the detonation in them or heavy mesh refinement regions from the AMR routines.
@@ -102,7 +102,7 @@ Adaptive mesh refinement is the process of refining or unrefining the computatio
 \item \verb|unrefineLevel|: the value of \verb|field| that will trigger unrefinement. If the value is less than this quantity, the AMR will unrefine cells. 
 \item \verb|nBufferLayers|: how additional layers of cells will be refined around the cell that triggered a refinement. 
 \item \verb|maxRefinement|: how many additional times cells can be refined within an iteration. 
-\item \verb|maxCells|: the maximum number of cells in the computational domain that can be reached before adaptive mesh refinement is no longer performed. 
+\item \verb|maxCells|: the maximum number of cells in the computational domain that can be reached before adaptive mesh refinement is no longer performed. Note that this is not strictly followed but rather an estimate provided to the solver, since the octree splitting can potentially increase number of cells beyond this value at a specific iteration.
 \end{itemize}
 An exploration on how different selections in these parameters affects solution quality was performed in this research. Results will be shown in later chapter sections. An important aspect to note when utilizing \verb|rhoReactingCentralFoam|'s AMR is that the routine is inherently three-dimensional, due to the octree splitting method in Figure \ref{fig:octree}. Due to this, one-dimensional simulations become pseudo one-dimensional, and two-dimensional simulations become pseudo two-dimensional, since cells will be added in all dimensions when refinement occurs. For detonation modeling in areas like detonation tubes, PDEs, and RDEs, this is acceptable as the velocity in other dimensions tends to be very small in comparison to the velocity in the detonation direction. 
 
@@ -153,6 +153,16 @@ While the primary topic of interest in this work is adaptive meshing, a primary 
 \end{figure}
 
 \section{Detonation Initiation}
+The initiation of a detonation is seemingly trickier computationally than it is experimentally. There are several methods to do this. Typically, a region of high temperature and pressure gas is instantiated at one end of the tube, such that the fuel and oxidizer ignites within the tube. If the pressure and temperature conditions within this ignition region are high enough, detonation will occur. If they are not, it is possible to instead just ignite the gas and send a decoupled shockwave down the tube in front of the flame. This is not a detonation and undesirable. 
+
+In addition to the thermodynamic conditions that the ignition region is in, the ignition gas itself can be varied. Some researchers have ignited detonation computationally using a block of high temperature and pressure helium \cite{marcantoni}. Towery has used a an ignition block of high temperature and pressure stoichiometric reactants \cite{towery1} as well as a high temperature and pressure gradient \cite{towery2} ranging from higher pressure and temperature near the ignition wall down to the initial condition of the domain. 
+
+\subsection{Block Ignition}
+The block ignition method with high pressure and temperature stoichiometric reactants was utilized initially. 
+
+\subsection{Gradient Ignition}
+
+
 
 \section{Initial Attempts}
 To begin on the problem of modeling detonations in OpenFOAM, the included tutorials folder as well as the geometric and initial condition setup of located in a related TESLa paper by Towery\cite{towery1} was utilized to begin the work towards an OpenFOAM model of a linear detonation tube/PDE.

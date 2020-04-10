@@ -23,12 +23,48 @@ Since detonation modeling consists of both a fluids problem as well as chemical 
 %\ch{Na2SO4 ->[ H2O ] Na+ + SO4^2-}
 \ch{2 H2 + 2 (O2 + 3.76 N2) -> 2 H2O + 7.52 N2}
 \end{center}
-This is a stoichiometric reaction between diatomic hydrogen gas and air. Other trace elements present in air are not modeled here, and this could be a topic of further study within the context of OpenFOAM detonation modeling with AMR. Additionally, a single-step reaction was modeled as opposed to several reactions together to model hydrogen-air detonations. While more steps are certainly more realistic, adding further reaction complexity was found to significantly increase computational expense. It was decided that gaining a better baseline understanding of how AMR could improve modeling efficiency in OpenFOAM was the focus here and thus further work on increasing the reaction complexity and accuracy was not performed. 
+This is a stoichiometric reaction between diatomic hydrogen gas and air. When converted to mass fraction \(Y\) for OpenFOAM \cite{marcantoni}, it becomes Table \ref{tab:y}.
+\begin{table}[H]
+\centering
+\caption{Specie mass fraction initial condition}
+\label{tab:y}
+\begin{tabular}{cc}
+Specie & Mass Fraction \\ \hline
+H\(_2\) & 0.02851 \\ 
+H\(_2\)O & 0 \\
+N\(_2\) & 0.745 \\ 
+O\(_2\) & 0.226 \\ 
+Total & 0.99951 \\ 
+\end{tabular}
+\end{table}
 
-\textbf{\color{red} Start Arrhenius discussion here}
+Other trace elements present in air are not modeled here, and this could be a topic of further study within the context of OpenFOAM detonation modeling with AMR. Additionally, a single-step reaction was modeled as opposed to several reactions together to model hydrogen-air detonations. While more steps are certainly more realistic, adding further reaction complexity was found to significantly increase computational expense. It was decided that gaining a better baseline understanding of how AMR could improve modeling efficiency in OpenFOAM was the focus here and thus further work on increasing the reaction complexity and accuracy was not performed. 
+
+The chemical reaction rate can be modeled OpenFOAM with the Arrhenius equation \cite{christ} which takes the form: 
+\begin{equation}
+k = AT^\beta \exp\left(\frac{Ea}{R T}\right)
+\end{equation}
+where 
+\begin{tabbing}
+\qquad \= \(k\) \qquad \= reaction rate \\ 
+\> \(A\) \> pre-exponential factor \\
+\> \(T\) \> temperature \\
+\> \(\beta\) \> temperature exponent \\
+\> \(Ea\) \> activation energy \\
+\> \(R\) \> specific gas constant 
+\end{tabbing}
+
+\noindent OpenFOAM requests \verb|A|, \verb|beta|, and \verb|Ta|. We can write \(Ta = \frac{Ea}{R }\). While in later sections the effect of \(A\) is explored on the solution, the values landed on for numerical simulation in this work are:
+\begin{equation}
+   A = 1.4 \times 10^{13} ~ \text{m}^3\text{mol}^{-1}s^{-1},
+   \qquad 
+   Ta = 12996 ~\text{K},
+   \qquad
+   \beta = 0
+\end{equation}
+\noindent In addition, the specific gas constant used is \(R = 368.9\) J/Kg-K. It is seen in Chapter \ref{sec:a} that the values used are reasonably close to Chapman-Jouguet theory as well as other published values \cite{towery1}\cite{hashemi}. 
 
 
 
-\section{}
 
 

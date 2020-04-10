@@ -20,6 +20,8 @@ Line plots seen in the upcoming sections were sampled with the OpenFOAM utility 
 
 
 \section{Arrhenius Pre-exponential Factor}
+\label{sec:a}
+
 Now that an appropriate solver was selected, the solver settings needed to be dialed in. To start, some further testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
 
 \begin{figure}
