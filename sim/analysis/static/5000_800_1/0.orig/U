@@ -9,31 +9,47 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      sample;
+    class       volVectorField;
+    location    "0";
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+dimensions      [0 1 -1 0 0 0 0];
 
-interpolationScheme cellPoint;
+internalField   uniform (0 0 0);
 
-setFormat       raw;
+boundaryField
+{
+	inlet
+	{
+	    type            slip;
+	}
+	top
+	{
+	    type            slip;
+	}
+	bottom
+        {
+            type            slip;
+        }
+	outlet
+	{
+	    type        waveTransmissive;
+	    value		uniform (0 0 0);
+	    field		U;
+	    gamma		1.29; // Air is 1.4, H2 is 1.41
+	    phi			phi;
+	    //rho			thermo:rho;
+	    psi			thermo:psi;
+	    lInf		1;
+	    fieldInf	(0 0 0);
+	}
+	frontAndBack
+	{
+	    type            empty;
+	}
+}
 
-sets
-(
-    data
-    {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
-    }
-);
-
-fields          (T p U H2);
 
 // ************************************************************************* //

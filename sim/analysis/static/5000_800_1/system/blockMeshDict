@@ -10,30 +10,94 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      sample;
+    object      blockMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+convertToMeters 1;
 
-interpolationScheme cellPoint;
-
-setFormat       raw;
-
-sets
+vertices 
 (
-    data
-    {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
-    }
+	(0 0 -0.04)
+	(0.25 0 -0.04)
+	(0.25 0.04 -0.04)
+	(0 0.04 -0.04)
+	(0 0 0)
+	(0.25 0 0)
+	(0.25 0.04 0)
+	(0 0.04 0)
 );
 
-fields          (T p U H2);
+blocks
+(
+	hex (0 1 2 3 4 5 6 7) (5000 800 1) simpleGrading (1 1 1)
+
+);
+
+edges
+(
+);
+
+boundary
+(
+	inlet 
+	{
+		type wall;
+		faces
+		(
+		 	(0 3 7 4)
+		);
+	}
+
+	outlet
+	{
+		type patch;
+		faces
+		(
+		 	(1 5 6 2)
+		);
+	}
+
+	bottom
+	{
+		type wall;
+		faces
+		(
+	 		(0 4 5 1)	 
+		);
+	}
+
+	top
+	{
+		type wall;
+		faces
+		(
+		 	(3 2 6 7)
+		);
+	}
+
+	frontAndBack
+	{
+		type empty;
+		faces
+		(
+			(0 1 2 3)
+			(4 7 6 5)
+		);
+	}
+
+);
+
+mergePatchPairs
+(
+);
+
+
+
+
+
+
+
+
 
 // ************************************************************************* //

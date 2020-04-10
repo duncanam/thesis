@@ -9,31 +9,44 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      sample;
+    class       volScalarField;
+    location    "0";
+    object      Ydefault;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+dimensions      [0 0 0 0 0 0 0];
 
-interpolationScheme cellPoint;
+internalField   uniform 0.0;
 
-setFormat       raw;
+boundaryField
+{
+	inlet
+	{
+	    type            fixedValue;
+	    value           uniform 0.0;
+	}
+	top
+	{
+	    type            fixedValue;
+	    value           uniform 0.0;
+	}
+	bottom
+        {
+            type            fixedValue;
+            value           uniform 0.0;
+        }
+	outlet
+	{
+	    type            inletOutlet;
+	    inletValue      uniform 0.0;
+	    value           uniform 0.0;
+	}
+	frontAndBack
+	{
+	    type            empty;
+	}
+}
 
-sets
-(
-    data
-    {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
-    }
-);
-
-fields          (T p U H2);
 
 // ************************************************************************* //

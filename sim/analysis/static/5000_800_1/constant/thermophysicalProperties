@@ -10,30 +10,29 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      sample;
+    location    "constant";
+    object      thermophysicalProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+thermoType
+{
+    type            hePsiThermo;
+    mixture         reactingMixture;
+    transport       sutherland;
+    thermo          janaf;
+    energy          sensibleInternalEnergy;
+    equationOfState perfectGas;
+    specie          specie;
+}
 
-interpolationScheme cellPoint;
+inertSpecie N2;
 
-setFormat       raw;
+chemistryReader foamChemistryReader;
 
-sets
-(
-    data
-    {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
-    }
-);
+foamChemistryFile "$FOAM_CASE/constant/reactions";
 
-fields          (T p U H2);
+foamChemistryThermoFile "$FOAM_CASE/constant/thermo.compressibleGas";
+
 
 // ************************************************************************* //

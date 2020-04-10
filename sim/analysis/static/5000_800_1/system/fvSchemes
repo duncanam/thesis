@@ -11,29 +11,51 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      sample;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+fluxScheme		Kurganov;
 
-interpolationScheme cellPoint;
+ddtSchemes
+{
+    default         Euler;
+}
 
-setFormat       raw;
+gradSchemes
+{
+	default         Gauss linear;
+}
 
-sets
-(
-    data
-    {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
-    }
-);
+divSchemes
+{
+    	default         none;
+		div(tauMC)		Gauss linear;
+		div(phi,O2)		Gauss vanLeer01;
+		div(phi,H2)		Gauss vanLeer01;
+		div(phi,H2O)	Gauss vanLeer01;
+		div(phi,N2)		Gauss vanLeer01;
+		div(phi,Yi_h)	Gauss vanLeer;
+}
 
-fields          (T p U H2);
+laplacianSchemes
+{
+		default			Gauss linear uncorrected;	
+}
+
+interpolationSchemes
+{
+    	default				linear;
+		reconstruct(rho)	Minmod;
+		reconstruct(U)		MinmodV;
+		reconstruct(T)		Minmod;
+		reconstruct(Yi)		Minmod;
+}
+
+snGradSchemes
+{
+		default				uncorrected;
+}
+
 
 // ************************************************************************* //

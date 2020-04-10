@@ -9,31 +9,43 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      sample;
+    class       volScalarField;
+    location    "0";
+    object      p;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+dimensions      [1 -1 -2 0 0 0 0];
 
-interpolationScheme cellPoint;
+internalField   uniform 101325; // to be overwritten 
 
-setFormat       raw;
-
-sets
-(
-    data
+boundaryField
+{
+    inlet
     {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
+        type            zeroGradient;
     }
-);
+    outlet
+    {
+        type            waveTransmissive;
+        gamma           1.29;
+        fieldInf        101325;
+        lInf            100;
+        value           uniform 101325;
+    }
+    bottom
+    {
+        type            zeroGradient;
+    }
+    top
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
 
-fields          (T p U H2);
 
 // ************************************************************************* //

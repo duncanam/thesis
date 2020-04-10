@@ -11,29 +11,35 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      sample;
+    object      decomposeParDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-type sets;
-libs            ("libsampling.so");
+numberOfSubdomains 20;
 
-interpolationScheme cellPoint;
+method          simple;
 
-setFormat       raw;
+simpleCoeffs
+{
+    n               (1 20 1);
+    delta           0.001;
+}
 
-sets
-(
-    data
-    {
-        type    lineUniform;
-        axis    x;
-        start   (0 0.02 -0.02);
-        end     (0.25 0.02 -0.02);
-        nPoints 1000;
-    }
-);
+hierarchicalCoeffs
+{
+    n               (1 1 1);
+    delta           0.001;
+    order           xyz;
+}
 
-fields          (T p U H2);
+manualCoeffs
+{
+    dataFile        "";
+}
+
+distributed     no;
+
+roots           ( );
+
 
 // ************************************************************************* //
