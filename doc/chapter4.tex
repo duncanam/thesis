@@ -126,13 +126,15 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 \end{table}% 
 \noindent Note that while the CFL of 0.2 has a smaller velocity error than the CFL of 0.1, it is a much noisier and unstable solution, so the values themselves have further uncertainty. The selection of a maximum CFL of 0.1  for detonations in OpenFOAM also matches with the work done by Ajaero\cite{ajaero}. 
 
+Higher CFL numbers of 0.4 to 0.8 were also attempted. These were unsuccessful as the solution was extremely unstable at these CFLs. Typically, high CFL numbers cause more ringing in the solution as seen in Figure \ref{fig:maxcfl} for the CFL of 0.3. However, it is seen in this research as well as supporting reacting flow work \cite{ajaero} that lower CFL numbers are required for solution convergence. 
+
 \section{Static Mesh Variation}
 \label{sec:staticvar}
 In order to determine the performance gains, accuracy, and other comparative parameters between mesh resolutions, baseline meshes must be created. These meshes must not change adaptively in the simulation in order to provide clear comparisons. Additionally, the static meshes themselves should be compared with each other to determine when mesh convergence occurs. Once a mesh resolution is determined, the AMR parameters can be tuned in an attempt to match the static mesh resolution in the small region surrounding the detonation wave. 
 
 
 \subsection{One-dimensional}
-The first set of static mesh comparisons performed is between one-dimensional detonation tube simulations. These meshes only have resolution along the direction of the tube, which allows for capturing the detonation wave as simply as possible. However,  one-dimensional detonation tube simulations are not optimal for generic detonation modeling as the cellular detonation structure seen in experimental detonation modeling cannot be captured with a single dimension. The cellular detonation cells can be used to infer velocity and compare numerical simulation with experiments, so one-dimensional detonations must utilize other methods to compare with experiments or just be utilized for tuning numerical methods themselves. 
+The first set of static mesh comparisons performed is between one-dimensional detonation tube simulations, seen in Figure \ref{fig:1dstatic}. These meshes only have resolution along the direction of the tube, which allows for capturing the detonation wave as simply as possible. However,  one-dimensional detonation tube simulations are not optimal for generic detonation modeling as the cellular detonation structure seen in experimental detonation modeling cannot be captured with a single dimension. The cellular detonation cells can be used to infer velocity and compare numerical simulation with experiments, so one-dimensional detonations must utilize other methods to compare with experiments or just be utilized for tuning numerical methods themselves. 
 
 \begin{figure}[]
     \centering
@@ -160,6 +162,8 @@ The first set of static mesh comparisons performed is between one-dimensional de
     \caption{One-dimensional static meshes used in detonation tube simulations}
     \label{fig:1dstatic}
 \end{figure}
+
+Various static one-dimensional meshes were compared and can be seen in Figure \ref{fig:1dstatic}. These one-dimensional static meshes are actually twice as long, as initially the detonation simulations were performed using a mesh that was twice as long. This long mesh was unnecessarily large and computationally expensive. The mesh partition values written in the figure are divided in half to match the meshes and convention used in subsequent analysis runs. We see that the 500-1-1 mesh has not converged yet to a solution, and that the 2500-1-1 mesh has converged. After this point, the difference between the meshes lies in their ability to capture finer flow effects such as detonation cells (not possible in one dimension), the transition from a singular detonation front to the combination of multiple smaller detonation fronts (also not possible in one dimension), and the increase in magnitude of the von Neumann pressure wave spike. The von Neumann spike comes from ZND detonation model theory, where Zel'dovich, von Neumann, and Doring independently published research on a detonation model theory that utilizes an infinitesimally thin shock wave. 
 
 
 \subsection{Two-dimensional}
