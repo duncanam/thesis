@@ -163,10 +163,50 @@ The first set of static mesh comparisons performed is between one-dimensional de
     \label{fig:1dstatic}
 \end{figure}
 
-Various static one-dimensional meshes were compared and can be seen in Figure \ref{fig:1dstatic}. These one-dimensional static meshes are actually twice as long, as initially the detonation simulations were performed using a mesh that was twice as long. This long mesh was unnecessarily large and computationally expensive. The mesh partition values written in the figure are divided in half to match the meshes and convention used in subsequent analysis runs. We see that the 500-1-1 mesh has not converged yet to a solution, and that the 2500-1-1 mesh has converged. After this point, the difference between the meshes lies in their ability to capture finer flow effects such as detonation cells (not possible in one dimension), the transition from a singular detonation front to the combination of multiple smaller detonation fronts (also not possible in one dimension), and the increase in magnitude of the von Neumann pressure wave spike. The von Neumann spike comes from ZND detonation model theory, where Zel'dovich, von Neumann, and Doring independently published research on a detonation model theory that utilizes an infinitesimally thin shock wave. 
+Various static one-dimensional meshes were compared and can be seen in Figure \ref{fig:1dstatic}. These one-dimensional static meshes are actually twice as long, as initially the detonation simulations were performed using a mesh that was twice as long. This long mesh was unnecessarily large and computationally expensive. The mesh partition values written in the figure are divided in half to match the meshes and convention used in subsequent analysis runs. We see that the 500-1-1 mesh has not converged yet to a solution, and that the 2500-1-1 mesh has converged. After this point, the difference between the meshes lies in their ability to capture finer flow effects such as detonation cells (not possible in one dimension), the transition from a singular detonation front to the combination of multiple smaller detonation fronts (also not possible in one dimension), and the increase in magnitude of the von Neumann pressure wave spike. The von Neumann spike comes from ZND detonation model theory, where Zel'dovich\cite{zeldovich}, von Neumann\cite{neumann}, and Doring\cite{doring} independently published research on a detonation model theory that utilizes an infinitesimally thin shock wave. Knowing that the spike is what changes within the converged mesh simulations allows for intelligent choices upon what sorts of AMR and static resolutions to choose both in research and engineering design. If an individual is designing a part that can withstand very fast high pressure fluctuations, then resolving the mesh up until the von Neumann spike appears will be sufficient for their design purposes. Otherwise, further mesh resolution is required in order to resolve the extremely thin pressure spike shock region. In regards to AMR, this translates to either further refinement around the spike region or just focusing refinement on the detonation wave and following region as a whole in order to resolve turbulence details or fluctuations in the field from randomization and reflected shocks. 
 
 
 \subsection{Two-dimensional}
+In addition to the static and dynamic one-dimensional detonation tube simulations performed, two-dimensional simulations were also run. For two-dimensional simulations, the mesh was kept square. Additionally, one less resolution level was tested due to the computational expense. The 10000-1600-1 mesh contains 16 million cells at a 25 micron physical resolution, and was computed across twenty 3.6 Ghz AMD Threadripper cores at a computational time of over 150 hours. 
+
+
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static2d/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static2d/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \begin{subfigure}[]{0.95\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static2d/u.png}
+        \caption{Fluid Velocity plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{0.95\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static2d/y.png}
+        \caption{H\(_2\) mass fraction plot}
+    \end{subfigure}
+
+    \caption{Two-dimensional static meshes used in detonation tube simulations}
+    \label{fig:2dstatic}
+\end{figure}
+
+
+
+
+
 \section{Adaptive Mesh Refinement and Static Comparisons}
 As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parameters can be tuned to try and match the fine static mesh resolutions in important areas. Detonation waves are very thin with extremely high pressures, temperatures, and velocities within this small region. This makes them an ideal candidate for adaptive meshing. 
 
