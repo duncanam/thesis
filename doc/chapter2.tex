@@ -10,13 +10,34 @@ The solution for the fluid problem explored in this thesis work is approximated 
 \end{equation}
 the momentum equation is
 \begin{equation}
-x
+\frac{\partial \rho\bm{u}}{\partial t} + \nabla \cdot \left(\rho \bm{u}\otimes \bm{u}\right) + \nabla p = \bm{0}, 
 \end{equation}
-the specie equation is
-\[other things,\]
-and the energy equation is
-\[last thing.\]
-These sets of equations are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. 
+the energy equation is
+\begin{equation}
+\frac{\partial \rho E}{\partial t} + \nabla \cdot \left[\left(\rho E + p\right)\bm{u}\right] = \dot{q}
+\end{equation}
+and the specie equation is
+\begin{equation}
+\frac{\partial \rho Y_i}{\partial t} + \nabla \cdot \left(\rho Y_i \bm{u}\right) = \dot{\omega}_i
+\end{equation}
+where 
+\begin{equation}
+\dot{q} = \sum_{i = 1}^N \dot{\omega_i} h_{f,i}^0
+\end{equation}
+and
+\begin{tabbing}
+\qquad \= \(\dot{\omega}_i\) \qquad \= specie source reaction rate \\ 
+\> \(\dot{q}\) \> energy source \\
+\> \(\rho\) \> density \\
+\> \(\bm{u}\) \> fluid velocity vector \\
+\> \(Y_i\) \> specie mass fraction \\
+\> \(E\) \> total energy \\
+\> \(p\) \> pressure
+\end{tabbing}
+
+
+
+These sets of equations \cite{kuo}, known as the reactive Euler equations, are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. 
 
 \textbf{\color{red} Add more here please}
 
@@ -46,11 +67,11 @@ Other trace elements present in air are not modeled here, and this could be a to
 
 The chemical reaction rate can be modeled OpenFOAM with the Arrhenius equation \cite{christ} which takes the form: 
 \begin{equation}
-k = AT^\beta \exp\left(\frac{Ea}{R T}\right)
+\dot{\omega}_i = AT^\beta \exp\left(\frac{Ea}{R T}\right)
 \end{equation}
 where 
 \begin{tabbing}
-\qquad \= \(k\) \qquad \= reaction rate \\ 
+\qquad \= \(\dot{\omega}_i\) \qquad \= specie source reaction rate \\ 
 \> \(A\) \> pre-exponential factor \\
 \> \(T\) \> temperature \\
 \> \(\beta\) \> temperature exponent \\

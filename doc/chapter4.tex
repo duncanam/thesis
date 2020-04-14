@@ -33,7 +33,7 @@ The block ignition method with high pressure and temperature stoichiometric reac
 \noindent Ultimately this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery\cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
 
 \subsection{Gradient Ignition}
-Using the theory shown in Towery\cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. This can be seen in Figure \ref{fig:gradig}. 
+Using the theory shown in Towery\cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. \verb|setFields| cannot set fields for initial conditions with functions, so \verb|funkySetFields| was applied for the gradient condition. This can be seen in Figure \ref{fig:gradig}. 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.8\textwidth]{figs/ignition/gradient.png}
@@ -168,7 +168,7 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 \end{table}% 
 \noindent Note that while the CFL of 0.2 has a smaller velocity error than the CFL of 0.1, it is a much noisier and unstable solution, so the values themselves have further uncertainty. The selection of a maximum CFL of 0.1  for detonations in OpenFOAM also matches with the work done by Ajaero\cite{ajaero}. 
 
-Higher CFL numbers of 0.4 to 0.8 were also attempted. These were unsuccessful as the solution was extremely unstable at these CFLs. Typically, high CFL numbers cause more ringing in the solution as seen in Figure \ref{fig:maxcfl} for the CFL of 0.3. However, it is seen in this research as well as supporting reacting flow work \cite{ajaero} that lower CFL numbers are required for solution convergence. 
+Higher CFL numbers of 0.4 to 0.8 were also attempted. These were unsuccessful as the solution was extremely unstable at these CFLs. Typically, high CFL numbers cause more ringing in the solution as seen in Figure \ref{fig:maxcfl} for the CFL of 0.3. However, it is seen in this research as well as supporting reacting flow work \cite{ajaero}\cite{kim}\cite{marcantoni} lower CFL numbers are required for solution convergence. 
 
 \section{Static Mesh Variation}
 \label{sec:staticvar}
