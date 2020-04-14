@@ -5,9 +5,13 @@
 In order to model detonations, the problem can be broken up into smaller pieces and solved with CFD. OpenFOAM is computational toolbox that will utilize the finite volume method (FVM) to solve the set of partial differential equations describing the fluid flow. In the FVM, the computational domain is broken into multiple smaller control volumes, known as cells. Each cell contains a set of thermo-fluid properties at the centroid. The differential equations are then integrated over this control volume in order to obtain a solution at each cell. The solution is interpolated between cell centroids to obtain continuous solution throughout the domain. 
 
 The solution for the fluid problem explored in this thesis work is approximated through density, momentum, species, and energy equations in that order. The density equation solved by \verb|rhoReactingCentralFoam| is
-\[something,\]
+\begin{equation}
+\frac{\partial \rho}{\partial t} + \nabla \cdot \left(\rho \bm{u}\right) = 0,
+\end{equation}
 the momentum equation is
-\[another thing,\]
+\begin{equation}
+x
+\end{equation}
 the specie equation is
 \[other things,\]
 and the energy equation is

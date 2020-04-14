@@ -18,6 +18,40 @@ Now that \verb|rhoReactingCentralFoam| has been selected for use, the solver can
 %\section{Solver Parameter Testing and Sensitivity}
 Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess| with the \verb|lineUniform| type, using 1000 sampling points interpolated from cell centers. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. 
 
+\section{Ignition Tests}
+\label{sec:igstudy}
+
+\subsection{Block Ignition}
+
+The block ignition method with high pressure and temperature stoichiometric reactants was utilized initially to build off the work done in \cite{towery1}. A rectangular region spanning from the ignition wall (y-z plane at \(x = 0\) m) to \(x = 0.001\) m was set with a different initial condition than the rest of the domain using the \verb|setFields| utility. The ignition block region contained high pressure and temperature gas at 3000 K and 20 atm, with the rest of the domain at 300 K and 1 atm. This method is seen in Figure \ref{fig:blockig}.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figs/ignition/block.png}
+\caption{Block ignition method, seen on left side of domain, at t = 0 s}
+\label{fig:blockig}
+\end{figure}%
+\noindent Ultimately this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery\cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
+
+\subsection{Gradient Ignition}
+Using the theory shown in Towery\cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. This can be seen in Figure \ref{fig:gradig}. 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figs/ignition/gradient.png}
+\caption{Gradient ignition method, seen on left side of domain, at t = 0 s}
+\label{fig:gradig}
+\end{figure}%
+\noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figs/ignition/randgrad.png}
+\caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
+\label{fig:gradrand}
+\end{figure}%
+\noindent This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization 
+
+
+
+
 
 \section{Arrhenius Pre-exponential Factor}
 \label{sec:a}
@@ -167,9 +201,7 @@ Various static one-dimensional meshes were compared and can be seen in Figure \r
 
 
 \subsection{Two-dimensional}
-In addition to the static and dynamic one-dimensional detonation tube simulations performed, two-dimensional simulations were also run. For two-dimensional simulations, the mesh was kept square. Additionally, one less resolution level was tested due to the computational expense. The 10000-1600-1 mesh contains 16 million cells at a 25 micron physical resolution, and was computed across twenty 3.6 Ghz AMD Threadripper cores at a computational time of over 150 hours. 
-
-
+In addition to the static and dynamic one-dimensional detonation tube simulations performed, two-dimensional simulations were also run. These can be seen in Figure \ref{fig:2dstatic}. 
 \begin{figure}[]
     \centering
     \begin{subfigure}[]{\textwidth}
@@ -190,7 +222,7 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
     \begin{subfigure}[]{0.95\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./figs/static2d/u.png}
-        \caption{Fluid Velocity plot}
+        \caption{Fluid velocity plot}
     \end{subfigure}
 
     \begin{subfigure}[]{0.95\textwidth}
@@ -201,7 +233,41 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
 
     \caption{Two-dimensional static meshes used in detonation tube simulations}
     \label{fig:2dstatic}
+\end{figure}% 
+For two-dimensional simulations, the mesh was kept square. A smaller mesh resolution than the one-dimensional simulations were used due to computational expense. The 10000-1600-1 mesh contains 16 million cells at a 25 micron physical resolution, and was computed across twenty 3.6 Ghz AMD Threadripper cores at a computational time of over 150 hours. Example surface plots for the static 2500-400-1 mesh are plotted in Figure \ref{fig:2dsurface}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
 \end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/u.png}
+        \caption{Fluid velocity magnitude plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/rho.png}
+        \caption{Density plot}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave surface plots for 2500-400-1 mesh at \(t = 3.45 \times 10^{ - 5} \) s}
+    \label{fig:2dsurface}
+\end{figure}% 
+\noindent The plots seen in this figure represent the flow field results of a detonation wave traveling from the left wall to the right, at \(t = 3.45 \times 10^{ - 5} \) s. 
 
 
 

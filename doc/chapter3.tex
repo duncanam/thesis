@@ -56,6 +56,8 @@ The so-called ``inlet'' (even though fluid is not actively moving through this f
 
 The exit plane of the domain utilizes a ``waveTransmissive'' boundary condition. This is a special boundary condition that allows for waves such as shockwaves to not reflect at the boundary while expelling gases. A traditional OpenFOAM pressure outlet was seen to reflect the shockwave coupled with the detonation wave. 
 
+The initial conditions for the domain are set at 300 K and 1 atm. An ignition region is initialized at a higher pressure and temperature at the start of the detonation tube and is discussed further in Section \ref{sec:ignition}.
+
 
 
 \section{Parallel Computing}
@@ -153,14 +155,12 @@ While the primary topic of interest in this work is adaptive meshing, a primary 
 \end{figure}
 
 \section{Detonation Initiation}
+\label{sec:ignition}
+
 The initiation of a detonation is seemingly trickier computationally than it is experimentally. There are several methods to do this. Typically, a region of high temperature and pressure gas is instantiated at one end of the tube, such that the fuel and oxidizer ignites within the tube. If the pressure and temperature conditions within this ignition region are high enough, detonation will occur. If they are not, it is possible to instead just ignite the gas and send a decoupled shockwave down the tube in front of the flame. This is not a detonation and undesirable. 
 
-In addition to the thermodynamic conditions that the ignition region is in, the ignition gas itself can be varied. Some researchers have ignited detonation computationally using a block of high temperature and pressure helium \cite{marcantoni}. Towery has used a an ignition block of high temperature and pressure stoichiometric reactants \cite{towery1} as well as a high temperature and pressure gradient \cite{towery2} ranging from higher pressure and temperature near the ignition wall down to the initial condition of the domain. 
+In addition to the thermodynamic conditions that the ignition region is in, the ignition gas itself can be varied. Some researchers have ignited detonation computationally using a block of high temperature and pressure helium \cite{marcantoni}. Towery has used a an ignition block of high temperature and pressure stoichiometric reactants \cite{towery1} as well as a high temperature and pressure gradient \cite{towery2} ranging from higher pressure and temperature near the ignition wall down to the initial condition of the domain. Ignition will be discussed further in \ref{sec:igstudy}.
 
-\subsection{Block Ignition}
-The block ignition method with high pressure and temperature stoichiometric reactants was utilized initially. 
-
-\subsection{Gradient Ignition}
 
 
 
