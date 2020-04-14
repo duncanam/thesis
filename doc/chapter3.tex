@@ -13,6 +13,11 @@ OpenFOAM is a C++ toolbox that is a collection of various programs that is prima
 
 In addition to these solvers, several additional tools outside the standard OpenFOAM installation were utilized. These include \verb|funkySetFields| and \verb|groovyBC|, both included with \verb|swak4Foam|. \verb|funkySetFields| is a tool much like the OpenFOAM-included \verb|setFields| utility, which allows the user to define set values of variables within certain regions of the computational domain (e.g. allows the user to set a cube within a domain to a certain temperature which is different than what is set globally). \verb|funkySetFields| extends this functionality, allowing for time and position-dependent defining of variables, such that an initial condition such as a temperature ramp, or randomization of temperature within the domain is possible. 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Setup and Structure}
 In order to simulate a fluids or combustion problem in OpenFOAM, the directory structure in which the simulation is to be run needs to be correct. Each OpenFOAM simulation contains a directory \verb|0/| which holds initial conditions for the domain as well as boundary conditions \cite{ofug}. Inside this directory are files named like the quantities they represent, such as \verb|p|, \verb|T|, and \verb|U|. \verb|funkySetFields| edits these files to apply the special initial conditions. As the simulation progresses, more folders representing timesteps will appear with data saved for that timestep. The folder name will represent the specific timestep exactly. 
 
@@ -59,6 +64,10 @@ The exit plane of the domain utilizes a ``waveTransmissive'' boundary condition.
 The initial conditions for the domain are set at 300 K and 1 atm. An ignition region is initialized at a higher pressure and temperature at the start of the detonation tube and is discussed further in Section \ref{sec:ignition}.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \section{Parallel Computing}
 Included with the standard installation of OpenFOAM are solvers that are capable being scaled to make use of multiple processors \cite{ofug}. Solvers like \verb|rhoReactingCentralFoam| include this functionality. OpenFOAM's parallel processing is done through MPI, where several instances of a solver are run simultaneously and MPI passes information between the solvers. Each solver running in parallel computes on a different portion of the domain. 
@@ -92,6 +101,11 @@ In the researched performed here, the \verb|simple| method for domain decomposit
 \noindent Using long slivers seen in Figure \ref{sfig:longdecomp} instead of a typical aspect ratio consistent decomposition in Figure \ref{sfig:shortdecomp} allows for every processor to always have a small portion of the detonation in its domain. Otherwise, some processors would be waiting on other processors that have the detonation in them or heavy mesh refinement regions from the AMR routines.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \section{Adaptive Mesh Refinement}
 
 Adaptive mesh refinement is the process of refining or unrefining the computational mesh based on a tracked parameter of interest at a specific point in time. In OpenFOAM, AMR is available with several standard solvers such as \verb|interFoam|, and has been implemented into \verb|rhoReactingCentralFoam| by Caelan Lapoint. The AMR in this solver functions by looking within a mesh cell at a quantity of interest at a specific time interval, and deciding based on the value of that quantity of interest whether or not to refine the mesh in that cell. If the quantity is within the refinement bounds set by the user, the AMR routine will split the cell with an octree splitting method as shown in Figure \ref{fig:octree}. Additionally, the AMR can unrefine the mesh if the quantity of interest is outside the refinement bounds set by the user. The user settings are located within \verb|constant/dynamicMeshDict|, and several options exist for the user to tweak. Some of the most important ones include:
@@ -106,7 +120,14 @@ Adaptive mesh refinement is the process of refining or unrefining the computatio
 \item \verb|maxRefinement|: how many additional times cells can be refined within an iteration. 
 \item \verb|maxCells|: the maximum number of cells in the computational domain that can be reached before adaptive mesh refinement is no longer performed. Note that this is not strictly followed but rather an estimate provided to the solver, since the octree splitting can potentially increase number of cells beyond this value at a specific iteration.
 \end{itemize}
-An exploration on how different selections in these parameters affects solution quality was performed in this research. Results will be shown in later chapter sections. An important aspect to note when utilizing \verb|rhoReactingCentralFoam|'s AMR is that the routine is inherently three-dimensional, due to the octree splitting method in Figure \ref{fig:octree}. Due to this, one-dimensional simulations become pseudo one-dimensional, and two-dimensional simulations become pseudo two-dimensional, since cells will be added in all dimensions when refinement occurs. For detonation modeling in areas like detonation tubes, PDEs, and RDEs, this is acceptable as the velocity in other dimensions tends to be very small in comparison to the velocity in the detonation direction. 
+An exploration on how different selections in these parameters affects solution quality was performed in this research. Results will be shown in later chapter sections. An important aspect to note when utilizing \verb|rhoReactingCentralFoam|'s AMR is that the routine is inherently three-dimensional, due to the octree splitting method in Figure \ref{fig:octree}. 
+\begin{figure}[b]
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/amr_example.png}
+\caption{Adaptive mesh refinement octree splitting method}
+\label{fig:octree}
+\end{figure}%
+\noindent Due to this, one-dimensional simulations become pseudo one-dimensional, and two-dimensional simulations become pseudo two-dimensional, since cells will be added in all dimensions when refinement occurs. For detonation modeling in areas like detonation tubes, PDEs, and RDEs, this is acceptable as the velocity in other dimensions tends to be very small in comparison to the velocity in the detonation direction. 
 
 Within \verb|dynamicMeshDict|, two main parameters can be used to guide the adaptive mesh refinement regionally to the target static mesh resolution. \verb|maxCells| stops the adaptive meshing from splitting and refining cells further once a \verb|maxCells| number of cells is reached in total throughout the domain. \verb|maxRefinement| tells the adaptive meshing routines how many further times per iteration it can split and refine cells, allowing for very fine cell resolution in small regions. The necessary number of refinement levels in a detonation simulation to reach target static cell resolution can be described with 
 \begin{equation}
@@ -122,17 +143,22 @@ The maximum number of cells can be estimated by considering the region where sta
 
 
 
-
-
-
-\begin{figure}[]
-\centering
-\includegraphics[width=0.6\textwidth]{./figs/amr_example.png}
-\caption{Adaptive mesh refinement octree splitting method}
-\label{fig:octree}
-\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Previous Detonation Modeling Work}
+In order to be able to do the research outlined in this document, many resources were utilized and many others have layed the path in which this work was built off from. 
+
+In 2013 Schwer and Kailasanath published ``Fluid dynamics of rotating detonation engines with hydrogen and hydrocarbon fuels''\cite{schwer1}. This paper primarily discussed the effects of different hydrocarbon fuels on RDEs as well as as their numerical methods for simulating RDEs and detonation waves in tubes. Their tube detonation simulations were performed using a flux-corrrected-transport (FCT) algorithm scaled across hundreds of cores in parallel. Their worked showed that RDEs are not affected by thermodynamic differences in hydrocarbon fuels in comparison to hydrogen fuel and that ideal detonation cycle theory could be used for baseline performance. In order to reach conclusions about RDE performance, studies were done on PDE and detonation tube modeling to verify the validity of their solution methods, much like the work done in this document. Detonation tube numerical results were compared to CJ theory and detonation cellular structure was also produced. 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \section{Initial Meshing}
 While the primary topic of interest in this work is adaptive meshing, a primary static mesh is required in order for the adaptive mesh refinement routines within OpenFOAM to refine from. Structured meshes are utilized, with hexahedrons making up the mesh. Meshes used for static mesh and initial AMR simulations can be seen in Figure \ref{fig:meshcompare}. The meshes displayed utilize 125 partitions along detonation ``tube'' and 20 partitions in width, depending on two or three dimensionality in order to be visible for the reader. Real meshes used in simulation are much more fine in order to capture the thin detonation and shock region. Meshes used in this research were created with the OpenFOAM utility \verb|blockMesh|, which generates structured hex meshes based on use input of ``blocks'' which define rectangular prisms that \verb|blockMesh| then uses to form faces and patches for boundary conditions as well as to partition into the mesh. 
@@ -154,6 +180,12 @@ While the primary topic of interest in this work is adaptive meshing, a primary 
     \label{fig:meshcompare}
 \end{figure}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \section{Detonation Initiation}
 \label{sec:ignition}
 
@@ -162,6 +194,10 @@ The initiation of a detonation is seemingly trickier computationally than it is 
 In addition to the thermodynamic conditions that the ignition region is in, the ignition gas itself can be varied. Some researchers have ignited detonation computationally using a block of high temperature and pressure helium \cite{marcantoni}. Towery has used a an ignition block of high temperature and pressure stoichiometric reactants \cite{towery1} as well as a high temperature and pressure gradient \cite{towery2} ranging from higher pressure and temperature near the ignition wall down to the initial condition of the domain. Ignition will be discussed further in \ref{sec:igstudy}.
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Initial Attempts}
@@ -183,6 +219,11 @@ The next step with \verb|rhoReactingFoam| was to start progressing towards testa
 The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. This problem typically consists of placing a region of higher pressure and density fluid in one region and a lower pressure and density fluid in another adjacent region. Typically the regions are rectangular and share a face, both comprising a large cube. When the simulation starts, a shock will form due to the immediate differential in pressure and density from one region to the next. This problem cannot be verified perfectly experimentally, but it can be solved analytically, making this a good method to test numerical CFD solvers for compressible flow accuracy as well as their ability to capture shocks. The results for \verb|rhoReactingFoam| matched published analytical results as well as a \verb|rhoPimpleFoam| case that was matched to the analytical results. Due to this, it was thought that \verb|rhoReactingFoam| would be a good candidate for detonation modeling. 
 
 The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Final Solver}

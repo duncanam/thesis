@@ -16,7 +16,7 @@ Now that \verb|rhoReactingCentralFoam| has been selected for use, the solver can
 
 
 %\section{Solver Parameter Testing and Sensitivity}
-Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess| with the \verb|lineUniform| type, using 1000 sampling points interpolated from cell centers. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. 
+Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess| with the \verb|lineUniform| type, using 1000 sampling points interpolated from cell centers. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. This data is then read into the Julia programming language for plotting. The colorful surface plots seen in this chapter were produced with ParaView\cite{paraview}, a graphical interface for post-processing data of many types. 
 
 \section{Ignition Tests}
 \label{sec:igstudy}
@@ -40,23 +40,31 @@ Using the theory shown in Towery\cite{towery2}, we developed an initial gradient
 \caption{Gradient ignition method, seen on left side of domain, at t = 0 s}
 \label{fig:gradig}
 \end{figure}%
-\noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}.
+\noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. Maximum pressure and density plots across all time steps for every cell can be plotted to emulate experimental ``smoke foil'' results. The smoke foil is a piece of smooth metal placed flat against a wall in a detonation tube chamber, in which smoke particles have been evenly distributed (usually by a fire) upon the surface of the foil. When a detonation passes over the smoke foil, the density and pressure differences will leave fish scale-like patterns upon the foil. 
+In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}. 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.8\textwidth]{figs/ignition/randgrad.png}
 \caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
 \label{fig:gradrand}
 \end{figure}%
-\noindent This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization 
-
-
+\noindent This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization of temperature throughout the domain, the maximum value of density across all time steps for each cell was recorded and plotted as a surface plot. 
+%This plot type will emulate what is seen in experimental results using what is known as a ``smoke foil''.
+For a 2500-400-1 mesh, this is seen in Figure \ref{fig:maxrho}.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{figs/example_results/maxrho.png}
+\caption{Surface plot of maximum density tracked across all time steps for each cell }
+\label{fig:maxrho}
+\end{figure}
+From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long or var throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy" and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since unrefinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. 
 
 
 
 \section{Arrhenius Pre-exponential Factor}
 \label{sec:a}
 
-Now that an appropriate solver was selected, the solver settings needed to be dialed in. To start, some further testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
+In order to better characterize reaction sensitivity and compare to other published results, testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
 
 \begin{figure}
 \centering
