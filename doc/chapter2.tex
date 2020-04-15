@@ -22,7 +22,7 @@ and the specie equation is
 \end{equation}
 where 
 \begin{equation}
-\dot{q} = \sum_{i = 1}^N \dot{\omega_i} h_{f,i}^0
+\dot{q} = \sum_{i = 1}^N \dot{\omega_i} \Delta h_{f,i}^0
 \end{equation}
 and
 \begin{tabbing}
@@ -32,18 +32,63 @@ and
 \> \(\bm{u}\) \> fluid velocity vector \\
 \> \(Y_i\) \> specie mass fraction \\
 \> \(E\) \> total energy \\
-\> \(p\) \> pressure
+\> \(p\) \> pressure\\
+\> \(\Delta h_{f,i}^0\) \> specie formation enthalpy
 \end{tabbing}
 
+\noindent These sets of equations \cite{kuo}, known as the reactive Euler equations, are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. The system is closed when energy is expanded and an equation of state is added. Total energy \cite{kuo} can be written as 
+\begin{equation}
+E = h - \frac{p}{\rho} +\frac{1}{2} \left(\bm{u}\cdot\bm{u}\right)
+\end{equation}
+where enthalpy is written \cite{kuo} as 
+\begin{equation}
+h = \sum_{i = 1}^Nh_{s,i}Y_i
+\end{equation}
+and specie total enthalpy \cite{kuo} as 
+\begin{equation}
+h_{i} = \Delta h_{f,i}^0 + h_{s,i}
+\end{equation}
+with the sensible enthalpy 
+\begin{equation}
+h_{s,i} = \int_{T_0}^T C_{p,i}\mathrm{d}T
+\end{equation}
+where 
+\begin{tabbing}
+\qquad \= \(h\) \qquad \= total summed enthalpy\\ 
+\> \(C_{p,i}\) \> specie specific heat\\
+\> \(h_i\) \> specie total enthalpy \\
+\> \(h_{s,i}\) \> specie sensible enthalpy \\
+\> \(T\) \> reacting temperature \\
+\> \(T_0\) \> initial temperature 
+\end{tabbing}
+The equation of state is expressed as 
+\begin{equation}
+p = \rho R T
+\end{equation}
+Within OpenFOAM, a user has choices as to how he or she would like to numerically solve the stiff set of differential equations that model reacting flows. Thermodynamic variables such as specific heat can be selected to be temperature-dependent using polynomial approximations such as those given by the JANAF tables, such that \(C_{p,i} = C_{p,i}(T)\). No significant complexity in solution was noticed, so JANAF settings were used for temperature-dependent thermodynamics. The energy equation solution variable can also be selected, such that either sensible enthalpy or sensible internal energy is solved, and we selected sensible internal energy for modeling detonations with \verb|rhoReactingCentralFoam| as less noise in the solution was noticed over sensible enthalpy. Transport modeling can also be changed, and for this research the Sutherland model was used \cite{ofug}:
+\begin{equation}
+\mu = \frac{A_s \sqrt{T_s}}{1 + \frac{T_s}{T}} 
+\end{equation}
+where
+\begin{tabbing}
+\qquad \= \(\mu\) \qquad \= dynamic viscosity\\ 
+\> \(A_s\) \> Sutherland coefficient \\
+\> \(T_s\) \> Sutherland temperature\\
+\end{tabbing}
+The numerical solution of the Euler equations in OpenFOAM occurs with several different settings. Different numerical schemes can be applied separately to variables of interest, and can be seen in Table \ref{tab:numschemes}. 
 
+\begin{table}[h]
+\centering
+\caption{Numerical schemes applied during solving}
+\label{tab:numschemes}
+\begin{tabular}{cc}
+\end{tabular}
+\end{table}
 
-These sets of equations \cite{kuo}, known as the reactive Euler equations, are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. 
-
-\textbf{\color{red} Add more here please}
 
 
 \section{Reaction Modeling and Chemistry}
-Since detonation modeling consists of both a fluids problem as well as chemical problem, chemical reactions must also be considered. Like a fire, a detonation requires a fuel and an oxidizer. Typically detonations in experimental and computational modeling will utilize gaseous hydrogen or methane fuels mixed with air or pure oxygen oxidizers. For the computational modeling here, hydrogen-air was the primary respective fuel-oxidizer combination utilized for exploring detonation modeling. This was due to the highly reactive nature of hydrogen as well as previous computational and experimental modeling resources available. The reaction used for the hydrogen detonation modeling here is
+Since detonation modeling consists of both a fluids problem as well as chemical problem, chemical reactions must also be considered. Like a fire, a detonation requires a fuel and an oxidizer. Typically detonations in experimental and computational modeling will utilize gaseous hydrogen or methane fuels mixed with air or pure oxygen oxidizers. For the computational modeling here, hydrogen-air was the primary respective fuel-oxidizer combination utilized for exploring detonation modeling. This was due to the highly reactive nature of hydrogen as well as previous computational and experimental modeling resources available. The reaction used \cite{kuo} for the hydrogen detonation modeling here is
 \begin{center}
 %\ch{Na2SO4 ->[ H2O ] Na+ + SO4^2-}
 \ch{2 H2 + 2 (O2 + 3.76 N2) -> 2 H2O + 7.52 N2}
@@ -89,7 +134,7 @@ where
 \end{equation}
 \noindent In addition, the specific gas constant used is \(R = 368.9\) J/Kg-K. It is seen in Chapter \ref{sec:a} that the values used are reasonably close to Chapman-Jouguet theory as well as other published values \cite{towery1}\cite{hashemi}. 
 
-
+The chemistry itself uses a separate solver than the rest of the reacting flow solution variables. The settings for the chemistry solver are found in \verb|constant/chemistryProperties|. The directory structure of OpenFOAM is discussed in Chapter \ref{ofchap} in greater detail. The chemistry is solved before the flow variables, with a separate initial time step. For detonation modeling presented here, the chemistry ordinary differential equation (ODE) is solved using the Runge-Kutta-Fehlberg method \cite{rkf}, known to OpenFOAM as RKF45. 
 
 
 
