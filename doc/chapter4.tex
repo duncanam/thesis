@@ -176,6 +176,8 @@ In order to determine the performance gains, accuracy, and other comparative par
 
 
 \subsection{One-dimensional}
+\label{sec:1dstatic}
+
 The first set of static mesh comparisons performed is between one-dimensional detonation tube simulations, seen in Figure \ref{fig:1dstatic}. These meshes only have resolution along the direction of the tube, which allows for capturing the detonation wave as simply as possible. However,  one-dimensional detonation tube simulations are not optimal for generic detonation modeling as the cellular detonation structure seen in experimental detonation modeling cannot be captured with a single dimension. The cellular detonation cells can be used to infer velocity and compare numerical simulation with experiments, so one-dimensional detonations must utilize other methods to compare with experiments or just be utilized for tuning numerical methods themselves. 
 
 \begin{figure}[]
@@ -216,6 +218,7 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
         \centering
         \includegraphics[width=\textwidth]{./figs/static2d/p.png}
         \caption{Pressure plot}
+        \label{fig:2dstaticp}
     \end{subfigure}
 
     \begin{subfigure}[]{\textwidth}
@@ -231,6 +234,7 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
         \centering
         \includegraphics[width=\textwidth]{./figs/static2d/u.png}
         \caption{Fluid velocity plot}
+        \label{fig:2dstaticu}
     \end{subfigure}
 
     \begin{subfigure}[]{0.95\textwidth}
@@ -242,7 +246,9 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
     \caption{Two-dimensional static meshes used in detonation tube simulations}
     \label{fig:2dstatic}
 \end{figure}% 
-For two-dimensional simulations, the mesh was kept square. A smaller mesh resolution than the one-dimensional simulations were used due to computational expense. The 10000-1600-1 mesh contains 16 million cells at a 25 micron physical resolution, and was computed across twenty 3.6 Ghz AMD Threadripper cores at a computational time of over 150 hours. Example surface plots for the static 2500-400-1 mesh are plotted in Figure \ref{fig:2dsurface}. 
+For two-dimensional simulations, the mesh was kept square. A smaller mesh resolution than the one-dimensional simulations were used due to computational expense. The 10000-1600-1 mesh contains 16 million cells at a 25 micron physical resolution, and was computed across twenty 3.6 Ghz AMD Threadripper cores at a computational time of over 150 hours. Note that this high mesh resolution does not have the smoothness seen in more unrefined simulation results, seen clearly in Figures \ref{fig:2dstaticp} and \ref{fig:2dstaticu}. This is due to the mesh capturing the fine shock and reaction structures described by ZND theory mentioned in Section \ref{sec:1dstatic}. The fluctuations in the temperature field begin to resolve at this resolution. 
+
+Example surface plots for the static 2500-400-1 mesh are plotted in Figure \ref{fig:2dsurface}. 
 \begin{figure}[]
     \centering
     \begin{subfigure}[]{\textwidth}
@@ -282,8 +288,8 @@ For two-dimensional simulations, the mesh was kept square. A smaller mesh resolu
 
 
 \section{Adaptive Mesh Refinement and Static Comparisons}
-As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parameters can be tuned to try and match the fine static mesh resolutions in important areas. Detonation waves are very thin with extremely high pressures, temperatures, and velocities within this small region. This makes them an ideal candidate for adaptive meshing. 
+As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parameters can be tuned to try and match the fine static mesh resolutions in important areas. Detonation waves are very thin with extremely high pressures, temperatures, and velocities within this small region. This makes them an ideal candidate for adaptive meshing. To validate the AMR routines, comparison with the baseline static meshes is required to determine how the flow field changes. The AMR settings were tweaked and changed over a range of values and compared to static meshes in order to determine if the AMR can practically replace static meshes for detonation modeling in OpenFOAM as well as attempt to characterize how each change in AMR parameter affects the solution. For the following comparison cases, it was all performed in two dimensions. This allows for the AMR to start delivering noticeable performance gains as cell counts can often quickly increase into the millions. 
 
 
 
-\section{Sensitivities, efficiencies of AMR?}
+%\section{Sensitivities, efficiencies of AMR?}

@@ -224,7 +224,15 @@ The next step with \verb|rhoReactingFoam| was to start progressing towards testa
 
 The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. This problem typically consists of placing a region of higher pressure and density fluid in one region and a lower pressure and density fluid in another adjacent region. Typically the regions are rectangular and share a face, both comprising a large cube. When the simulation starts, a shock will form due to the immediate differential in pressure and density from one region to the next. This problem cannot be verified perfectly experimentally, but it can be solved analytically, making this a good method to test numerical CFD solvers for compressible flow accuracy as well as their ability to capture shocks. The results for \verb|rhoReactingFoam| matched published analytical results as well as a \verb|rhoPimpleFoam| case that was matched to the analytical results. Due to this, it was thought that \verb|rhoReactingFoam| would be a good candidate for detonation modeling. 
 
-The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
+The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. Example results for problems can be seen in Figure \ref{fig:rrf}. 
+\begin{figure}[]
+\centering
+\includegraphics[width=0.85\textwidth]{./figs/rhoReactingFoam.png}
+%\caption{Noise and instability in solution and shock capturing problems using \verb|rhoReactingFoam|}
+\caption{Noise and instability in solution and shock capturing problems using the \texttt{rhoReactingFoam} solver}
+\label{fig:rrf}
+\end{figure}%
+\noindent We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -234,14 +242,14 @@ The next stage consisted of testing different mesh refinement levels, before AMR
 
 \section{Final Solver}
 
-The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
-\begin{figure}[H]
+The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint from \verb|rhoReactingFoam| and \verb|rhoCentralFoam| and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
+\begin{figure}[]
 \centering
 \includegraphics[width=0.85\linewidth]{./figs/shocktube.png} 
 \caption{Shock tube validated test case included with OpenFOAM compared to hybrid solver}
 \label{fig:sod}
 \end{figure}%
-\noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. 
+\noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. Better numerical stability and less noise was seen in the solutions when moving to 
 
 
 
