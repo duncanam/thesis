@@ -2,9 +2,9 @@
 \label{math}
 
 \section{Fluid Modeling}
-In order to model detonations, the problem can be broken up into smaller pieces and solved with CFD. OpenFOAM is computational toolbox that will utilize the finite volume method (FVM) to solve the set of partial differential equations describing the fluid flow. In the FVM, the computational domain is broken into multiple smaller control volumes, known as cells. Each cell contains a set of thermo-fluid properties at the centroid. The differential equations are then integrated over this control volume in order to obtain a solution at each cell. The solution is interpolated between cell centroids to obtain continuous solution throughout the domain. 
+In order to model detonations, the problem can be broken up into smaller pieces and solved with CFD. OpenFOAM is computational toolbox that will utilize the finite volume method (FVM) to solve the set of partial differential equations describing the fluid flow. In the FVM, the computational domain is broken into multiple smaller control volumes, known as cells. Each cell contains a set of thermo-fluid properties at the centroid. The differential equations are then integrated over this control volume in order to obtain a solution at each cell. The solution is interpolated between cell centroids to obtain a solution throughout the domain. 
 
-The solution for the fluid problem explored in this thesis work is approximated through density, momentum, species, and energy equations in that order. The solver used to approximate these equations in a discretized computational domain, \verb|rhoReactingCentralFoam|, utilizes the central-upwind schemes developed by Kurganov, Noelle, and Petrova \cite{kurganov}. The density equation solved by \verb|rhoReactingCentralFoam| is
+The solution for the fluid problem explored in this thesis work is approximated through density, momentum, species, and energy equations in that order. The solver used to approximate these equations in a discretized computational domain, \verb|rhoReactingCentralFoam|, utilizes the central-upwind schemes developed by Kurganov and Tadmor \cite{kurganov1}. The density equation solved by \verb|rhoReactingCentralFoam| is
 \begin{equation}
 \frac{\partial \rho}{\partial t} + \nabla \cdot \left(\rho \bm{u}\right) = 0,
 \end{equation}
@@ -36,7 +36,7 @@ and
 \> \(\Delta h_{f,i}^0\) \> specie formation enthalpy
 \end{tabbing}
 
-\noindent These sets of equations \cite{kuo}, known as the reactive Euler equations, are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. The system is closed when energy is expanded and an equation of state is added. Total energy \cite{kuo} can be written as 
+\noindent These sets of equations \cite{kuo}, known as the reactive Euler equations, are solved using OpenFOAM's differential equation time step integrators. Different equation solvers can be selected for different quantities of interest. For quantities like velocity, internal energy, and specie, the preconditioned biconjugate gradient stabilized method is used (\verb|PBiCGStab| in OpenFOAM). For solvers like this, preconditioners can be selected as well as solution tolerance and relative tolerance. Preconditioners are computational operations done on the solution matrix in order to help prepare them for numerical iterative solving such that less iterations are required. The system is closed when energy is expanded and an equation of state is added. Total energy \cite{kuo} can be written as 
 \begin{equation}
 E = h - \frac{p}{\rho} +\frac{1}{2} \left(\bm{u}\cdot\bm{u}\right)
 \end{equation}
@@ -79,12 +79,44 @@ The numerical solution of the Euler equations in OpenFOAM occurs with several di
 
 \begin{table}[h]
 \centering
-\caption{Numerical schemes applied during solving}
+\caption{OpenFOAM finite volume numerical schemes applied during solving}
 \label{tab:numschemes}
-\begin{tabular}{cc}
+\begin{tabular}{ccc}
+Term & OpenFOAM Variable & Numerical Scheme \\ \hline 
+Flux Scheme & \verb|fluxScheme| & Kurganov \\ 
+Time Scheme & \verb|ddtSchemes| & Euler \\
+Gradient Schemes & \verb|gradSchemes| & Gauss linear \\ 
+Divergence Schemes & \verb|divSchemes| & none by default \\ 
+& \verb|div(tauMC)| & linear \\ 
+& \verb|div(phi,|specie\verb|)| & van Leer \\ 
+Laplacian Schemes & \verb|laplacianSchemes| & Gauss linear uncorrected \\ 
+Interpolation Schemes & \verb|interpolationSchemes| & default linear \\
+& \verb|reconstruct(rho)| & Minmod \\ 
+& \verb|reconstruct(U)| & MinmodV \\ 
+& \verb|reconstruct(T)| & Minmod \\ 
+& \verb|reconstruct(Yi)| & Minmod \\ 
+Surface Normal Gradient Schemes & \verb|snGradSchemes| & uncorrected \\
 \end{tabular}
 \end{table}
+In Table \ref{tab:numschemes}, Gauss linear specifies two things \cite{ofug}. The ``Gauss'' portion tells us that OpenFOAM should use a standard finite volume Gaussian integration with interpolation of values of interest between face centers and cell centers. The ``linear'' portion tells OpenFOAM that piecewise linear interpolation should be used for the interpolation. It should be noted that the ``uncorrected'' term seen is a flag that tells OpenFOAM that the orthogonal component of a flow variable with respect to a cell face should not undergo a non-orthogonal correction, since structured grids are used in this research. ``Corrected'' is more useful for engineering geometries where the mesh faces are not always aligned with a Cartesian coordinate system. The next important scheme used is van Leer. van Leer \cite{vanleer} is a flux limiting scheme that can limit the solution gradient near regions like shocks. Cell interpolation with this method is piecewise linear, but the slopes are limited. van Leer requires using the linear Gudunov scheme that assumes a discontinuous solution on ever finite volume cell face. Like van Leer, Minmod is a slope limiter, but uses a different set of criteria for the limiting. Time schemes are done with the Euler scheme, a transient and first order implicit scheme. This scheme relies on knowledge of the derivative and therefore both the current and subsequent solution in order to give an approximation of the solution at the next time step. By knowing the slope of the solution, we can guess the solution at the next time step by tracing out where it should be by this rate of change. The last numerical scheme used is the Kurganov scheme \cite{kurganov1}, a central difference scheme by Kurganov and Tadmor that is second order and high resolution. 
 
+Once the numerical schemes are defined, the system of equations needs to be solved. The mass, momentum, energy, and specie equations are combined together in matrix linear form to be solved (\(\bm{Ax} = \bm{b}\)). OpenFOAM allows the user to alter the solver settings for each solution variable\cite{ofug}. The velocity, internal energy, and specie mass fraction utilize the PBiCGStab solver mentioned earlier. This is an iterative linear solver that uses a preconditioner to help accelerate convergence of the solution.  Computationally, there are two matrix-vector multiplications, six parallel reductions, and a twice-applied preconditioning step that occurs every time step. Upon startup there is an initial matrix-vector multiplication and a single parallel reduction. The preconditioner used for enthalpy and specie is known as DILU, or Diagonal-based Incomplete LU. This preconditioner performs an incomplete LU factorization of the solution matrix and reduces the solver's sensitivity to errors or changes in input. The preconditioner for velocity is DIC, or Diagonal-based Incomplete Cholesky. This preconditioner performs an incomplete Cholesky factorization of the solution matrix to precondition the solution matrix. Density is solved using the \verb|diagonal| solver, a simple solve by a solution matrix inversion. Parameters used for numerical solving can be seen in Table \ref{tab:numerics}. 
+
+\begin{table}[h]
+\centering
+\caption{Finite volume numerical solvers and preconditioners used for solution variables}
+\label{tab:numerics}
+\begin{tabular}{cccc}
+Variable & Solver & Parameter & Value \\ \hline 
+\verb|e|, \verb|Yi| & \verb|PBiCGStab| & Preconditioner & \verb|DILU| \\ 
+& & Tolerance & \verb|1e-17| \\ 
+& & Relative tolerance & 0 \\
+\verb|U| & \verb|PBiCGStab| & Preconditioner & \verb|DIC| \\ 
+& & Tolerance & \verb|1e-15| \\ 
+& & Relative tolerance & 0 \\
+\verb|rho| & \verb|diagonal| & & \\
+\end{tabular}
+\end{table}
 
 
 \section{Reaction Modeling and Chemistry}
@@ -136,5 +168,5 @@ where
 
 The chemistry itself uses a separate solver than the rest of the reacting flow solution variables. The settings for the chemistry solver are found in \verb|constant/chemistryProperties|. The directory structure of OpenFOAM is discussed in Chapter \ref{ofchap} in greater detail. The chemistry is solved before the flow variables, with a separate initial time step. For detonation modeling presented here, the chemistry ordinary differential equation (ODE) is solved using the Runge-Kutta-Fehlberg method \cite{rkf}, known to OpenFOAM as RKF45. 
 
-
+Together, the numerical schemes, numerical solvers, and chemistry solver combine to solve the reactive Euler equations as \verb|rhoReactingCentralFoam| within OpenFOAM. These solution techniques can then be applied to flow problems such as detonations. 
 
