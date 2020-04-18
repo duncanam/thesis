@@ -12,12 +12,12 @@
 \usepackage{bm}				% bold math
 \usepackage[figuresleft]{rotating}		% rotated figures
 
-\definecolor{background}{HTML}{fdf6e3}
-\pagecolor{background}
+%\definecolor{background}{HTML}{fdf6e3}
+%\pagecolor{background}
 
 %%%%%%%%%%%%   All the preamble material:   %%%%%%%%%%%%
 
-\title{Detonation Modeling in OpenFOAM Utilizing Adaptive Mesh Refinement}
+\title{Detonation Modeling in OpenFOAM Utilizing Adaptive Mesh Refinement {\color{red} DRAFT}}
 
 \author{D.~A.}{McGough}
 
@@ -36,13 +36,11 @@
 \readerThree{Dr. Kenneth Jansen}		%  3rd person to sign thesis
 
 \abstract{  \OnePageChapter	% because it is very short
+		This thesis contains research performed on detonation modeling in OpenFOAM\cite{weller}, an open-source computational fluid dynamics toolbox. First, solvers are tested for their ability to capture shocks and model reactions as needed for detonations. Adaptive mesh refinement, a type of runtime-active mesh generation that refines the mesh in regions of the domain that need it, is explored to determine if they can model detonations accurately. Additional work is done in determining how tweaking certain adaptive meshing parameters changes the solution to the reacting flow field. Other parameters such as the time step and Arrhenius chemical rate coefficient sensitivity are examined. 
 
-	Often the abstract will be long enough to require
-	more than one page, in which case the macro
-	``$\backslash$OnePageChapter'' should {\it not}
-	be used.
+		It was found that good reproduction of detonation waves formed with static computational grids can be done with adaptive meshing routines in OpenFOAM, and certain adaptive meshing parameters will better utilize the cells for detonation reproduction than others. 
 
-	But this one isn't, so it should.
+		{\large\color{red} Feel free to edit with this color such that I can quickly find it}
 	}
 
 %\dedication[Dedication]{	% NEVER use \OnePageChapter here.
@@ -96,7 +94,7 @@
 
 %%%%%%%%%   then the Appendices, if any   %%%%%%%%%
 \appendix
-%\input appendixA.tex
+\input appendixA.tex
 %\input appendixB.tex
 
 

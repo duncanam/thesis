@@ -347,7 +347,8 @@ One of the more important parameters to test is the number of times the adaptive
     \caption{Two-dimensional detonation wave AMR results for a 125-20-1 base mesh with 3 buffer layers, tracking \( ||\nabla(p)||\) between 0.2 and 1 at 3e-5 s, sweeping refinement levels}
     \label{fig:amr_refinelevels}
 \end{figure}% 
-\noindent As expected, as the refinement level increases, so does the accuracy of the detonation wave. For this particular base mesh, it can be seen that the solution starts to converge around 4 levels of refinement and after the von Neumann pressure spike begins to resolve. For different base resolutions and simulation setups, this may change. It can also be seen that each increase in refinement level brings the solution roughly as close to a potential ``perfect'' static mesh resolution by half the previous x-distance, with the increase in pressure solution being exponential due to the resolving of the von Neumann spike. Further refinement levels are similarly as expensive, being exponential in cell growth, seen in Table \ref{tab:amr_refinelevels}. The exponential cell growth was also reflected in the time the simulations took to complete. The level 5 refinement has nearly the same peak pressure value as the 5000-800-1 simulation, with a slight spatial offset and 3,771,393 fewer cells. Further tweaking with tracked variable bounds as well as buffer layers may bring the detonation wave closer to that static mesh simulation. 
+\noindent As expected, as the refinement level increases, so does the accuracy of the detonation wave. For this particular base mesh, it can be seen that the solution starts to converge around 4 levels of refinement and after the von Neumann pressure spike begins to resolve. For different base resolutions and simulation setups, this may change. It can also be seen that each increase in refinement level brings the solution roughly as close to a potential ``perfect'' static mesh resolution by half the previous x-distance, with the increase in pressure solution being exponential due to the resolving of the von Neumann spike. Further refinement levels are similarly as expensive, being exponential in cell growth, seen in Table \ref{tab:amr_refinelevels}. The exponential cell growth was also reflected in the time the simulations took to complete. The level 5 refinement has nearly the same peak pressure value as the 5000-800-1 simulation, with a slight spatial offset and 3,771,393 fewer cells. Further tweaking with tracked variable bounds as well as buffer layers may bring the detonation wave closer to that static mesh simulation. After 4 and more refinement levels (e.g. 4000-640-1 mesh) the von Neumann spike begins to resolve, which agrees with the static 2D mesh results. 
+
 
 \begin{table}
 \centering
@@ -509,5 +510,80 @@ No AMR & 10,000 \\
 \end{tabular}
 \end{table}
 
+\section{AMR and Static Comparison}
+Various AMR runs were performed, and the best can be found plotted in Figure \ref{fig:amrcompare} along with various comparable static mesh resolutions. Note that due to space, the AMR legend was condensed down and in the following format: [AMR-tracking variable]-[unrefinement level]-[low bound for refinement]-[upper bound for refinement]-[number of buffer layers]-[number of refinement levels]. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
 
-%\section{Sensitivities, efficiencies of AMR?}
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amrcompare/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amrcompare/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Best two-dimensional detonation wave AMR and static mesh results compared, tracking \( ||\nabla(p)||\). AMR legend: field-unrefine-lowrefine-upperrefine-bufferlayers-refinelevels}
+    \label{fig:amrcompare}
+\end{figure}% 
+\noindent Cell counts can be found in Table \ref{tab:amrcompare}. From these plots, a few observations can be made. A very good fit exists between the AMR run with 0.1 for both the unrefine and low refine bound with 3 buffer layers and 3 refinement levels (ngP-01-01-1-3-3) and the static mesh of 1250-200-1. There is an 85\% reduction in cell count between this static mesh and AMR simulation, while exactly reproducing the peak thermodynamic conditions and representing the rest of the detonation profile quite well. 
+
+
+\begin{table}[h]
+\centering
+\caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
+\label{tab:amrcompare}
+\begin{tabular}{ccp{2cm}p{2cm}p{2cm}p{2cm}c}
+Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline
+1250-200-1 & Static & - & - & - & - & 250,000 \\ 
+2500-400-1 & Static & - & - & - & - & 1,000,000 \\
+5000-800-1 & Static & - & - & - & - & 4,000,000 \\
+250-40-1 & AMR & 0.2 & 1 & 4 & 4 & 148,950 \\
+250-40-1 & AMR & 0.1 & 1 & 3 & 4 & 149,762 \\
+250-40-1 & AMR & 0.05 & 1 & 3 & 4 & 160,570 \\ 
+250-40-1 & AMR & 0.2 & 1 & 3 & 4 & 146,710 \\ 
+250-40-1 & AMR & 0.1 & 1 & 3 & 3 & 38,343 \\ 
+\end{tabular}
+\end{table}
+
+If instead we'd like to model the position of the 1250-200-1 static mesh detonation while having more accurate thermodynamic peak temperatures more akin to the 5000-800-1 static mesh, the ngP-02-02-1-4-4 achieves this with 148,950 cells, which is 40\% smaller than the 1250-200-1 static mesh and 96\% smaller than the 5000-800-1 static mesh. A use case where this may be preferable is when you'd like to make sure you're modeling a certain grid resolution entirely, but having a more accurate peak solution would also aid design. Another use scenario of this AMR parameter style is when the position of the detonation wave itself is of less concern but the peak solution values need to still be resolved. 
+
+An important comparison also lies between the ngP-01-01-1-3-3 (solid brown) just mentioned and ngP-02-02-1-3-4 (solid purple) with higher refinement bounds but a single further refinement level AMR runs. While the solid purple simulation has a higher refinement level, the lower normalized pressure gradient bound allows for more cells to be captured around the detonation and model it more accurately while being 3.8 times smaller in terms of number of cells. 
