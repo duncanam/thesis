@@ -1,15 +1,33 @@
 \chapter{Summary}
 \label{summary}
 
-
-
-
 \section{Project Summary}
+In this thesis, the computational fluid dynamics toolbox OpenFOAM was used to simulate detonation waves within a square tube. Different solvers were tested until the hybrid solver \verb|rhoReactingCentralFoam| was decided as best due to the use of the Kurganov and Tadmor central schemes which reproduce compressible, high speed flow with good accuracy. Different ignition methods were tested, and gradient ignition was found to produce results with the least noise. Next, the chemistry was tested for sensitivity and then matched to Chapman-Jougeut targets and the automatic time stepping algorithm was tested to determine how large the CFL number could be allowed to increase before numerical ringing and noise reduced solution accuracy. A value was found that agreed with similar detonation modeling published works. Static computational meshes were then compared to determine the required mesh resolution to resolve shock and detonation structures. The threshold for resolving finer flow field structures as well as the von Neumann spike was determined, as well as the threshold for overall convergence and detonation wave shape integrity. 
+
+INSERT AMR STUFF HERE
+
+
+
 
 \section{Next Steps}
 \subsection{Areas to Improve}
+Increased knowledge as to the effects of AMR in three-dimensional simulations versus the use in two-dimensional simulations may be valuable. Two-dimensional simulations were the primary target of this thesis work due to a balance of feasibility in computational time as well as sufficient expense to justify and show the benefits of AMR. 
+
+An exploration into different tracking parameters other than the normalized gradient of pressure and 
+
+{\color{red}\large add parameters here}
+
+is useful as a more efficient parameter (i.e. parameter that better describes where refinement is absolutely necessary) may further reduce computational cost. Additionally, combining parameters together may produce smarter AMR periods as the refinement is not free and can be potentially more expensive than static mesh cases if not carefully set up. 
+
+Better load balancing in parallel computing in OpenFOAM could use improvement. Currently, intelligent setup and awareness of the detonation itself is required to ensure that the AMR does not offset considerable computational load onto one processor or another as the detonation moves through the domain. For detonation tubes, this is not a problem as long decompositions can be used to balance the processor load. However, for simulations of RDEs or rocket engine combustion chambers that can be inherently unpredictable, smart domain partitioning is difficult. Like adaptive meshing, an adaptive domain decomposition may assist with improving load balancing in these scenarios. 
+
+The AMR routines in parallel can be unstable. This does not seem to affect the solution, but it is not feasible to ``babysit'' a simulation and restart it if it crashes. The crashes seem to be due to AMR cells not getting communicated correctly with MPI, leading to a disproportionate number of cell faces shared at domain-decomposed boundaries where the MPI communication is occurring. Further work here is needed, and it will likely improve as Caelan Lapoint continues development on the AMR routines. 
+
 
 \subsection{Future Work}
+Further work in detonation modeling in the context of RDEs is the logical next step. This technology is still emerging and having better characterization of the highly chaotic flow field inside the engine will guide better engineering design and analysis towards improved propulsion technology. AMR applied to RDE simulation in OpenFOAM will reduce computational cost, especially for three-dimensional RDE simulations. 
+
+Deflagration to detonation transition modeling is another area to be explored with this solver. Characterizing this will allow the solver to be used in a wider set of scenarios, where sudden detonation of reactants is a potential concern. 
 
 \section{Impact}
 

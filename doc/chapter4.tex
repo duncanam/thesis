@@ -57,7 +57,7 @@ For a 2500-400-1 mesh, this is seen in Figure \ref{fig:maxrho}.
 \caption{Surface plot of maximum density tracked across all time steps for each cell emulating a ``smoke foil''}
 \label{fig:maxrho}
 \end{figure}
-From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long or var throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy" and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since unrefinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. 
+From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long or var throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy" and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since unrefinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. Another benefit of the addition of slight noise in the background domain is the ability to determine when the mesh resolution is refined enough to begin resolving fine detonation structure. As seen in the high refinement two-dimensional static mesh detonation results later in this chapter, the fine variation in the detonation wave itself is seen and therefore the threshold for resolving such structures is known. 
 
 
 
@@ -216,14 +216,14 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
     \centering
     \begin{subfigure}[]{\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{./figs/static2d/p.png}
+        \includegraphics[width=\textwidth]{./figs/staticfigs/p.png}
         \caption{Pressure plot}
         \label{fig:2dstaticp}
     \end{subfigure}
 
     \begin{subfigure}[]{\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{./figs/static2d/t.png}
+        \includegraphics[width=\textwidth]{./figs/staticfigs/t.png}
         \caption{Temperature plot}
     \end{subfigure}
 
@@ -232,14 +232,14 @@ In addition to the static and dynamic one-dimensional detonation tube simulation
     
     \begin{subfigure}[]{0.95\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{./figs/static2d/u.png}
+        \includegraphics[width=\textwidth]{./figs/staticfigs/u.png}
         \caption{Fluid velocity plot}
         \label{fig:2dstaticu}
     \end{subfigure}
 
     \begin{subfigure}[]{0.95\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{./figs/static2d/y.png}
+        \includegraphics[width=\textwidth]{./figs/staticfigs/y.png}
         \caption{H\(_2\) mass fraction plot}
     \end{subfigure}
 
@@ -289,6 +289,120 @@ Example surface plots for the static 2500-400-1 mesh are plotted in Figure \ref{
 
 \section{Adaptive Mesh Refinement and Static Comparisons}
 As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parameters can be tuned to try and match the fine static mesh resolutions in important areas. Detonation waves are very thin with extremely high pressures, temperatures, and velocities within this small region. This makes them an ideal candidate for adaptive meshing. To validate the AMR routines, comparison with the baseline static meshes is required to determine how the flow field changes. The AMR settings were tweaked and changed over a range of values and compared to static meshes in order to determine if the AMR can practically replace static meshes for detonation modeling in OpenFOAM as well as attempt to characterize how each change in AMR parameter affects the solution. For the following comparison cases, it was all performed in two dimensions. This allows for the AMR to start delivering noticeable performance gains as cell counts can often quickly increase into the millions. 
+
+The primary variable used to track when the AMR should be applied was the normalized gradient of pressure, \( ||\nabla(p)||\). Detonations  and shock waves will have very large pressure gradients, so this is a logical selection. By normalizing this quantity, the values selected for the bounds are always consistent across any similar simulation and the setup is easier. Other variables can also be selected for refinement tracking variables, such as pressure, temperature, and velocity. The reasons that these were not selected as primary tracked variables was due to the rest of the flow field. Pressure itself could change significantly between different simulations, so normalized pressure is probably a better choice. Even if normalized pressure is chosen, a portion of the field can remain at high pressure (i.e. in the burning region after the detonation). The pressure gradient waveform is much sharper and thinner than pressure, so this provides a better small region for the AMR to focus on. Temperature is fairly consistent across the products and even increases back towards the detonation initiation region, so tracking temperature itself around the wave only would be very difficult. Velocity and normalized velocity may be appropriate, but only for initiated detonations as the ignition region has no flow field velocity and therefore the important initial refinement of the flow field as the detonation wave is forming will not occur due to the lack of velocity before the reactants ignite and detonate. 
+
+\subsection{AMR Buffer Layer Comparisons}
+Within the AMR settings, different numbers of buffer layers between the refinement layer and the rest of the flow can be set. A 250-40-1 base mesh was set, with 3 refinement levels tracking the normalized pressure gradient \( ||\nabla(p)||\) from 0.2 to 1. Different number of buffer layers were tested and plotted at \(t = 3 \times 10^{ - 5}\) s in Figure \ref{fig:amr_bufflayers}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_bufflayers/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_bufflayers/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave AMR results for a 250-40-1 base mesh with 3 refinement levels, tracking \( ||\nabla(p)||\) between 0.2 and 1 at 3e-5 s, sweeping buffer layers}
+    \label{fig:amr_bufflayers}
+\end{figure}% 
+\noindent From the figure, it can be seen that the pressure solution generally decreases and the wave propagates further right, around 0.2 mm per layer, as more buffer layers are added. When 4 buffer layers are reached, the buffer layers have ``converged'' with their overall affect on the solution. Due to this, we can conclude that for PDEs and detonation tube simulations 4 buffer layers are sufficient and significant improvements in solution accuracy are not worth the increased cell count which could be used for additional refinement layers or an increased AMR refinement range. That said, the subjective timing of adding additional buffer layers was not as significant as additional refinement levels. The maximum temperature and velocity seen do not change beyond using AMR or not, but the location of the detonation wave does as with the rest of the solution variables. When a user is attempting to move the AMR-simulated detonation wave closer to static results while tuning AMR parameters, adding additional buffer layers up to 5 layers will move the AMR-simulated detonation wave close to static simulation results at minimal additional cost. 
+
+\subsection{AMR Normalized Pressure Gradient Refinement Range Comparisons}
+In addition to the levels of refinement and buffer layers, the actual range in which the normalized pressure gradient is refined over can be altered. The upper bound of the normalized pressure gradient tracking variable was kept at 1, with the lower refinement bound and the unrefine bound kept identical and swept across a range of values. As a reminder, if the normalized pressure gradient is between 1 and the lower bound, adaptive meshing will be active within the cell. If the value is lower than the unrefinement bound, unrefinement of the cell until the base resolution will occur. This was plotted at \(3\times 10^{ - 5}\) s in Figure \ref{fig:amr_refinebounds}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinebounds/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinebounds/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave AMR results for a 250-40-1 base mesh with 3 refinement levels and 3 buffer layers, tracking \( ||\nabla(p)||\), sweeping refinement bounds }
+    \label{fig:amr_refinebounds}
+\end{figure}% 
+\noindent The static mesh was unchanged from the previous sensitivity plots and the number of refinement levels as well as buffer layers was both 3. It is seen in the figures that by decreasing the refinement bound, the solution increases in accuracy. Pressure values increase the most initially when decreasing the lower bound, up until a lower bound of around 0.1. From here, only further wave propagation is what changes from iteration to iteration. Due to this, 0.1 is the lower bound value that should be selected for PDE and detonation tube modeling if pressure is of interest while keeping the cell count as low as possible for cheaper computation. After this value, the detonation wave location is the parameter that will be affected by further decreases in lower bound of the normalized pressure gradient. If accurate wave location is also of interest (keep in mind that the lowest three refinement bounds, i.e. the most accurate, span around 0.6 mm), then further expansion of the AMR range can be done. 
 
 
 
