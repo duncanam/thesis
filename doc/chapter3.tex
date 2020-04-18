@@ -140,7 +140,14 @@ where \(N_{\text{static target}}\) is the static mesh target resolution and \(N_
 %\end{equation}
 The maximum number of cells can be estimated by considering the region where static mesh refinement needs to be active. By adding the number of cells in this region in the refined static mesh resolution to that of the base AMR resolution, an estimate for \verb|maxCells| can be determined. Note that if more buffer layers are utilized, \verb|maxCells| needs to be increased. 
 
+In Figure \ref{fig:examr}, an example AMR detonation simulation is shown. The black boxes are the cell edges, and the adaptive meshing around the detonation wave can be clearly seen. 
 
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=\textwidth]{./figs/amr_cells.png}
+\caption{Three-level adaptive mesh refinement over a pressure field surface contour, with the detonation wave traveling from the -x wall to +x exit}
+\label{fig:examr}
+\end{sidewaysfigure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

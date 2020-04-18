@@ -292,6 +292,78 @@ As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parame
 
 The primary variable used to track when the AMR should be applied was the normalized gradient of pressure, \( ||\nabla(p)||\). Detonations  and shock waves will have very large pressure gradients, so this is a logical selection. By normalizing this quantity, the values selected for the bounds are always consistent across any similar simulation and the setup is easier. Other variables can also be selected for refinement tracking variables, such as pressure, temperature, and velocity. The reasons that these were not selected as primary tracked variables was due to the rest of the flow field. Pressure itself could change significantly between different simulations, so normalized pressure is probably a better choice. Even if normalized pressure is chosen, a portion of the field can remain at high pressure (i.e. in the burning region after the detonation). The pressure gradient waveform is much sharper and thinner than pressure, so this provides a better small region for the AMR to focus on. Temperature is fairly consistent across the products and even increases back towards the detonation initiation region, so tracking temperature itself around the wave only would be very difficult. Velocity and normalized velocity may be appropriate, but only for initiated detonations as the ignition region has no flow field velocity and therefore the important initial refinement of the flow field as the detonation wave is forming will not occur due to the lack of velocity before the reactants ignite and detonate. 
 
+
+\subsection{AMR Refine Level Comparisons}
+One of the more important parameters to test is the number of times the adaptive meshing routines refine each cell, or the refinement level. A 125-20-1 base mesh was used to test each refinement level using the normalized pressure gradient as the tracked variable with three buffer layers. The results, taken at \(3\times 10^{ - 5}\) s, are plotted in Figure \ref{fig:amr_refinelevels}.
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinelevels/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinelevels/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave AMR results for a 125-20-1 base mesh with 3 buffer layers, tracking \( ||\nabla(p)||\) between 0.2 and 1 at 3e-5 s, sweeping refinement levels}
+    \label{fig:amr_refinelevels}
+\end{figure}% 
+\noindent As expected, as the refinement level increases, so does the accuracy of the detonation wave. For this particular base mesh, it can be seen that the solution starts to converge around 4 levels of refinement and after the von Neumann pressure spike begins to resolve. For different base resolutions and simulation setups, this may change. It can also be seen that each increase in refinement level brings the solution roughly as close to a potential ``perfect'' static mesh resolution by half the previous x-distance, with the increase in pressure solution being exponential due to the resolving of the von Neumann spike. Further refinement levels are similarly as expensive, being exponential in cell growth, seen in Table \ref{tab:amr_refinelevels}. The exponential cell growth was also reflected in the time the simulations took to complete. The level 5 refinement has nearly the same peak pressure value as the 5000-800-1 simulation, with a slight spatial offset and 3,771,393 fewer cells. Further tweaking with tracked variable bounds as well as buffer layers may bring the detonation wave closer to that static mesh simulation. 
+
+\begin{table}
+\centering
+\caption{Cells for each refinement level for the 125-20-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_refinelevels}}
+\label{tab:amr_refinelevels}
+\begin{tabular}{cc}
+Refinement Level & Cells \\ \hline
+5 & 228,607 \\ 
+4 & 54,678 \\ 
+3 & 13,028 \\ 
+2 & 5,300 \\
+1 & 2,920 \\
+None & 2500 \\
+\end{tabular}
+\end{table}
+
 \subsection{AMR Buffer Layer Comparisons}
 Within the AMR settings, different numbers of buffer layers between the refinement layer and the rest of the flow can be set. A 250-40-1 base mesh was set, with 3 refinement levels tracking the normalized pressure gradient \( ||\nabla(p)||\) from 0.2 to 1. Different number of buffer layers were tested and plotted at \(t = 3 \times 10^{ - 5}\) s in Figure \ref{fig:amr_bufflayers}. 
 \begin{figure}[]
@@ -346,7 +418,24 @@ Within the AMR settings, different numbers of buffer layers between the refineme
     \caption{Two-dimensional detonation wave AMR results for a 250-40-1 base mesh with 3 refinement levels, tracking \( ||\nabla(p)||\) between 0.2 and 1 at 3e-5 s, sweeping buffer layers}
     \label{fig:amr_bufflayers}
 \end{figure}% 
-\noindent From the figure, it can be seen that the pressure solution generally decreases and the wave propagates further right, around 0.2 mm per layer, as more buffer layers are added. When 4 buffer layers are reached, the buffer layers have ``converged'' with their overall affect on the solution. Due to this, we can conclude that for PDEs and detonation tube simulations 4 buffer layers are sufficient and significant improvements in solution accuracy are not worth the increased cell count which could be used for additional refinement layers or an increased AMR refinement range. That said, the subjective timing of adding additional buffer layers was not as significant as additional refinement levels. The maximum temperature and velocity seen do not change beyond using AMR or not, but the location of the detonation wave does as with the rest of the solution variables. When a user is attempting to move the AMR-simulated detonation wave closer to static results while tuning AMR parameters, adding additional buffer layers up to 5 layers will move the AMR-simulated detonation wave close to static simulation results at minimal additional cost. 
+\noindent From the figure, it can be seen that the pressure solution generally decreases and the wave propagates further right, around 0.2 mm per layer, as more buffer layers are added. When 4 buffer layers are reached, the buffer layers have ``converged'' with their overall affect on the solution. Due to this, we can conclude that for PDEs and detonation tube simulations 4 buffer layers are sufficient and significant improvements in solution accuracy are not worth the increased cell count which could be used for additional refinement layers or an increased AMR refinement range. That said, the subjective timing of adding additional buffer layers was not as significant as additional refinement levels. The maximum temperature and velocity seen do not change beyond using AMR or not, but the location of the detonation wave does as with the rest of the solution variables. When a user is attempting to move the AMR-simulated detonation wave closer to static results while tuning AMR parameters, adding additional buffer layers up to 5 layers will move the AMR-simulated detonation wave close to static simulation results at minimal additional cost. Table \ref{tab:amr_bufflayers} displays the cell counts for each additional AMR buffer layer for the simulations tested in Figure \ref{fig:amr_bufflayers}. For each additional buffer layer, there is roughly a linear increase in cells, which tracks with the time the simulations took to complete. 
+
+\begin{table}
+\centering
+\caption{Cells for each refinement level for the 250-40-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_bufflayers}}
+\label{tab:amr_bufflayers}
+\begin{tabular}{cc}
+Buffer Layers & Cells \\ \hline
+6 & 37,405 \\ 
+5 & 34,353 \\
+4 & 32,960 \\
+3 & 37,678 \\
+2 & 16,173 \\
+1 & 10,840 \\
+None & 10,000 \\
+\end{tabular}
+\end{table}
+
 
 \subsection{AMR Normalized Pressure Gradient Refinement Range Comparisons}
 In addition to the levels of refinement and buffer layers, the actual range in which the normalized pressure gradient is refined over can be altered. The upper bound of the normalized pressure gradient tracking variable was kept at 1, with the lower refinement bound and the unrefine bound kept identical and swept across a range of values. As a reminder, if the normalized pressure gradient is between 1 and the lower bound, adaptive meshing will be active within the cell. If the value is lower than the unrefinement bound, unrefinement of the cell until the base resolution will occur. This was plotted at \(3\times 10^{ - 5}\) s in Figure \ref{fig:amr_refinebounds}. 
@@ -402,8 +491,23 @@ In addition to the levels of refinement and buffer layers, the actual range in w
     \caption{Two-dimensional detonation wave AMR results for a 250-40-1 base mesh with 3 refinement levels and 3 buffer layers, tracking \( ||\nabla(p)||\), sweeping refinement bounds }
     \label{fig:amr_refinebounds}
 \end{figure}% 
-\noindent The static mesh was unchanged from the previous sensitivity plots and the number of refinement levels as well as buffer layers was both 3. It is seen in the figures that by decreasing the refinement bound, the solution increases in accuracy. Pressure values increase the most initially when decreasing the lower bound, up until a lower bound of around 0.1. From here, only further wave propagation is what changes from iteration to iteration. Due to this, 0.1 is the lower bound value that should be selected for PDE and detonation tube modeling if pressure is of interest while keeping the cell count as low as possible for cheaper computation. After this value, the detonation wave location is the parameter that will be affected by further decreases in lower bound of the normalized pressure gradient. If accurate wave location is also of interest (keep in mind that the lowest three refinement bounds, i.e. the most accurate, span around 0.6 mm), then further expansion of the AMR range can be done. 
+\noindent The static mesh was unchanged from the previous sensitivity plots and the number of refinement levels as well as buffer layers were both 3. It is seen in the figures that by decreasing the refinement bound, the solution increases in accuracy. Pressure values increase the most initially when decreasing the lower bound, up until a lower bound of around 0.1. From here, only further wave propagation is what changes from iteration to iteration. Due to this, 0.1 is the lower bound value that should be selected for PDE and detonation tube modeling if pressure is of interest while keeping the cell count as low as possible for cheaper computation. After this value, the detonation wave location is the parameter that will be affected by further decreases in lower bound of the normalized pressure gradient. If accurate wave location is also of interest (keep in mind that the lowest three refinement bounds, i.e. the most accurate, span around 0.6 mm), then further expansion of the AMR range can be done. Table \ref{tab:amr_refinebounds} contains the cell counts for each lower refinement/unrefinement bound simulation performed in Figure \ref{fig:amr_refinebounds}. It is seen that for this base mesh resolution, a lower bound for the normalized pressure gradient of 0.05 is when the cell count begins to increase considerably. The increase is exponential, so normalized pressure gradient bounds below 0.05 will be more expensive than they are worth. 
 
+\begin{table}
+\centering
+\caption{Cells for each lower refinement/unrefinement bound for the 250-40-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_refinebounds}}
+\label{tab:amr_refinebounds}
+\begin{tabular}{cc}
+Lower refinement/unrefinement bound & Cells \\ \hline
+0.01 & 139,136 \\
+0.05 & 39,799 \\
+0.1 & 38,343 \\ 
+0.2 & 37,678 \\
+0.3 & 37,692 \\ 
+0.4 & 36,355 \\
+No AMR & 10,000 \\
+\end{tabular}
+\end{table}
 
 
 %\section{Sensitivities, efficiencies of AMR?}
