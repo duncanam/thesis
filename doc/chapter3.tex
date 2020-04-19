@@ -1,262 +1,589 @@
-\chapter{OpenFOAM Detonation Modeling}
-\label{ofchap}
+\chapter{Solver Parameter Testing}
+\label{solvtestchap}
 
-% TODO add previous work
+% TODO[X] move preface and rhoreactingfoam stuff into OF det modeling section
 
-\section{Overview}
-OpenFOAM is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. The solvers tested during this research include:
-\begin{itemize}
-    \item \textbf{rhoReactingFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``[s]olver for combustion with chemical reactions using density-based thermodynamics package."
-    \item \textbf{rhoCentralFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``Density-based compressible flow solver based on central-upwind schemes of Kurganov and Tadmor with support for mesh-motion and topology changes."
-    \item \textbf{rhoReactingCentralFoam}: a solver developed by Caelan Lapoint at the University of Colorado Boulder, combining \verb|rhoReactingFoam| and \verb|rhoCentralFoam| together as well adaptive mesh refinement support. 
-\end{itemize}
+% TODO[X] start with setup of rrcf and move Sod into previous 
 
-In addition to these solvers, several additional tools outside the standard OpenFOAM installation were utilized. This includes \verb|funkySetFields|, included with \verb|swak4Foam| \cite{swak4foam}. \verb|funkySetFields| is a tool much like the OpenFOAM-included \verb|setFields| utility, which allows the user to define set values of variables within certain regions of the computational domain (e.g. allows the user to set a cube within a domain to a certain temperature which is different than what is set globally). \verb|funkySetFields| extends this functionality, allowing for time and position-dependent defining of variables, such that an initial condition such as a temperature ramp, or randomization of temperature within the domain is possible. 
+% TODO[X] 4.3 basically consumes this chapter 
+
+%\section{Preface}
+
+%This chapter will go through progression of research on efficacy for the different solvers and detonation modeling techniques performed during the duration of this thesis work. In an effort to assist the University of Colorado's Turbulence and Energy Systems Laboratory (TESLa), several solvers and methods will be tested for potential for detonation modeling, stability, and accuracy, typically in that order. Additional focus will be on the effects of AMR on the results. 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Now that \verb|rhoReactingCentralFoam| has been selected for use, the solver can be tested further to determine how different selections in solver parameters alter the solution. Parameters that were tested are the Arrhenius equations's pre-exponential factor exponent, the Courant number and time step variation, static mesh resolution, and adaptive mesh refinement variation. Sensitivities to certain solver parameters as well as mesh resolution on the solution were be explored. 
 
-\section{Setup and Structure}
-In order to simulate a fluids or combustion problem in OpenFOAM, the directory structure in which the simulation is to be run needs to be correct. Each OpenFOAM simulation contains a directory \verb|0/| which holds initial conditions for the domain as well as boundary conditions \cite{ofug}. Inside this directory are files named like the quantities they represent, such as \verb|p|, \verb|T|, and \verb|U|. \verb|funkySetFields| edits these files to apply the special initial conditions. As the simulation progresses, more folders representing timesteps will appear with data saved for that timestep. The folder name will represent the specific timestep exactly. 
 
-The next important directory is \verb|constant/|. This directory holds physical quantities as well as mesh information once it is formed. For reacting flows, some files of interest within this folder may be:
+%\section{Solver Parameter Testing and Sensitivity}
+Line plots seen in the upcoming sections were sampled with the OpenFOAM utility \verb|postProcess| with the \verb|lineUniform| type, using 1000 sampling points interpolated from cell centers. The line progresses from the edge of the initiation of the detonation to the end of the detonation tube. This data is then read into the Julia programming language for plotting. The colorful surface plots seen in this chapter were produced with ParaView\cite{paraview}, a graphical interface for post-processing data of many types. 
 
-\begin{itemize}
-    \item \textbf{chemistryProperties}: a file that contains definitions for which chemistry solver is used as well as tolerances.
-    \item \textbf{combustionProperties}: contains the combustion model (laminar, or turbulence model) definition.
-    \item \textbf{dynamicMeshDict}: defines adaptive mesh refinement options. One can define which variable is tracked during adaptive meshing as well as how often and refined the meshing is. 
-    \item \textbf{reactions}: contains all the reactions that occur during the simulation. The active species are defined here as well as the rate model (such as Arrhenius). 
-    \item \textbf{thermo.compressibleGas}: included are the thermodynamic properties such as temperature-dependent specific heat coefficients and molecular weights of the species that are included within the chemistry models.
-    \item \textbf{thermophysicalProperties}: defines things such as the equation of state, inert species, locations of \verb|reactions| and \verb|thermo.compressibleGas|, if the mixture is reacting, if the thermodynamic properties are temperature-dependent, and how the energy equation is defined (e.g. one can have the model focused on sensible enthalpy or sensible internal energy).
-    \item \textbf{turbulenceProperties}: defines turbulence modeling for the flow in general. 
-\end{itemize}
+\section{Ignition Tests}
+\label{sec:igstudy}
 
-The last necessary directory is \verb|system/|. This directory contains files that will define some generic solver tolerances as well mesh setup and simulation setup. Specifically, it could contain:
+\subsection{Block Ignition}
 
-\begin{itemize}
-    \item \textbf{blockMeshDict}: defines the mesh. A user will input dimensions and how the hex mesh will be partitioned. This could also be placed within \verb|constant/polyMesh/|. 
-    \item \textbf{controlDict}: the overarching control file for OpenFOAM. This contains start and end times, time increments, write-to-file frequency, save file compression and format, and adaptive time stepping parameters such as maximum Courant number. Other options such as functions for residual tracking and libraries for functions like \verb|funkySetFields| can be placed here. 
-    \item \textbf{decomposeParDict}: defines parallel processing domain decomposition for MPI. The number of processors as well as where domain splits should occur or algorithm definitions for automatic domain decomposition are set here. 
-    \item \textbf{setFieldsDict}/\textbf{funkySetFieldsDict}: defines custom field setting, as discussed earlier. Blocks of pressure or temperature ramps are defined here. 
-    \item \textbf{fvSchemes}: finite volume methods are defined here, such as Gauss linear or van Leer MUSCL schemes. It is broken into derivative, gradient, divergence, laplacian, and more sections. 
-    \item \textbf{fvSolution}: defines the specific differential equation solvers as well as their tolerances. This can also contain smoothers and other solver-specific settings. 
-    \item any files that define sampling for post processing, such as line plots through a region in the domain.  
-\end{itemize}
-
-Together, these directories comprise the OpenFOAM directory structure. A user then will run the solver of interest within the directory containing these subdirectories, and the solver will look within these subdirectories for the files just discussed and apply them to the solution process. Pre-processing and post-processing steps are also run from this directory, such as creating the mesh from \verb|blockMesh|, placing special initial conditions with \verb|funkySetFields|, or obtaining results at a timestep with a line plot with \verb|postProcess|. Results can also be viewed graphically with \verb|paraview| or \verb|paraFoam|. 
-
-At this stage, some modeling notation should be introduced to simplify some things. Initial and static grid resolutions will take the form ``Nx-Ny-Nz'' with N representing the number of evenly-spaced cells that will fill the dimension, and x/y/z representing the dimension. A 500-40-3 grid represents 500 cell divisions in x, 40 divisions in y, and 3 divisions in z. This notation will be used later to quickly distinguish between resolutions and dimensionality of a mesh. Since OpenFOAM does not strictly have a one-dimensional or two-dimensional operating mode, three dimensions must always be realized. This is not a problem however, as a single cell can be used to represent a flattened dimension, with special boundary conditions for the faces that are in the ``dimensionless'' plane. For example, a two-dimensional geometry would be represented with a 500-40-1 mesh, and a one-dimensional geometry with a 500-1-1 mesh. 
-
-\section{Domain Setup}
-The geometry used for this research is seen in Figure \ref{fig:domainBC}.
-\begin{figure}[H]
+The block ignition method with high pressure and temperature stoichiometric reactants was utilized initially to build off the work done in \cite{towery1}. A rectangular region spanning from the ignition wall (y-z plane at \(x = 0\) m) to \(x = 0.001\) m was set with a different initial condition than the rest of the domain using the \verb|setFields| utility. The ignition block region contained high pressure and temperature gas at 3000 K and 20 atm, with the rest of the domain at 300 K and 1 atm. This method is seen in Figure \ref{fig:blockig}.
+\begin{figure}[h]
 \centering
-\includegraphics[width=\linewidth]{./figs/domainBC.png}
-\caption{Geometry and domain setup with boundary conditions}
-\label{fig:domainBC}
+\includegraphics[width=0.8\textwidth]{figs/ignition/block.png}
+\caption{Block ignition method, seen on left side of domain, at t = 0 s}
+\label{fig:blockig}
 \end{figure}%
-The so-called ``inlet'' (even though fluid is not actively moving through this face) is the region where the detonation is initiated. The inlet is a solid adiabatic wall with velocity slip conditions such that the fluid can slide across it without effects from viscosity. This was chosen such that just the detonation itself can be studied in a pure form. Other walls are like this, such as the walls that make up the sides. It should be noted that the sides located in the x-y planes (``front and back'') change their type depending on the simulation. Since OpenFOAM does not have a two-dimensional mesh mode, for static mesh two-dimensional simulations these faces are set as a special ``empty'' patch type in order to tell OpenFOAM that it is a two-dimensional simulation taking place. For three-dimensional simulations the front and back faces are identical to the x-z ``top and bottom'' planes, which like the inlet are velocity-slip adiabatic walls. Two-dimensional AMR runs also use the three-dimensional wall setup here as the oct-tree cell splitting algorithm for mesh refinement is inherently three-dimensional even if we are simulating a two-dimensional domain. Due to this, two-dimensional simulations are actually pseudo-two-dimensional. 
+\noindent Ultimately this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery\cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
 
-The exit plane of the domain utilizes a ``waveTransmissive'' boundary condition. This is a special boundary condition that allows for waves such as shockwaves to not reflect at the boundary while expelling gases. A traditional OpenFOAM pressure outlet was seen to reflect the shockwave coupled with the detonation wave. 
-
-The initial conditions for the domain are set at 300 K and 1 atm. An ignition region is initialized at a higher pressure and temperature at the start of the detonation tube and is discussed further in Section \ref{sec:ignition}.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\section{Parallel Computing}
-Included with the standard installation of OpenFOAM are solvers that are capable being scaled to make use of multiple processors \cite{ofug}. Solvers like \verb|rhoReactingCentralFoam| include this functionality. OpenFOAM's parallel processing is done through MPI, where several instances of a solver are run simultaneously and MPI passes information between the solvers. Each solver running in parallel computes on a different portion of the domain. 
-
-In order to be able to run a solver in parallel, the domain must be decomposed into smaller pieces first. This is done with the \verb|decomposePar| utility, which takes user input from the \verb|decomposeParDict| file. Within this file, a user dictates how many times the domain is broken up, and how or where the domain is broken up. Several different decomposition methods can be utilized:
-\begin{itemize}
-\item \textbf{simple}: this is the most common method used for decomposition. The domain is split into chunks based on direction, and the user specifies how many splits there should be in each direction. 
-\item \textbf{hierarchical}: similar to the \verb|simple| method, but instead an ordering to the domain splitting is used
-\item \textbf{scotch}: this method does not require geometric input from the user but rather it attempts to minimize boundaries between processors. Processor weighting can be set. 
-\item \textbf{manual}: cells are manually allocated to each processor here. 
-\end{itemize}
-In the researched performed here, the \verb|simple| method for domain decomposition was utilized due to the simplicity. Since detonations have small regions of high pressure, temperature, and velocity, some care must be done with respect to how the domain is decomposed, especially when considering AMR. If one were to decompose the domain into several pieces along the length of the tube, some processors would be working harder than other processors as the detonation passes into their respective domain chunks. We load balance the processors by not splitting the domain along the length of the detonation tube, and instead across it. This is shown in Figure \ref{fig:decomp}. 
-\begin{figure}[]
-    \centering
-    \begin{subfigure}[]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./figs/parallel_short.png}
-        \caption{Domain decomposed into typical chunks, bad for detonation and AMR load balancing}
-        \label{sfig:shortdecomp}
-    \end{subfigure}
-
-    \begin{subfigure}[]{0.7\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./figs/parallel_long.png}
-        \caption{Domain decomposed into long chunks, better for detonation and AMR load balancing}
-        \label{sfig:longdecomp}
-    \end{subfigure}
-    \caption{Example domain decomposition techniques for parallel computing}
-    \label{fig:decomp}
-\end{figure}%
-\noindent Using long slivers seen in Figure \ref{sfig:longdecomp} instead of a typical aspect ratio consistent decomposition in Figure \ref{sfig:shortdecomp} allows for every processor to always have a small portion of the detonation in its domain. Otherwise, some processors would be waiting on other processors that have the detonation in them or heavy mesh refinement regions from the AMR routines.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\section{Adaptive Mesh Refinement}
-
-Adaptive mesh refinement is the process of refining or unrefining the computational mesh based on a tracked parameter of interest at a specific point in time. In OpenFOAM, AMR is available with several standard solvers such as \verb|interFoam|, and has been implemented into \verb|rhoReactingCentralFoam| by Caelan Lapoint. The AMR in this solver functions by looking within a mesh cell at a quantity of interest at a specific time interval, and deciding based on the value of that quantity of interest whether or not to refine the mesh in that cell. If the quantity is within the refinement bounds set by the user, the AMR routine will split the cell with an octree splitting method as shown in Figure \ref{fig:octree}. Additionally, the AMR can unrefine the mesh if the quantity of interest is outside the refinement bounds set by the user. The user settings are located within \verb|constant/dynamicMeshDict|, and several options exist for the user to tweak. Some of the most important ones include:
-\begin{itemize}
-\item \verb|dynamicFvMesh|: allows for the user to turn on and off the dynamic mesh refinement. 
-\item \verb|refineInterval|: how often to do mesh refinement in terms of time step iteration. For example, a value of 2 here would mean that the AMR would look to refine or unrefine every other time step. 
-\item \verb|field|: the variable of interest to track and refine based off of. If set as \verb|T|, AMR would check the temperature field values.  
-\item \verb|lowerRefineLevel|: the lower bound for the AMR \verb|field| value tracking to refine upon. If the solution is higher than this bound during a \verb|refineInterval|, the cell will be refined. If the value is lower, it will not refine. 
-\item \verb|upperRefineLevel|: the upper bound for the AMR \verb|field| value tracking to refine upon. If the solution is lower than this during a \verb|refineInterval|, the cell will be refined. If the value is higher, it will not refine. 
-\item \verb|unrefineLevel|: the value of \verb|field| that will trigger unrefinement. If the value is less than this quantity, the AMR will unrefine cells. 
-\item \verb|nBufferLayers|: how additional layers of cells will be refined around the cell that triggered a refinement. 
-\item \verb|maxRefinement|: how many additional times cells can be refined within an iteration. 
-\item \verb|maxCells|: the maximum number of cells in the computational domain that can be reached before adaptive mesh refinement is no longer performed. Note that this is not strictly followed but rather an estimate provided to the solver, since the octree splitting can potentially increase number of cells beyond this value at a specific iteration.
-\end{itemize}
-An exploration on how different selections in these parameters affects solution quality was performed in this research. Results will be shown in later chapter sections. An important aspect to note when utilizing \verb|rhoReactingCentralFoam|'s AMR is that the routine is inherently three-dimensional, due to the octree splitting method in Figure \ref{fig:octree}. 
-\begin{figure}[b]
+\subsection{Gradient Ignition}
+Using the theory shown in Towery\cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. \verb|setFields| cannot set fields for initial conditions with functions, so \verb|funkySetFields| was applied for the gradient condition. This can be seen in Figure \ref{fig:gradig}. 
+\begin{figure}[h]
 \centering
-\includegraphics[width=0.6\textwidth]{./figs/amr_example.png}
-\caption{Adaptive mesh refinement octree splitting method}
-\label{fig:octree}
+\includegraphics[width=0.8\textwidth]{figs/ignition/gradient.png}
+\caption{Gradient ignition method, seen on left side of domain, at t = 0 s}
+\label{fig:gradig}
 \end{figure}%
-\noindent Due to this, one-dimensional simulations become pseudo one-dimensional, and two-dimensional simulations become pseudo two-dimensional, since cells will be added in all dimensions when refinement occurs. For detonation modeling in areas like detonation tubes, PDEs, and RDEs, this is acceptable as the velocity in other dimensions tends to be very small in comparison to the velocity in the detonation direction. 
-
-Within \verb|dynamicMeshDict|, two main parameters can be used to guide the adaptive mesh refinement regionally to the target static mesh resolution. \verb|maxCells| stops the adaptive meshing from splitting and refining cells further once a \verb|maxCells| number of cells is reached in total throughout the domain. \verb|maxRefinement| tells the adaptive meshing routines how many further times per iteration it can split and refine cells, allowing for very fine cell resolution in small regions. The necessary number of refinement levels in a detonation simulation to reach target static cell resolution can be described with 
-\begin{equation}
-\verb|maxRefinement| \geq \log_2\left(\frac{N_{\text{static target}}}{N_{\text{AMR base}}}\right)
-\end{equation}
-where \(N_{\text{static target}}\) is the static mesh target resolution and \(N_{\text{AMR base}}\) is the unrefined base mesh resolution provided to the AMR simulation. For example, if our target static mesh had square cells and 5000 cells in length and the mesh we would like to use AMR with has 250 cells in length, this means that we need to use \(\verb|maxRefinement|\geq 5\) in order to reach the static mesh resolution. This does not guarantee that the simulation will be exactly as accurate as the static mesh resolution however, as other parameters such as the number of buffer cells, maximum number of cells, and more importantly the tracked field for refinement all change how the mesh will be refined. Note that the progression from refined cell to cell is also fairly smooth, such that a single octree touches each other. If a region needs to have lots of refinement, one must take this into account and provide the appropriate buffer layers with \verb|nBufferLayers| to allow the AMR to smoothly transition the mesh in time for the sensitive region to have an appropriate refinement level. The next parameter for mesh control discussed is \verb|maxCells|. 
-%An approximation for the number of maximum cells in an AMR run can be described as the number of cells in the base AMR resolution plus the number of cells in the static region of interest. This will give extra cells for overlap and transition regions if one decides to use more buffer layers. Written, this is 
-%\begin{equation}
-%\verb|maxCells| \geq (N_xN_yN_z)_{\text{AMR base}} + 
-%\end{equation}
-The maximum number of cells can be estimated by considering the region where static mesh refinement needs to be active. By adding the number of cells in this region in the refined static mesh resolution to that of the base AMR resolution, an estimate for \verb|maxCells| can be determined. Note that if more buffer layers are utilized, \verb|maxCells| needs to be increased. 
-
-In Figure \ref{fig:examr}, an example AMR detonation simulation is shown. The black boxes are the cell edges, and the adaptive meshing around the detonation wave can be clearly seen. 
-
-\begin{sidewaysfigure}
+\noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. Maximum pressure and density plots across all time steps for every cell can be plotted to emulate experimental ``smoke foil'' results. The smoke foil is a piece of smooth metal placed flat against a wall in a detonation tube chamber, in which smoke particles have been evenly distributed (usually by a fire) upon the surface of the foil. When a detonation passes over the smoke foil, the density and pressure differences will leave fish scale-like patterns upon the foil. 
+In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}. 
+\begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{./figs/amr_cells.png}
-\caption{Three-level adaptive mesh refinement over a pressure field surface contour, with the detonation wave traveling from the -x wall to +x exit}
-\label{fig:examr}
-\end{sidewaysfigure}
+\includegraphics[width=0.8\textwidth]{figs/ignition/randgrad.png}
+\caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
+\label{fig:gradrand}
+\end{figure}%
+\noindent This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization of temperature throughout the domain, the maximum value of density across all time steps for each cell was recorded and plotted as a surface plot. 
+%This plot type will emulate what is seen in experimental results using what is known as a ``smoke foil''.
+For a 2500-400-1 mesh, this is seen in Figure \ref{fig:maxrho}.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{figs/example_results/maxrho.png}
+\caption{Surface plot of maximum density tracked across all time steps for each cell emulating a ``smoke foil''}
+\label{fig:maxrho}
+\end{figure}
+From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long or var throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy" and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since unrefinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. Another benefit of the addition of slight noise in the background domain is the ability to determine when the mesh resolution is refined enough to begin resolving fine detonation structure. As seen in the high refinement two-dimensional static mesh detonation results later in this chapter, the fine variation in the detonation wave itself is seen and therefore the threshold for resolving such structures is known. 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Previous Detonation Modeling Work}
-In order to be able to do the research outlined in this document, many resources were utilized and many others have layed the path in which this work was built off from. 
+\section{Arrhenius Pre-exponential Factor}
+\label{sec:a}
 
-The primary work this research was build off of was done by Towery in ``Examination of Turbulent Flow Effects in Rotating Detonation Engines'' \cite{towery1}. The work done in this paper examined both PDE or detonation tube computational modeling as well as RDE modeling. The numerical code used was developed in-house by TESLa, written in FORTRAN and was massively scalable in parallel. However, this code lacked the geometric and generic flexibility of OpenFOAM, hence the research done in this document. Towery's paper, published in 2014, examined numerical methods for large eddy simulation (LES) of PDEs and RDEs in two and three dimensions. Reynolds averaged turbulence models were also compared to the higher resolution LES simulation results. Both single and two-step reactions kinetics were used in the simulation of detonations in comparison to the single step kinetics used in this document. AMR was not utilized for simulation. 
+In order to better characterize reaction sensitivity and compare to other published results, testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
 
-In 2013 Schwer and Kailasanath published ``Fluid dynamics of rotating detonation engines with hydrogen and hydrocarbon fuels''\cite{schwer1}. This paper primarily discussed the effects of different hydrocarbon fuels on RDEs as well as as their numerical methods for simulating RDEs and detonation waves in tubes. Their tube detonation simulations were performed using a flux-corrrected-transport (FCT) algorithm scaled across hundreds of cores in parallel. Their work showed that RDEs are not affected by thermodynamic differences in hydrocarbon fuels in comparison to hydrogen fuel and that ideal detonation cycle theory could be used for baseline performance. In order to reach conclusions about RDE performance, studies were done on PDE and detonation tube modeling to verify the validity of their solution methods, much like the work done in this document. Detonation tube numerical results were compared to CJ theory and detonation cellular structure was also produced. 
+\begin{figure}
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest/p.png}
+\caption{Pressure distribution in detonation tube for pre-exponential factor exponent sweep test}
+\label{fig:atestp}
+\end{figure}
 
-Marcantoni, Tamagno, and Elaskar in 2017 published ``rhoCentralRfFoam: An OpenFOAM solver for high speed chemically active flows - Simulation of planar detonations -''\cite{marcantoni}. Very similar to the work done in this document but without AMR capability, with \verb|rhoCentralRfFoam| they took the Kurganov central schemes that model compressible flow so well from \verb|rhoCentralFoam| and added reaction modeling capability. Various mass fraction compositions were tested in air as well as chemistry validity spanning into multi-reaction chemical models. They selected a maximum Courant number of 0.25 for the one-dimensional planar detonation tests. \verb|rhoCentralRfFoam| was found to agree with CJ theory as well as other numerical codes such as CEA \cite{CEA}. 
+\begin{figure}
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest/t.png}
+\caption{Temperature distribution in detonation tube for pre-exponential factor exponent sweep test}
+\label{fig:atestt}
+\end{figure}
 
-Dinh, Yoshida, and Ishikura published ``Simulation of Rotating Detonation Engine by OpenFOAM''\cite{dinh} in 2019. They developed an in-house proprietary OpenFOAM code for modeling detonations. This code had the ability to use AMR and was run on a single processor. The AMR parameters used for tracking refinement were normalized reaction heat as well as normalized velocity gradient at an interval of every 10 computational time steps. Together, both thresholds had to be met in order for AMR to occur. Comparisons with analytical theory such as CJ theory or experimental results were not performed in this work, and research done was more exploratory to determine the applicability of the solver. 
+\begin{figure}
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest/u.png}
+\caption{Velocity distribution in detonation tube for pre-exponential factor exponent sweep test}
+\label{fig:atestu}
+\end{figure}
 
-Additionally in 2019, Kim and Kim published ``Numerical method to simulate detonative combustion of hydrogen-air in a containment''\cite{kim}. This research utilized an OpenFOAM solver with central-upwind schemes to study hydrogen-air detonation within confined spaces. Arrhenius rate modeling with seven-step chemistry component reactions were utilized. Similar numerical schemes for solving the reactive Euler equations were used in this work compared to the solvers in this document. Shock tube comparison was done for solver validation as well as further comparison to confined detonation cases, and a CFL number of 0.1 was prescribed. It was found that their solver was capable of capturing shock structures and fluid modeling to match theory as well being able to replicate accurate confined hydrogen-air detonations. 
+From these figures, we can see the importance of having an accurate order of magnitude on the exponent for results. As the exponent was increased beyond the power of 12, plateaus emerge in the results for all thermodynamic variables. Under the power of 12, there is a large jump in solution, and a transition from between detonation states, seen in Figure \ref{fig:pjump}. The differences in these states is due to the coupling of the shockwave and the reactions (flame). The grouping of plots with higher pressure values have the reactions coupled with the shock, and the smaller pressure value grouping has the reaction occurring more slowly and trailing behind the shock. This is more evident in Figures \ref{fig:atestrp} and \ref{fig:atestrt} where we see that there is still a shockwave present in the ``lower'' group, but it is clear by Figure \ref{fig:atestrt} that the reaction process is happening much later than the shockwave instead right at the shock front. Thus presence of a shockwave in this scenario is not due to the sustained reaction, and was triggered by high pressure (and temperature) region used to initialize detonations in the simulation. 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\section{Initial Meshing}
-While the primary topic of interest in this work is adaptive meshing, a primary static mesh is required in order for the adaptive mesh refinement routines within OpenFOAM to refine from. Structured meshes are utilized, with hexahedrons making up the mesh. Meshes used for static mesh and initial AMR simulations can be seen in Figure \ref{fig:meshcompare}. The meshes displayed utilize 125 partitions along detonation ``tube'' and 20 partitions in width, depending on two or three dimensionality in order to be visible for the reader. Real meshes used in simulation are much more fine in order to capture the thin detonation and shock region. Meshes used in this research were created with the OpenFOAM utility \verb|blockMesh|, which generates structured hex meshes based on use input of ``blocks'' which define rectangular prisms that \verb|blockMesh| then uses to form faces and patches for boundary conditions as well as to partition into the mesh. 
-
-\begin{figure}[]
-    \centering
-    \begin{subfigure}[]{\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./figs/mesh/2Dmesh.png}
-        \caption{Two-dimensional mesh}
-    \end{subfigure}
-
-    \begin{subfigure}[]{\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./figs/mesh/3Dmesh.png}
-        \caption{Three-dimensional mesh}
-    \end{subfigure}
-    \caption{Static meshes used in OpenFOAM for detonation modeling, at an exaggerated unrefined resolution for example purposes}
-    \label{fig:meshcompare}
+\begin{figure}
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest_refined/p_large.png}
+\caption{Pressure distribution in detonation tube for expanded and refined pre-exponential factor exponent sweep test, showing detonation shock-reaction coupling transition. See Figures \ref{fig:atestrp} and r\ref{fig:atestrt} for a filtered version.}
+\label{fig:pjump}
 \end{figure}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The exponent in this region was explored further since plateaus in thermodynamic properties values are not physical for real-world detonations. Note that the velocity plotted in Figure \ref{fig:atestu} is a fluid velocity, not a wave velocity. When instead we swept over a smaller interval, with the Chapman-Jouguet (CJ) targets from Towery\cite{towery1} plotted, we can see that there is a very abrupt transition in detonation stability (Figures \ref{fig:atestrp} and \ref{fig:atestrt}). 
 
-
-\section{Detonation Initiation}
-\label{sec:ignition}
-
-The initiation of a detonation is seemingly trickier computationally than it is experimentally. There are several methods to do this. Typically, a region of high temperature and pressure gas is instantiated at one end of the tube, such that the fuel and oxidizer ignites within the tube. If the pressure and temperature conditions within this ignition region are high enough, detonation will occur. If they are not, it is possible to instead just ignite the gas and send a decoupled shockwave down the tube in front of the flame. This is not a detonation and undesirable. 
-
-In addition to the thermodynamic conditions that the ignition region is in, the ignition gas itself can be varied. Some researchers have ignited detonation computationally using a block of high temperature and pressure helium \cite{marcantoni}. Towery has used a an ignition block of high temperature and pressure stoichiometric reactants \cite{towery1} as well as a high temperature and pressure gradient \cite{towery2} ranging from higher pressure and temperature near the ignition wall down to the initial condition of the domain. Ignition will be discussed further in \ref{sec:igstudy}.
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\section{Initial Attempts}
-To begin on the problem of modeling detonations in OpenFOAM, the included tutorials folder as well as the geometric and initial condition setup of located in a related TESLa paper by Towery\cite{towery1} was utilized to begin the work towards an OpenFOAM model of a linear detonation tube/PDE.
-
-Firstly, the detonation of methane fuel and oxygen oxidizer without inert nitrogen filler was explored within a 2D detonation tube with the solver \verb|rhoReactingFoam|. A region of high temperature methane and oxygen on the left hand side was used to initiate the detonation. In the PDE and detonation simulations presented in this paper, stoichiometric fuel and oxidizer was premixed and available thoughout the domain. 
-%Solid walls on the left, top, and bottom of the tube were used. The exit was set as a special \verb|waveTransmissive| boundary condition that allows for shockwaves to not reflect at the exit and for gases to expel as well. 
-A detonation was successfully created with this, but the accuracy and stability were still untested. In order to check that the boundary conditions being applied were correct, a small detonation cell of high pressure and temperature was set in the bottom left corner of the tube. As the simulation progressed, correct wave reflection was seen on the sides of the tube as well as some wave transmissive behavior from the exit was seen (Figure \ref{fig:cornerdet}). 
-\begin{figure}[b]
+\begin{figure}
 \centering
-\includegraphics[width=\linewidth]{figs/cornerdet.png}
-\caption{Initial methane and oxygen detonation boundary condition test with corner detonation. Velocity magnitude is plotted here without scale to just check the solver and boundary conditions for modeling potential. Detonation was initiated in the lower left corner.}
-\label{fig:cornerdet}
-\end{figure}%
-\noindent It was noticed that the exit boundary condition was expelling gas in a rectangular region long before the detonation wave(s) reached the exit, so some tweaking was done on this \verb|waveTransmissive| boundary condition in order to make it more accurate. The boundary condition option accepts inputs such as ratio of specific heats, expected flow velocity, far-field conditions and distance from exit plane, and names of some variables such as the condition to track at the exit as well as some flux variables. 
+\includegraphics[width=0.85\linewidth]{./figs/Atest_refined/p.png}
+\caption{Pressure distribution in detonation tube for refined pre-exponential factor exponent sweep test, filtered from Figure \ref{fig:pjump} and refined from Figure \ref{fig:atestp}}
+\label{fig:atestrp}
+\end{figure}
 
-The next step with \verb|rhoReactingFoam| was to start progressing towards testable detonation results. To do this, a change from methane to hydrogen for the fuel was selected. This fuel change was done to better match papers such as those being produced by TESLa as well as the general experimental and computational detonation modeling community. The exact geometric detontion tube was taken from Towery\cite{towery1} for comparison as well as the initial detonation size and thermodynamic conditions. Additionally, inert nitrogen was added into the tube to transition from hydrogen-oxygen to hydrogen-air. In accordance with trying to double check whether results made sense with Towery\cite{towery1}, the Arrhenius rate equation was used for reaction rates. An issue that was problematic starting this research was that the documentation for the units within the \verb|reactions| file were conflicting. Much testing was performed at this stage in an attempt to determine the units that OpenFOAM uses for the reactions given in this file, especially regarding the pre-exponential factor. While some ground was gained on this, a shift of focus towards the solver performed in order to determine if \verb|rhoReactingFoam| was appropriate for capturing shocks. 
+\begin{figure}
+\centering
+\includegraphics[width=0.85\linewidth]{./figs/Atest_refined/t.png}
+\caption{Temperature distribution in detonation tube for refined pre-exponential factor exponent sweep test, refined from Figure \ref{fig:atestt}}
+\label{fig:atestrt}
+\end{figure}
 
-The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. This problem typically consists of placing a region of higher pressure and density fluid in one region and a lower pressure and density fluid in another adjacent region. Typically the regions are rectangular and share a face, both comprising a large cube. When the simulation starts, a shock will form due to the immediate differential in pressure and density from one region to the next. This problem cannot be verified perfectly experimentally, but it can be solved analytically, making this a good method to test numerical CFD solvers for compressible flow accuracy as well as their ability to capture shocks. The results for \verb|rhoReactingFoam| matched published analytical results as well as a \verb|rhoPimpleFoam| case that was matched to the analytical results. Due to this, it was thought that \verb|rhoReactingFoam| would be a good candidate for detonation modeling. 
+With these tests, \(10^{13}\) was selected as an appropriate order of magnitude as it not only agreed with the results seen in Towery\cite{towery1}, but also with the value given for a single-step hydrogen-oxygen detonation in other published works\cite{hashemi}. 
 
-The next stage consisted of testing different mesh refinement levels, before AMR was utilized. The domain will be expanded on in later chapters, but the domain considered for the initial work is 0.5 meters in length and 0.04 meters square in width. Different static mesh resolutions were tested, such as 5000-1-1, 5000-3-3, 1000-80-1, 1000-3-1, and 10000-2-1. Additionally, some different time steps were tested. At this stage, it was found that there was significant noise and instability in the detonation wave solution, such that consideration of a different solver was advisable. Example results for problems can be seen in Figure \ref{fig:rrf}. 
+
+
+
+\section{Time Step Variation}
+One of the important tests was to determine how large the time step of the simulation could be taken. In OpenFOAM, one has several options for how the time step should be selected. By default, time steps are fixed, and set within \verb|controlDict|. Setting different values for how large the time step should be will affect the stability and solution of the simulation. Larger time steps will be more unstable, increasing the Courant number and sometimes leading towards the inability for solutions at a time step to converge. If we consider a fluid particle, the faster it moves, the more distance it can cover in a unit of time. If it is moving very quickly, large time steps mean this fluid particle could have traversed very far, leading to uncertainty in the solution. In a more general sense, we consider information and how it progresses throughout the gridded domain. For Courant numbers larger than one, the fluid is moving through more than one grid point per time step, and this is very difficult for the time integrators solving the flow equations to assess accurately. The logical choice would be to always select a very small time step to ensure a more stable and accurate solution. However, with decreased time step intervals comes increased computational cost, as the computer must solve the fluid equations much more often to arrive at a specific point in time. Instead, a smarter approach can be taken, where the time step is allowed to vary based on the Courant number. 
+
+Inside \verb|controlDict| for \verb|rhoReactingCentralFoam|, we can set a maximum for both the typically-used fluid velocity Central Courant number as well as the acoustic (wave speed) Courant number. Each iteration, the solver will check the value of both these Courant numbers, and decrease the time step accordingly if the Courant number maximum is exceeded. In an effort to best determine how large the Courant number and therefore the time step can be, the maximum Courant number was set and swept across for various values. For these tests, a domain size of \( (x,y,z) = (0.5,0.04,0.04) \) meters was used with a 5000-3-3 mesh. This is pseudo-one-dimensional setup. Several maximum Courant (CFL) numbers were swept across, and the results at \(3\times 10^{ - 5}\)s are plotted in Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}. Note that the notation used in the plot omits the decimal point for the maximum CFL number, so \verb|5000_3_3_005| represents a 5000-3-3 mesh with a maximum CFL of 0.05. 
+
 \begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/cfl_test/p.png}
+    \caption{Pressure distribution}
+    \label{fig:cflp}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/cfl_test/t.png}
+    \caption{Temperature distribution}
+    \label{fig:cflt}
+    \end{subfigure}
+\end{figure}
+\begin{figure}\ContinuedFloat
+    \begin{subfigure}[]{\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figs/cfl_test/u.png}
+    \caption{Fluid velocity distribution}
+    \label{fig:cflu}
+    \end{subfigure}
+    \caption{Max CFL sweep test}
+    \label{fig:maxcfl}
+\end{figure}
+
+
+
+From Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}, it is seen that there is decreased noise in the solution as well as convergence as the time step and therefore maximum CFL is decreased. More evident in the temperature plot \ref{fig:cflt}, noise and instability is especially clear in the detonation simulations with maximum CFLs of 0.2 and 0.3. The CFL of 0.1 was decided to be acceptably converged due to a small comparative error, seen in Table \ref{tab:cflerror}. 
+\begin{table}[]
 \centering
-\includegraphics[width=0.85\textwidth]{./figs/rhoReactingFoam.png}
-%\caption{Noise and instability in solution and shock capturing problems using \verb|rhoReactingFoam|}
-\caption{Noise and instability in solution and shock capturing problems using the \texttt{rhoReactingFoam} solver}
-\label{fig:rrf}
-\end{figure}%
-\noindent We next tried moving towards OpenFOAM solvers utilizing central-upwind schemes of Kurganov and Tadmor, as they should perform better for detonations due to their design around compressible flow. 
+\caption{Max CFL errors compared to CFL = 0.01}
+\label{tab:cflerror}
+\begin{tabular}{cccc}
+Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ \hline
+0.3 & 57.18 & 19.54 & 27.62 \\ 
+0.2 & 5.89 & 8.72 & 8.66 \\
+0.1 & 1.28 & 2.71 & 12.92 \\
+0.05 & 2.34 & 1.29 & 8.96 \\
+0.01 & 0 & 0 & 0 \\
+\end{tabular}
+\end{table}% 
+\noindent Note that while the CFL of 0.2 has a smaller velocity error than the CFL of 0.1, it is a much noisier and unstable solution, so the values themselves have further uncertainty. The selection of a maximum CFL of 0.1  for detonations in OpenFOAM also matches with the work done by Ajaero\cite{ajaero}. 
+
+Higher CFL numbers of 0.4 to 0.8 were also attempted. These were unsuccessful as the solution was extremely unstable at these CFLs. Typically, high CFL numbers cause more ringing in the solution as seen in Figure \ref{fig:maxcfl} for the CFL of 0.3. However, it is seen in this research as well as supporting reacting flow work \cite{ajaero}\cite{kim}\cite{marcantoni} lower CFL numbers are required for solution convergence. 
+
+\section{Static Mesh Variation}
+\label{sec:staticvar}
+In order to determine the performance gains, accuracy, and other comparative parameters between mesh resolutions, baseline meshes must be created. These meshes must not change adaptively in the simulation in order to provide clear comparisons. Additionally, the static meshes themselves should be compared with each other to determine when mesh convergence occurs. Once a mesh resolution is determined, the AMR parameters can be tuned in an attempt to match the static mesh resolution in the small region surrounding the detonation wave. 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{One-dimensional}
+\label{sec:1dstatic}
 
+The first set of static mesh comparisons performed is between one-dimensional detonation tube simulations, seen in Figure \ref{fig:1dstatic}. These meshes only have resolution along the direction of the tube, which allows for capturing the detonation wave as simply as possible. However,  one-dimensional detonation tube simulations are not optimal for generic detonation modeling as the cellular detonation structure seen in experimental detonation modeling cannot be captured with a single dimension. The cellular detonation cells can be used to infer velocity and compare numerical simulation with experiments, so one-dimensional detonations must utilize other methods to compare with experiments or just be utilized for tuning numerical methods themselves. 
 
-\section{Final Solver}
-
-The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapoint from \verb|rhoReactingFoam| and \verb|rhoCentralFoam| and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
 \begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static1d/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static1d/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/static1d/u.png}
+        \caption{Fluid Velocity plot}
+    \end{subfigure}
+
+    \caption{One-dimensional static meshes used in detonation tube simulations}
+    \label{fig:1dstatic}
+\end{figure}
+
+Various static one-dimensional meshes were compared and can be seen in Figure \ref{fig:1dstatic}. These one-dimensional static meshes are actually twice as long, as initially the detonation simulations were performed using a mesh that was twice as long. This long mesh was unnecessarily large and computationally expensive. The mesh partition values written in the figure are divided in half to match the meshes and convention used in subsequent analysis runs. We see that the 500-1-1 mesh has not converged yet to a solution, and that the 2500-1-1 mesh has converged. After this point, the difference between the meshes lies in their ability to capture finer flow effects such as detonation cells (not possible in one dimension), the transition from a singular detonation front to the combination of multiple smaller detonation fronts (also not possible in one dimension), and the increase in magnitude of the von Neumann pressure wave spike. The von Neumann spike comes from ZND detonation model theory, where Zel'dovich\cite{zeldovich}, von Neumann\cite{neumann}, and Doring\cite{doring} independently published research on a detonation model theory that utilizes an infinitesimally thin shock wave. Knowing that the spike is what changes within the converged mesh simulations allows for intelligent choices upon what sorts of AMR and static resolutions to choose both in research and engineering design. If an individual is designing a part that can withstand very fast high pressure fluctuations, then resolving the mesh up until the von Neumann spike appears will be sufficient for their design purposes. Otherwise, further mesh resolution is required in order to resolve the extremely thin pressure spike shock region. In regards to AMR, this translates to either further refinement around the spike region or just focusing refinement on the detonation wave and following region as a whole in order to resolve turbulence details or fluctuations in the field from randomization and reflected shocks. 
+
+
+\subsection{Two-dimensional}
+In addition to the static and dynamic one-dimensional detonation tube simulations performed, two-dimensional simulations were also run. These can be seen in Figure \ref{fig:2dstatic}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/staticfigs/p.png}
+        \caption{Pressure plot}
+        \label{fig:2dstaticp}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/staticfigs/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \begin{subfigure}[]{0.95\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/staticfigs/u.png}
+        \caption{Fluid velocity plot}
+        \label{fig:2dstaticu}
+    \end{subfigure}
+
+    \begin{subfigure}[]{0.95\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/staticfigs/y.png}
+        \caption{H\(_2\) mass fraction plot}
+    \end{subfigure}
+
+    \caption{Two-dimensional static meshes used in detonation tube simulations}
+    \label{fig:2dstatic}
+\end{figure}% 
+For two-dimensional simulations, the mesh was kept square. A smaller mesh resolution than the one-dimensional simulations were used due to computational expense. The 10000-1600-1 mesh contains 16 million cells at a 25 micron physical resolution, and was computed across twenty 3.6 Ghz AMD Threadripper cores at a computational time of over 150 hours. Note that this high mesh resolution does not have the smoothness seen in more unrefined simulation results, seen clearly in Figures \ref{fig:2dstaticp} and \ref{fig:2dstaticu}. This is due to the mesh capturing the fine shock and reaction structures described by ZND theory mentioned in Section \ref{sec:1dstatic}. The fluctuations in the temperature field begin to resolve at this resolution. 
+
+Example surface plots for the static 2500-400-1 mesh are plotted in Figure \ref{fig:2dsurface}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/u.png}
+        \caption{Fluid velocity magnitude plot}
+    \end{subfigure}
+
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/example_results/rho.png}
+        \caption{Density plot}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave surface plots for 2500-400-1 mesh at \(t = 3.45 \times 10^{ - 5} \) s}
+    \label{fig:2dsurface}
+\end{figure}% 
+\noindent The plots seen in this figure represent the flow field results of a detonation wave traveling from the left wall to the right, at \(t = 3.45 \times 10^{ - 5} \) s. 
+
+
+
+
+
+\section{Adaptive Mesh Refinement and Static Comparisons}
+As mentioned in Section \ref{sec:staticvar}, the adaptive mesh refinement parameters can be tuned to try and match the fine static mesh resolutions in important areas. Detonation waves are very thin with extremely high pressures, temperatures, and velocities within this small region. This makes them an ideal candidate for adaptive meshing. To validate the AMR routines, comparison with the baseline static meshes is required to determine how the flow field changes. The AMR settings were tweaked and changed over a range of values and compared to static meshes in order to determine if the AMR can practically replace static meshes for detonation modeling in OpenFOAM as well as attempt to characterize how each change in AMR parameter affects the solution. For the following comparison cases, it was all performed in two dimensions. This allows for the AMR to start delivering noticeable performance gains as cell counts can often quickly increase into the millions. 
+
+The primary variable used to track when the AMR should be applied was the normalized gradient of pressure, \( ||\nabla(p)||\). Detonations  and shock waves will have very large pressure gradients, so this is a logical selection. By normalizing this quantity, the values selected for the bounds are always consistent across any similar simulation and the setup is easier. Other variables can also be selected for refinement tracking variables, such as pressure, temperature, and velocity. The reasons that these were not selected as primary tracked variables was due to the rest of the flow field. Pressure itself could change significantly between different simulations, so normalized pressure is probably a better choice. Even if normalized pressure is chosen, a portion of the field can remain at high pressure (i.e. in the burning region after the detonation). The pressure gradient waveform is much sharper and thinner than pressure, so this provides a better small region for the AMR to focus on. Temperature is fairly consistent across the products and even increases back towards the detonation initiation region, so tracking temperature itself around the wave only would be very difficult. Velocity and normalized velocity may be appropriate, but only for initiated detonations as the ignition region has no flow field velocity and therefore the important initial refinement of the flow field as the detonation wave is forming will not occur due to the lack of velocity before the reactants ignite and detonate. 
+
+
+\subsection{AMR Refine Level Comparisons}
+One of the more important parameters to test is the number of times the adaptive meshing routines refine each cell, or the refinement level. A 125-20-1 base mesh was used to test each refinement level using the normalized pressure gradient as the tracked variable with three buffer layers. The results, taken at \(3\times 10^{ - 5}\) s, are plotted in Figure \ref{fig:amr_refinelevels}.
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinelevels/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinelevels/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinelevels/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave AMR results for a 125-20-1 base mesh with 3 buffer layers, tracking \( ||\nabla(p)||\) between 0.2 and 1 at 3e-5 s, sweeping refinement levels}
+    \label{fig:amr_refinelevels}
+\end{figure}% 
+\noindent As expected, as the refinement level increases, so does the accuracy of the detonation wave. For this particular base mesh, it can be seen that the solution starts to converge around 4 levels of refinement and after the von Neumann pressure spike begins to resolve. For different base resolutions and simulation setups, this may change. It can also be seen that each increase in refinement level brings the solution roughly as close to a potential ``perfect'' static mesh resolution by half the previous x-distance, with the increase in pressure solution being exponential due to the resolving of the von Neumann spike. Further refinement levels are similarly as expensive, being exponential in cell growth, seen in Table \ref{tab:amr_refinelevels}. The exponential cell growth was also reflected in the time the simulations took to complete. The level 5 refinement has nearly the same peak pressure value as the 5000-800-1 simulation, with a slight spatial offset and 3,771,393 fewer cells. Further tweaking with tracked variable bounds as well as buffer layers may bring the detonation wave closer to that static mesh simulation. After 4 and more refinement levels (e.g. 4000-640-1 mesh) the von Neumann spike begins to resolve, which agrees with the static 2D mesh results. 
+
+
+\begin{table}
 \centering
-\includegraphics[width=0.85\linewidth]{./figs/shocktube.png} 
-\caption{Shock tube validated test case included with OpenFOAM compared to hybrid solver}
-\label{fig:sod}
-\end{figure}%
-\noindent It can be seen that the validation case and \verb|rhoReactingCentralFoam| match precisely, and this was expected. Better numerical stability and less noise was seen in the solutions when moving to 
+\caption{Cells for each refinement level for the 125-20-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_refinelevels}}
+\label{tab:amr_refinelevels}
+\begin{tabular}{cc}
+Refinement Level & Cells \\ \hline
+5 & 228,607 \\ 
+4 & 54,678 \\ 
+3 & 13,028 \\ 
+2 & 5,300 \\
+1 & 2,920 \\
+None & 2500 \\
+\end{tabular}
+\end{table}
+
+\subsection{AMR Buffer Layer Comparisons}
+Within the AMR settings, different numbers of buffer layers between the refinement layer and the rest of the flow can be set. A 250-40-1 base mesh was set, with 3 refinement levels tracking the normalized pressure gradient \( ||\nabla(p)||\) from 0.2 to 1. Different number of buffer layers were tested and plotted at \(t = 3 \times 10^{ - 5}\) s in Figure \ref{fig:amr_bufflayers}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_bufflayers/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_bufflayers/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_bufflayers/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave AMR results for a 250-40-1 base mesh with 3 refinement levels, tracking \( ||\nabla(p)||\) between 0.2 and 1 at 3e-5 s, sweeping buffer layers}
+    \label{fig:amr_bufflayers}
+\end{figure}% 
+\noindent From the figure, it can be seen that the pressure solution generally decreases and the wave propagates further right, around 0.2 mm per layer, as more buffer layers are added. When 4 buffer layers are reached, the buffer layers have ``converged'' with their overall affect on the solution. Due to this, we can conclude that for PDEs and detonation tube simulations 4 buffer layers are sufficient and significant improvements in solution accuracy are not worth the increased cell count which could be used for additional refinement layers or an increased AMR refinement range. That said, the subjective timing of adding additional buffer layers was not as significant as additional refinement levels. The maximum temperature and velocity seen do not change beyond using AMR or not, but the location of the detonation wave does as with the rest of the solution variables. When a user is attempting to move the AMR-simulated detonation wave closer to static results while tuning AMR parameters, adding additional buffer layers up to 5 layers will move the AMR-simulated detonation wave close to static simulation results at minimal additional cost. Table \ref{tab:amr_bufflayers} displays the cell counts for each additional AMR buffer layer for the simulations tested in Figure \ref{fig:amr_bufflayers}. For each additional buffer layer, there is roughly a linear increase in cells, which tracks with the time the simulations took to complete. 
+
+\begin{table}
+\centering
+\caption{Cells for each refinement level for the 250-40-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_bufflayers}}
+\label{tab:amr_bufflayers}
+\begin{tabular}{cc}
+Buffer Layers & Cells \\ \hline
+6 & 37,405 \\ 
+5 & 34,353 \\
+4 & 32,960 \\
+3 & 37,678 \\
+2 & 16,173 \\
+1 & 10,840 \\
+None & 10,000 \\
+\end{tabular}
+\end{table}
 
 
+\subsection{AMR Normalized Pressure Gradient Refinement Range Comparisons}
+In addition to the levels of refinement and buffer layers, the actual range in which the normalized pressure gradient is refined over can be altered. The upper bound of the normalized pressure gradient tracking variable was kept at 1, with the lower refinement bound and the unrefine bound kept identical and swept across a range of values. As a reminder, if the normalized pressure gradient is between 1 and the lower bound, adaptive meshing will be active within the cell. If the value is lower than the unrefinement bound, unrefinement of the cell until the base resolution will occur. This was plotted at \(3\times 10^{ - 5}\) s in Figure \ref{fig:amr_refinebounds}. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
 
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amr_refinebounds/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinebounds/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amr_refinebounds/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Two-dimensional detonation wave AMR results for a 250-40-1 base mesh with 3 refinement levels and 3 buffer layers, tracking \( ||\nabla(p)||\), sweeping refinement bounds }
+    \label{fig:amr_refinebounds}
+\end{figure}% 
+\noindent The static mesh was unchanged from the previous sensitivity plots and the number of refinement levels as well as buffer layers were both 3. It is seen in the figures that by decreasing the refinement bound, the solution increases in accuracy. Pressure values increase the most initially when decreasing the lower bound, up until a lower bound of around 0.1. From here, only further wave propagation is what changes from iteration to iteration. Due to this, 0.1 is the lower bound value that should be selected for PDE and detonation tube modeling if pressure is of interest while keeping the cell count as low as possible for cheaper computation. After this value, the detonation wave location is the parameter that will be affected by further decreases in lower bound of the normalized pressure gradient. If accurate wave location is also of interest (keep in mind that the lowest three refinement bounds, i.e. the most accurate, span around 0.6 mm), then further expansion of the AMR range can be done. Table \ref{tab:amr_refinebounds} contains the cell counts for each lower refinement/unrefinement bound simulation performed in Figure \ref{fig:amr_refinebounds}. It is seen that for this base mesh resolution, a lower bound for the normalized pressure gradient of 0.05 is when the cell count begins to increase considerably. The increase is exponential, so normalized pressure gradient bounds below 0.05 will be more expensive than they are worth. 
+
+\begin{table}
+\centering
+\caption{Cells for each lower refinement/unrefinement bound for the 250-40-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_refinebounds}}
+\label{tab:amr_refinebounds}
+\begin{tabular}{cc}
+Lower refinement/unrefinement bound & Cells \\ \hline
+0.01 & 139,136 \\
+0.05 & 39,799 \\
+0.1 & 38,343 \\ 
+0.2 & 37,678 \\
+0.3 & 37,692 \\ 
+0.4 & 36,355 \\
+No AMR & 10,000 \\
+\end{tabular}
+\end{table}
+
+\section{AMR and Static Comparison}
+Various AMR runs were performed, and the best can be found plotted in Figure \ref{fig:amrcompare} along with various comparable static mesh resolutions. Note that due to space, the AMR legend was condensed down and in the following format: [AMR-tracking variable]-[unrefinement level]-[low bound for refinement]-[upper bound for refinement]-[number of buffer layers]-[number of refinement levels]. 
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/p.png}
+        \caption{Pressure plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/pe.png}
+        \caption{Pressure plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/t.png}
+        \caption{Temperature plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./figs/amrfigs/amrcompare/te.png}
+        \caption{Temperature plot, enlarged}
+    \end{subfigure}
+
+\end{figure}
+\begin{figure} \ContinuedFloat
+    
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amrcompare/u.png}
+        \caption{Fluid velocity plot}
+    \end{subfigure}
+
+    \centering
+    \begin{subfigure}[]{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{./figs/amrfigs/amrcompare/ue.png}
+        \caption{Fluid velocity plot, enlarged}
+    \end{subfigure}
+
+    \caption{Best two-dimensional detonation wave AMR and static mesh results compared, tracking \( ||\nabla(p)||\). AMR legend: field-unrefine-lowrefine-upperrefine-bufferlayers-refinelevels}
+    \label{fig:amrcompare}
+\end{figure}% 
+\noindent Cell counts can be found in Table \ref{tab:amrcompare}. From these plots, a few observations can be made. A very good fit exists between the AMR run with 0.1 for both the unrefine and low refine bound with 3 buffer layers and 3 refinement levels (ngP-01-01-1-3-3) and the static mesh of 1250-200-1. There is an 85\% reduction in cell count between this static mesh and AMR simulation, while exactly reproducing the peak thermodynamic conditions and representing the rest of the detonation profile quite well. 
+
+
+\begin{table}[h]
+\centering
+\caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
+\label{tab:amrcompare}
+\begin{tabular}{ccp{2cm}p{2cm}p{2cm}p{2cm}c}
+Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline
+1250-200-1 & Static & - & - & - & - & 250,000 \\ 
+2500-400-1 & Static & - & - & - & - & 1,000,000 \\
+5000-800-1 & Static & - & - & - & - & 4,000,000 \\
+250-40-1 & AMR & 0.2 & 1 & 4 & 4 & 148,950 \\
+250-40-1 & AMR & 0.1 & 1 & 3 & 4 & 149,762 \\
+250-40-1 & AMR & 0.05 & 1 & 3 & 4 & 160,570 \\ 
+250-40-1 & AMR & 0.2 & 1 & 3 & 4 & 146,710 \\ 
+250-40-1 & AMR & 0.1 & 1 & 3 & 3 & 38,343 \\ 
+\end{tabular}
+\end{table}
+
+If instead we'd like to model the position of the 1250-200-1 static mesh detonation while having more accurate thermodynamic peak temperatures more akin to the 5000-800-1 static mesh, the ngP-02-02-1-4-4 achieves this with 148,950 cells, which is 40\% smaller than the 1250-200-1 static mesh and 96\% smaller than the 5000-800-1 static mesh. A use case where this may be preferable is when you'd like to make sure you're modeling a certain grid resolution entirely, but having a more accurate peak solution would also aid design. Another use scenario of this AMR parameter style is when the position of the detonation wave itself is of less concern but the peak solution values need to still be resolved. 
+
+An important comparison also lies between the ngP-01-01-1-3-3 (solid brown) just mentioned and ngP-02-02-1-3-4 (solid purple) with higher refinement bounds but a single further refinement level AMR runs. While the solid purple simulation has a higher refinement level, the lower normalized pressure gradient bound allows for more cells to be captured around the detonation and model it more accurately while being 3.8 times smaller in terms of number of cells. 

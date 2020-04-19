@@ -240,7 +240,7 @@
 \def\setspace@size{\ifx\@currsize\normalsize\@normalsize\else\@currsize\fi}
 \def\doublespacing{ \ifcase \@ptsize \relax
       \def \baselinestretch {2.004}%	10pt
-  \or \def \baselinestretch {1.771}%	11pt
+  \or \def \baselinestretch {1.25}%	11pt %was 1.771
   \or \def \baselinestretch {1.660}%	12pt
   \fi \setspace@size}
 \def\singlespacing{\def \baselinestretch {1} \setspace@size \vskip \baselineskip}
