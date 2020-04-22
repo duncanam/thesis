@@ -2,16 +2,15 @@
 \label{math}
 
 \section{Overview}
-OpenFOAM is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. Some commercial CFD tools have been based on OpenFOAM, such as the cloud-based CFD platform with a GUI, SimScale\cite{simscale}, the desktop software simFlow\cite{simflow}, and RapidCFD\cite{rapidcfd}, an OpenFOAM toolbox ported to Nvidia CUDA\cite{cuda} for GPU-based solving. 
+OpenFOAM \cite{weller} is a C++ toolbox that is a collection of various programs that is primarily used to solve computational fluid dynamics problems. Unlike many commercial CFD codes available, OpenFOAM does not use a GUI for problem setup and instead relies on the user to provide the toolbox a variety of text-based input files in which it interprets and uses for deriving a solution to a particular problem of interest. This is a blessing in disguise, as it allows for very clear control over what OpenFOAM does. Since the source is open, many additional tools and solvers have been developed for OpenFOAM, making it very flexible. Some commercial CFD tools have been based on OpenFOAM, such as the cloud-based CFD platform with a GUI, SimScale \cite{simscale}, the desktop software simFlow \cite{simflow}, and RapidCFD \cite{rapidcfd}, an OpenFOAM toolbox ported to Nvidia CUDA \cite{cuda} for GPU-based solving. 
 
-The solvers tested during this research include:
+The OpenFOAM solvers tested during this research include:
 \begin{itemize}
     \item \textbf{rhoReactingFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``[s]olver for combustion with chemical reactions using density-based thermodynamics package."
-    \item \textbf{rhoCentralFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``Density-based compressible flow solver based on central-upwind schemes of Kurganov and Tadmor with support for mesh-motion and topology changes."
-    \item \textbf{rhoReactingCentralFoam}: a solver developed by Caelan Lapointe at the University of Colorado Boulder, combining \verb|rhoReactingFoam| and \verb|rhoCentralFoam| together as well adaptive mesh refinement support. 
+    \item \textbf{rhoCentralFoam}: a solver included with the OpenFOAM installation, in which the provided description calls it a ``Density-based compressible flow solver based on central-upwind schemes of Kurganov and Tadmor with support for mesh-motion and topology changes." Originally developed by Greenshields \textit{et. al.} \cite{greenshields}. 
+    \item \textbf{rhoReactingCentralFoam}: a solver developed by Caelan Lapointe at the University of Colorado Boulder, combining \verb|rhoReactingFoam| and \verb|rhoCentralFoam| together as well adaptive mesh refinement support. Originally based on the work of Nakul \cite{nakul}. 
 \end{itemize}
-
-In addition to these solvers, several additional tools outside the standard OpenFOAM installation were utilized. This includes \verb|funkySetFields|, included with \verb|swak4Foam| \cite{swak4foam}. \verb|funkySetFields| is a tool much like the OpenFOAM-included \verb|setFields| utility, which allows the user to define set values of variables within certain regions of the computational domain (e.g. allows the user to set a cube within a domain to a certain temperature which is different than what is set globally). \verb|funkySetFields| extends this functionality, allowing for time and position-dependent defining of variables, such that an initial condition such as a temperature ramp, or randomization of temperature within the domain is possible. 
+In addition to these solvers, several additional tools outside the standard OpenFOAM installation were used. This includes \verb|funkySetFields|, included with \verb|swak4Foam| \cite{swak4foam}. \verb|funkySetFields| is a tool much like the OpenFOAM-included \verb|setFields| utility, which allows the user to define set values of variables within certain regions of the computational domain (e.g. allows the user to set a cube within a domain to a certain temperature which is different than what is set globally). \verb|funkySetFields| extends this functionality, allowing for time and position-dependent defining of variables, such that an initial condition such as a temperature ramp, or randomization of temperature within the domain is possible. 
 
 \section{Governing Equations}
 In order to model detonations, the problem can be broken up into smaller pieces and solved with CFD. The OpenFOAM computational toolbox will utilize the finite volume method (FVM) to solve the set of partial differential equations describing the fluid flow. In the FVM, the computational domain is broken into multiple smaller control volumes, known as cells. Each cell contains a set of thermo-fluid properties at the centroid. The differential equations are then integrated over this control volume in order to obtain a solution at each cell. The solution is interpolated between cell centroids to obtain a solution throughout the domain. 
@@ -78,11 +77,11 @@ This is a stoichiometric reaction between diatomic hydrogen gas and air. When co
 \caption{Species mass fraction initial condition}
 \label{tab:y}
 \begin{tabular}{cc}
-Specie & Mass Fraction \\ \hline
+Species & Mass Fraction \\ \hline
 H\(_2\) & 0.02851 \\ 
 H\(_2\)O & 0 \\
 N\(_2\) & 0.745 \\ 
-O\(_2\) & 0.226 \\ 
+O\(_2\) & 0.226 \\ \hline
 Total & 0.99951 \\ 
 \end{tabular}
 \end{table}
@@ -101,7 +100,7 @@ where $A$ is the pre-exponential factor, $\beta$ is the temperature exponent, an
    \qquad
    \beta = 0\,.
 \end{equation}
-\noindent In addition, the specific gas constant used is \(R = 368.9\) J/Kg-K. It is seen in Chapter \ref{sec:a} that the values used are reasonably close to Chapman-Jouguet theory as well as other published values \cite{towery1}\cite{hashemi}. 
+\noindent In addition, the specific gas constant used is \(R = 368.9\) J/Kg-K. It is seen in Chapter \ref{sec:a} that the values used are reasonably close to Chapman-Jouguet theory as well as other published values \cite{towery1,hashemi}. 
 
 \section{Numerical Methods}
 Within OpenFOAM, a user can choose how to numerically solve the stiff set of differential equations that model reacting flows. Thermodynamic variables such as specific heat can be selected to be temperature-dependent using polynomial approximations such as those given by the JANAF tables \cite{janaf}, such that \(C_{p,i} = C_{p,i}(T)\). No significant increase in complexity of the solution was noticed, so JANAF settings were used for temperature-dependent thermodynamics. The energy equation solution variable can also be selected, such that either sensible enthalpy or sensible internal energy is solved, and we selected sensible internal energy for modeling detonations with \verb|rhoReactingCentralFoam|, since less numerical error was noticed in the solution, as compared to solutions using the sensible enthalpy. The numerical solution of the reacting Navier-Stokes equations in OpenFOAM occurs with several different settings. Different numerical schemes can be applied separately to variables of interest, and can be seen in Table \ref{tab:numschemes}. 
@@ -142,10 +141,10 @@ Once the numerical schemes are defined, the system of equations needs to be solv
 Variable & Solver & Parameter & Value \\ \hline 
 \verb|e|, \verb|Yi| & \verb|PBiCGStab| & Preconditioner & \verb|DILU| \\ 
 & & Tolerance & \verb|1e-17| \\ 
-& & Relative tolerance & 0 \\
+& & Relative tolerance & 0 \\\hline
 \verb|U| & \verb|PBiCGStab| & Preconditioner & \verb|DIC| \\ 
 & & Tolerance & \verb|1e-15| \\ 
-& & Relative tolerance & 0 \\
+& & Relative tolerance & 0 \\\hline
 \verb|rho| & \verb|diagonal| & & \\
 \end{tabular}
 \end{table}
@@ -154,7 +153,7 @@ The chemistry uses a separate solver than the rest of the reacting flow solution
 
 Together, the numerical schemes, numerical solvers, and chemistry solver combine to solve the reactive Euler equations as \verb|rhoReactingCentralFoam| within OpenFOAM. These solution techniques can then be applied to flow problems such as detonations. 
 
-\section{Setup and Structure}
+\section{Code Organization}
 In order to simulate a fluids or combustion problem in OpenFOAM, the directory structure in which the simulation is to be run needs to be correct. Each OpenFOAM simulation contains a directory \verb|0/| which holds initial conditions for the domain as well as boundary conditions \cite{ofug}. Inside this directory are files named like the quantities they represent, such as \verb|p|, \verb|T|, and \verb|U|. \verb|funkySetFields| edits these files to apply the special initial conditions. As the simulation progresses, more folders representing timesteps will appear with data saved for that timestep. The folder name will represent the specific timestep exactly. 
 
 The next important directory is \verb|constant/|. This directory holds physical quantities as well as mesh information once it is formed. For reacting flows, some files of interest within this folder may be:
@@ -262,7 +261,7 @@ Adaptive mesh refinement is the process of refining or unrefining the computatio
 \item \verb|maxCells|: the maximum number of cells in the computational domain that can be reached before adaptive mesh refinement is no longer performed. Note that this is not strictly followed but rather an estimate provided to the solver, since the octree splitting can potentially increase number of cells beyond this value at a specific iteration.
 \end{itemize}
 An exploration on how different selections in these parameters affects solution quality was performed in this thesis. Results will be shown in later chapter sections. An important aspect to note when utilizing \verb|rhoReactingCentralFoam|'s AMR is that the routine is inherently three-dimensional, due to the octree splitting method in Figure \ref{fig:octree}. 
-\begin{figure}[b]
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.6\textwidth]{./figs/amr_example.png}
 \caption{Adaptive mesh refinement octree splitting method}
@@ -338,13 +337,13 @@ In addition to the thermodynamic conditions that the ignition region is in, the 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\section{Initial Attempts}
-To begin on the problem of modeling detonations in OpenFOAM, the OpenFOAM installation-included tutorials folder as well as the geometric and initial condition setup of located in a related TESLa paper by Towery\cite{towery1} was utilized to begin the work towards an OpenFOAM model of a linear detonation tube/PDE.
+\section{Initial Solution Attempts}
+To begin on the problem of modeling detonations in OpenFOAM, the OpenFOAM installation-included tutorials folder as well as the geometric and initial condition setup of located in a related TESLa paper by Towery \textit{et al.}~\cite{towery1} was utilized to begin the work towards an OpenFOAM model of a linear detonation tube/PDE.
 
 Firstly, the detonation of methane fuel and oxygen oxidizer without inert nitrogen filler was explored within a 2D detonation tube with the solver \verb|rhoReactingFoam|. A region of high temperature methane and oxygen on the left hand side was used to initiate the detonation. In the PDE and detonation simulations presented in this paper, stoichiometric fuel and oxidizer was premixed and available thoughout the domain. 
 %Solid walls on the left, top, and bottom of the tube were used. The exit was set as a special \verb|waveTransmissive| boundary condition that allows for shockwaves to not reflect at the exit and for gases to expel as well. 
 A detonation was successfully created with this, but the accuracy and stability were still untested. In order to check that the boundary conditions being applied were correct, a small detonation cell of high pressure and temperature was set in the bottom left corner of the tube. As the simulation progressed, correct wave reflection was seen on the sides of the tube as well as some wave transmissive behavior from the exit was seen (Figure \ref{fig:cornerdet}). 
-\begin{figure}[b]
+\begin{figure}[t!]
 \centering
 \includegraphics[width=\linewidth]{figs/cornerdet.png}
 \caption{Initial methane and oxygen detonation boundary condition test with corner detonation. Velocity magnitude is plotted here without scale to just check the solver and boundary conditions for modeling potential. Detonation was initiated in the lower left corner.}
@@ -352,7 +351,7 @@ A detonation was successfully created with this, but the accuracy and stability 
 \end{figure}%
 \noindent It was noticed that the exit boundary condition was expelling gas in a rectangular region long before the detonation wave(s) reached the exit, so some tweaking was done on this \verb|waveTransmissive| boundary condition in order to make it more accurate. The boundary condition option accepts inputs such as ratio of specific heats, expected flow velocity, far-field conditions and distance from exit plane, and names of some variables such as the condition to track at the exit as well as some flux variables. Thus, some knowledge of the flow is required in order to optimize a smooth exit of supersonic waves. 
 
-The next step with \verb|rhoReactingFoam| was to start progressing towards testable detonation results. To do this, a change from methane to hydrogen for the fuel was selected. This fuel change was done to better match papers such as those being produced by TESLa as well as the general experimental and computational detonation modeling community. The exact geometric detonation tube was taken from Towery\cite{towery1} for comparison as well as the initial detonation size and thermodynamic conditions. Additionally, inert nitrogen was added into the tube to transition from hydrogen-oxygen to hydrogen-air. In accordance with trying to double check whether results made sense with Towery\cite{towery1}, the Arrhenius rate equation \cite{arrhenius} was used for reaction rates. An issue that was problematic starting this research was that the documentation for the units within the \verb|reactions| file were conflicting. Much testing was performed at this stage in an attempt to determine the units that OpenFOAM uses for the reactions given in this file, especially regarding the pre-exponential factor. While some ground was gained on this, a shift of focus towards the solver was done in order to determine if \verb|rhoReactingFoam| was appropriate for capturing shocks. 
+The next step with \verb|rhoReactingFoam| was to start progressing towards testable detonation results. To do this, a change from methane to hydrogen for the fuel was selected. This fuel change was done to better match papers such as those being produced by TESLa as well as the general experimental and computational detonation modeling community. The exact geometric detonation tube was taken from Towery \textit{et al.}~\cite{towery1} for comparison as well as the initial detonation size and thermodynamic conditions. Additionally, inert nitrogen was added into the tube to transition from hydrogen-oxygen to hydrogen-air. In accordance with trying to double check whether results made sense with Towery \textit{et al.}~\cite{towery1}, the Arrhenius rate equation \cite{arrhenius} was used for reaction rates. An issue that was problematic starting this research was that the documentation for the units within the \verb|reactions| file were conflicting. Much testing was performed at this stage in an attempt to determine the units that OpenFOAM uses for the reactions given in this file, especially regarding the pre-exponential factor. While some ground was gained on this, a shift of focus towards the solver was done in order to determine if \verb|rhoReactingFoam| was appropriate for capturing shocks. 
 
 The Sod shock tube problem was utilized to determine if the OpenFOAM solvers used were capturing shocks accurately. This problem typically consists of placing a region of higher pressure and density fluid in one region and a lower pressure and density fluid in another adjacent region. Typically the regions are rectangular and share a face, both comprising a large cube. When the simulation starts, a shock will form due to the immediate differential in pressure and density from one region to the next. This problem cannot be verified perfectly experimentally, but it can be solved analytically, making this a good method to test numerical CFD solvers for compressible flow accuracy as well as their ability to capture shocks. The results for \verb|rhoReactingFoam| matched published analytical results as well as a \verb|rhoPimpleFoam| case that was matched to the analytical results. Due to this, it was thought that \verb|rhoReactingFoam| would be a good candidate for detonation modeling. 
 
@@ -374,7 +373,7 @@ The next stage consisted of testing different mesh refinement levels, before AMR
 
 \section{Final Solver}
 
-The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapointe from \verb|rhoReactingFoam| and \verb|rhoCentralFoam| and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|'s results in Figure \ref{fig:sod}. 
+The final solver settled on for this research was \verb|rhoReactingCentralFoam|. This is a solver combined together by Caelan Lapointe from \verb|rhoReactingFoam| and \verb|rhoCentralFoam| and the testing and validation of it is part of this thesis work. First, \verb|rhoReactingCentralFoam| was tested to see if it was accurately capturing shocks like its sister solver, \verb|rhoCentralFoam|. OpenFOAM includes a validated shock tube case utilizing \verb|rhoCentralFoam|, so the results of this were compared to \verb|rhoReactingCentralFoam|  results in Figure \ref{fig:sod}. 
 \begin{figure}[]
 \centering
 \includegraphics[width=0.85\linewidth]{./figs/shocktube.png} 

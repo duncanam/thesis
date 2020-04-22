@@ -24,50 +24,57 @@ The first necessary set of tests before solver and AMR parameters can be explore
 \subsection{Block Ignition}
 
 The block ignition method with high pressure and temperature stoichiometric reactants was utilized initially to build off the work done in \cite{towery1}. A rectangular region spanning from the ignition wall (y-z plane at \(x = 0\) m) to \(x = 0.001\) m was set with a different initial condition than the rest of the domain using the \verb|setFields| utility. The ignition block region contained high pressure and temperature reactants at 3000 K and 20 atm, with the rest of the domain at 300 K and 1 atm. This method is seen in Figure \ref{fig:blockig}.
-\begin{figure}[h]
+
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.8\textwidth]{figs/ignition/block.png}
 \caption{Block ignition method, seen on left side of domain, at t = 0 s}
 \label{fig:blockig}
 \end{figure}%
-\noindent Ultimately this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery\cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
+
+Ultimately, this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery\cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
 
 \subsection{Gradient Ignition}
-Using the theory shown in Towery \cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. \verb|setFields| cannot set fields for initial conditions with functions, so \verb|funkySetFields| was applied for the gradient condition. This can be seen in Figure \ref{fig:gradig}. 
-\begin{figure}[h]
+Using the theory shown in Towery \textit{et al.}~\cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. The tool \verb|setFields| cannot set fields for initial conditions with functions, so \verb|funkySetFields| was applied for the gradient condition. This can be seen in Figure \ref{fig:gradig}. 
+
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.8\textwidth]{figs/ignition/gradient.png}
 \caption{Gradient ignition method, seen on left side of domain, at t = 0 s}
 \label{fig:gradig}
 \end{figure}%
-\noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. 
 
-\section{Cellular Detonation Modeling Attempts}
-Comparison of cellular detonation structure is one method to validate numerical solvers with experimental results. Maximum pressure and density plots across all time steps for every cell can be plotted to emulate experimental ``smoke foil'' results. The smoke foil is a piece of smooth metal placed flat against a wall in a detonation tube chamber, in which smoke particles have been evenly distributed (usually by a fire) upon the surface of the foil. When a detonation passes over the smoke foil, the density and pressure differences will leave fish scale-like patterns upon the foil. 
-In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}. 
-\begin{figure}[h]
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.8\textwidth]{figs/ignition/randgrad.png}
 \caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
 \label{fig:gradrand}
 \end{figure}%
-\noindent This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization of temperature throughout the domain, the maximum value of density across all time steps for each cell was recorded and plotted as a surface plot. 
+
+\noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. 
+
+\section{Cellular Detonation Modeling Attempts}
+Comparison of cellular detonation structure is one method to validate numerical solvers with experimental results. Maximum pressure and density plots across all time steps for every cell can be plotted to emulate experimental ``smoke foil'' results. The smoke foil is a piece of smooth metal placed flat against a wall in a detonation tube chamber, in which smoke particles have been evenly distributed (usually by a fire) upon the surface of the foil. When a detonation passes over the smoke foil, the density and pressure differences will leave fish scale-like patterns upon the foil. 
+
+In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}. This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization of temperature throughout the domain, the maximum value of density across all time steps for each cell was recorded and plotted as a surface plot. 
 %This plot type will emulate what is seen in experimental results using what is known as a ``smoke foil''.
 For a 2500-400-1 mesh, this is seen in Figure \ref{fig:maxrho}.
-\begin{figure}[h]
+
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.9\textwidth]{figs/example_results/maxrho.png}
-\caption{Surface plot of maximum density tracked across all time steps for each cell emulating a ``smoke foil''}
+\caption{Surface plot of maximum density tracked across all time steps for each cell, emulating a ``smoke foil''}
 \label{fig:maxrho}
 \end{figure}
-From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy'' and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since unrefinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. Another benefit of the addition of slight noise in the background domain is the ability to determine when the mesh resolution is refined enough to begin resolving fine detonation structure. As seen in the high refinement two-dimensional static mesh detonation results later in this chapter, the fine variation in the detonation wave itself is seen and therefore the threshold for resolving such structures is known. 
+
+From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy'' and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since un-refinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. Another benefit of the addition of slight noise in the background domain is the ability to determine when the mesh resolution is refined enough to begin resolving fine detonation structure. As seen in the high refinement two-dimensional static mesh detonation results later in this chapter, the fine variation in the detonation wave itself is seen and therefore the threshold for resolving such structures is known. 
 
 
 
 \section{Arrhenius Pre-exponential Factor}
 \label{sec:a}
 
-In order to better characterize reaction sensitivity and compare to other published results, testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
+In order to better characterize reaction sensitivity and compare to other published results, testing was performed on the units of the pre-exponential factor for the Arrhenius equation in the \verb|reactions| file. Since the geometry, boundary, and initial conditions are all matched to the setup for the detonation tube in Towery \textit{et al.}~\cite{towery1}, we will use the results there as a generic target to determine the order of magnitude of the exponent on the pre-exponential factor. The exponent was swept between \(10^{11}\) through \(10^{17}\). The results are seen in Figures \ref{fig:atestp}, \ref{fig:atestt}, and \ref{fig:atestu}. 
 
 \begin{figure}
 \centering
@@ -100,7 +107,7 @@ From these figures, we can see the importance of having an accurate order of mag
 \end{figure}
 
 
-The exponent in this region was explored further since plateaus in thermodynamic properties values are not physical for real-world detonations. Note that the velocity plotted in Figure \ref{fig:atestu} is a fluid velocity, not a wave velocity. When instead we swept over a smaller interval, with the Chapman-Jouguet (CJ) targets from Towery\cite{towery1} plotted, we can see that there is a very abrupt transition in detonation stability (Figures \ref{fig:atestrp} and \ref{fig:atestrt}). 
+The exponent in this region was explored further since plateaus in thermodynamic properties values are not physical for real-world detonations. Note that the velocity plotted in Figure \ref{fig:atestu} is a fluid velocity, not a wave velocity. When instead we swept over a smaller interval, with the Chapman-Jouguet (CJ) targets from Towery \textit{et al.}~\cite{towery1} plotted, we can see that there is a very abrupt transition in detonation stability (Figures \ref{fig:atestrp} and \ref{fig:atestrt}). 
 
 \begin{figure}
 \centering
@@ -116,7 +123,7 @@ The exponent in this region was explored further since plateaus in thermodynamic
 \label{fig:atestrt}
 \end{figure}
 
-With these tests, \(10^{13}\) was selected as an appropriate order of magnitude as it not only agreed with the results seen in Towery\cite{towery1}, but also with the value given for a single-step hydrogen-oxygen detonation in other published works\cite{hashemi}. 
+With these tests, \(10^{13}\) was selected as an appropriate order of magnitude as it not only agreed with the results seen in Towery \textit{et al.}~\cite{towery1}, but also with the value given for a single-step hydrogen-oxygen detonation in other published works \cite{hashemi}. 
 
 
 
@@ -169,9 +176,9 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 0.01 & 0 & 0 & 0 \\
 \end{tabular}
 \end{table}% 
-\noindent Note that while the CFL of 0.2 has a smaller velocity error than the CFL of 0.1, it is a much noisier and unstable solution, so the values themselves have further uncertainty. The selection of a maximum CFL of 0.1  for detonations in OpenFOAM also matches with the work done by Ajaero\cite{ajaero}. 
+\noindent Note that while the CFL of 0.2 has a smaller velocity error than the CFL of 0.1, it is a much noisier and unstable solution, so the values themselves have further uncertainty. The selection of a maximum CFL of 0.1  for detonations in OpenFOAM also matches with the work done by Ajaero \cite{ajaero}. 
 
-Higher CFL numbers of 0.4 to 0.8 were also attempted. These were unsuccessful as the solution was extremely unstable or never converged at these CFLs. Typically, high CFL numbers cause more ringing in the solution as seen in Figure \ref{fig:maxcfl} for the CFL of 0.3. However, it is seen in this research as well as supporting reacting flow work \cite{ajaero}\cite{kim}\cite{marcantoni} lower CFL numbers are required for solution convergence. 
+Higher CFL numbers of 0.4 to 0.8 were also attempted. These were unsuccessful as the solution was extremely unstable or never converged at these CFLs. Typically, high CFL numbers cause more ringing in the solution as seen in Figure \ref{fig:maxcfl} for the CFL of 0.3. However, it is seen in this research as well as supporting reacting flow work \cite{ajaero,kim,marcantoni} that lower CFL numbers are required for solution convergence. 
 
 \section{Static Mesh Variation}
 \label{sec:staticvar}
@@ -513,7 +520,7 @@ No AMR & 10,000 \\
 \end{tabular}
 \end{table}
 
-\section{AMR and Static Comparison}
+\subsection{AMR and Static Comparison}
 Various AMR runs were performed, and the best can be found plotted in Figure \ref{fig:amrcompare} along with various comparable static mesh resolutions. Note that due to space, the AMR legend was condensed down and in the following format: [AMR-tracking variable]-[unrefinement level]-[low bound for refinement]-[upper bound for refinement]-[number of buffer layers]-[number of refinement levels]. 
 \begin{figure}[]
     \centering
@@ -570,7 +577,7 @@ Various AMR runs were performed, and the best can be found plotted in Figure \re
 \noindent Cell counts can be found in Table \ref{tab:amrcompare}. From these plots, a few observations can be made. A very good fit exists between the AMR run with 0.1 for both the unrefine and low refine bound with 3 buffer layers and 3 refinement levels (ngP-01-01-1-3-3) and the static mesh of 1250-200-1. There is an 85\% reduction in cell count between this static mesh and AMR simulation, while exactly reproducing the peak thermodynamic conditions and representing the rest of the detonation profile quite well. 
 
 
-\begin{table}[h]
+\begin{table}[t]
 \centering
 \caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
 \label{tab:amrcompare}
