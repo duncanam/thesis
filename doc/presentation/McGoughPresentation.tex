@@ -4,45 +4,37 @@
 \date{April 29, 2020}
 \author{Duncan A. McGough}
 \institute{University of Colorado, Boulder \\
-		{\tiny Ann and H.J. Smead Aerospace Engineering Sciences}}
+    {\tiny Ann and H.J. Smead Aerospace Engineering Sciences}}
+    
+
+\setbeamertemplate{bibliography item}[text]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{document}
-  \maketitle
-  \begin{frame}{Overview}
-    \tableofcontents
-  \end{frame}
 
-\section{Introduction}
-\begin{frame}{Motivation}
-\begin{columns}
-\column{0.5\textwidth}
-\begin{itemize}
-\item Many challenges exist regarding modern combustion systems 
-\item Better modeling can improve performance, efficiency, and reliability 
-\item Detonation engines are a growing area of interest 
-\item Current CFD models are computationally expensive
-\item Adaptive meshing can reduce computational expense
-\end{itemize}	
+\maketitle
 
-\column{0.5\textwidth}
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{../figs/rde.jpg}
-\caption{Nagoya University 900 N Rotating Detonation Engine \cite{nagoya}}
-\end{figure}
-\end{columns}
+\begin{frame}{Acknowledgements}
+Many thanks to Dr. Hamlington, Caelan Lapointe, and Colin Towery for the invaluable assistance and guidance. 
+
+\vspace{1cm}
+
+Additional thanks to Dr. Diego Arias, and Julie, Jeff, and Vismaya for advice and support. 
 \end{frame}
 
-\begin{frame}{Objectives}
-\begin{itemize}
-\item Implement and test AMR techniques for simulations of detonations found within RDEs and PDEs within OpenFOAM \cite{weller}
-\end{itemize}
+\begin{frame}{Overview}
+  \tableofcontents
 \end{frame}
 
-  \section{AMR-Based Detonation Solver in OpenFOAM}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  \section{Solver Parameter Testing}
+\input{chapter1.tex}
+\input{chapter2.tex}
+\input{chapter3.tex}
+\input{chapter4.tex}
 
-  \section{Summary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Bibliography}
 \begin{frame}[allowframebreaks]{Bibliography}
