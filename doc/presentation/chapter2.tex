@@ -211,13 +211,13 @@ The \texttt{simple} method was used here.
 
 \begin{figure}[p]
     \centering
-    \begin{subfigure}[]{0.4\textwidth}
+    \begin{subfigure}[]{0.45\textwidth}
         \centering
         \includegraphics[width=0.9\textwidth]{../figs/parallel_short.png}
         \caption{Domain decomposed into typical chunks, bad for detonation and AMR load balancing}
         %\label{sfig:shortdecomp}
     \end{subfigure}%
-    \begin{subfigure}[]{0.4\textwidth}
+    \begin{subfigure}[]{0.45\textwidth}
         \centering
         \includegraphics[width=0.9\textwidth]{../figs/parallel_long.png}
         \caption{Domain decomposed into long chunks, better for detonation and AMR load balancing}
@@ -226,10 +226,96 @@ The \texttt{simple} method was used here.
     %\caption{Example domain decomposition techniques for parallel computing}
     %\label{fig:decomp}
 \end{figure}%
-
 \end{frame}
 
 
+\begin{frame}[allowframebreaks]{Adaptive Mesh Refinement}
+Allows for the mesh to refine and unrefine based on set parameters:
+\begin{itemize}
+\item \texttt{refineInterval}: frequency when active, based on time steps
+\item \texttt{field}: which parameter to track
+\item \texttt{lowerRefineLevel}: lower bound of active refinement 
+\item \texttt{upperRefineLevel}: upper bound of active refinement
+\item \texttt{unrefineLevel}: upper bound of unrefinement
+\item \texttt{nBufferLayers}: number of cell buffer layers around AMR-active cell
+\item \texttt{maxRefinement}: additional recursive refinement levels
+\item \texttt{maxCells}: suggested maximum cell count limit
+\end{itemize}
 
-\begin{frame}{Adaptive Mesh Refinement}
+
+Adaptive meshing splits the cells using an octree splitting method:
+\begin{figure}[]
+\centering
+\includegraphics[width=0.4\textwidth]{../figs/amr_example.png}
+%\caption{Adaptive mesh refinement octree splitting method}
+%\label{fig:octree}
+\end{figure}%
+This makes the AMR inherently three-dimensional. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.69\textwidth]{../figs/amr_cells.png}
+\caption{Three-level adaptive mesh refinement over a pressure field surface contour, with the detonation wave traveling from the -x wall to +x exit}
+%\label{fig:examr}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Initial Meshing}
+\begin{figure}[]
+    \centering
+    \begin{subfigure}[]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../figs/mesh/2Dmesh.png}
+        \caption{Two-dimensional mesh}
+    \end{subfigure}%
+    \begin{subfigure}[]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../figs/mesh/3Dmesh.png}
+        \caption{Three-dimensional mesh}
+    \end{subfigure}
+    %\caption{Static meshes used in OpenFOAM for detonation modeling, at an exaggerated unrefined resolution for example purposes}
+    %\label{fig:meshcompare}
+\end{figure}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Initial Detonation Attempts}
+First testing \texttt{rhoReactingFoam}, methane-oxygen without nitrogen was used, with corner ignition to test shock reflection and exit 
+\begin{figure}[]
+\centering
+\includegraphics[width=\textwidth]{../figs/cornerdet.png}
+%\caption{Initial methane and oxygen detonation boundary condition test with corner detonation. Velocity magnitude is plotted here without scale to just check the solver and boundary conditions for modeling potential. Detonation was initiated in the lower left corner.}
+%\label{fig:cornerdet}
+\end{figure}%
+Testing the detonation tube setup performed by Towery \textit{et. al.} \cite{towery1} was next, to be used as comparison. 
+
+\newpage
+
+\begin{columns}
+\column{0.4\textwidth}
+Different static mesh resolutions were tested with \texttt{rhoReactingFoam}, but noise and instability in the solution was seen.
+\column{0.6\textwidth}
+\begin{figure}[]
+\centering
+\includegraphics[width=\textwidth]{../figs/rhoReactingFoam.png}
+%\caption{Noise and instability in solution and shock capturing problems using the \texttt{rhoReactingFoam} solver}
+%\label{fig:rrf}
+\end{figure}%
+\end{columns}
+\newpage
+
+\begin{columns}
+\column{0.6\textwidth}
+\begin{figure}[]
+\centering
+\includegraphics[width=\linewidth]{../figs/shocktube.png} 
+%\caption{Shock tube validated test case included with OpenFOAM compared to hybrid solver}
+%\label{fig:sod}
+\end{figure}%
+
+\column{0.4\textwidth}
+\begin{itemize}
+\item turned towards the solvers utilizing central-upwind schemes of Kurganov and Tadmor \cite{kurganov1}
+\item used the shock tube test to validate shock-capturing capability
+\end{itemize}
+\end{columns}
 \end{frame}
