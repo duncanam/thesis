@@ -17,6 +17,8 @@ Solvers tested for their capability to model shocks and detonations:
 \end{itemize}
 \end{frame}
 
+\subsection{Governing Equations}
+
 \begin{frame}[allowframebreaks]{Governing Equations}
 Detonations were modeled using the reacting Navier-Stokes equations \cite{kuo,stokes}:
 \begin{equation}
@@ -74,6 +76,8 @@ where $R=R_u/W$. Specific heat $C_{p,i}=C_{p,i}(T)$ from NIST JANAF \cite{janaf}
 \end{equation}
 \end{frame}
 
+\subsection{Chemistry Modeling}
+
 \begin{frame}{Chemical Reactions}
 Single-step stoichiometric hydrogen-air utilized here, which follows the following expression \cite{kuo}:
 \begin{center}
@@ -109,6 +113,7 @@ where $Ta = Ea/R$. Simulation values were explored, but we settled on
 with \(R = 368.9\) J/Kg-K. As shown later these reasonably match Chapman-Jouguet detonation theory \cite{chapman} along with other published values \cite{towery1,hashemi}.
 \end{frame}
 
+\subsection{OpenFOAM Numerical Setup}
 
 \begin{frame}{OpenFOAM Finite Volume Numerical Schemes}
 \begin{table}[t!]
@@ -153,6 +158,8 @@ Variable & Solver & Parameter & Value \\ \hline
 \end{tabular}
 \end{table}
 \end{frame}
+
+\subsection{OpenFOAM Case Setup}
 
 \begin{frame}{OpenFOAM Directory Structure}
 An OpenFOAM case is divided into:
@@ -277,6 +284,8 @@ This makes the AMR inherently three-dimensional.
     %\label{fig:meshcompare}
 \end{figure}
 \end{frame}
+
+\subsection{Initial Work and Testing}
 
 \begin{frame}[allowframebreaks]{Initial Detonation Attempts}
 First testing \texttt{rhoReactingFoam}, methane-oxygen without nitrogen was used, with corner ignition to test shock reflection and exit 

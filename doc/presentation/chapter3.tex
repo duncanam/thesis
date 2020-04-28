@@ -1,4 +1,5 @@
 \section{Solver Parameter Testing}
+\subsection{Detonation Ignition Testing}
 
 \begin{frame}{Ignition Tests}
 \begin{itemize}
@@ -34,6 +35,8 @@ Gradient spanning from 1200 K and 4 atm to 300 K and 1 atm over 0.01 m:
 This produced smoother and more consistent detonations. 
 \end{frame}
 
+\subsection{Cellular Detonation Modeling Attempts}
+
 \begin{frame}{Cellular Detonation Modeling}
 \begin{itemize}
 \item Cellular ``fishscale'' patterns appear on smoked foils placed in detonation tube experiments
@@ -60,6 +63,8 @@ This produced smoother and more consistent detonations.
 %\label{fig:maxrho}
 \end{figure}
 \end{frame}
+
+\subsection{Arrhenius Pre-exponential Factor Variation}
 
 \begin{frame}{Arrhenius Pre-exponential Factor $A$ Variation}
 \begin{itemize}
@@ -96,7 +101,6 @@ This produced smoother and more consistent detonations.
 \end{figure}
 \end{frame}
 
-
 \begin{frame}{Arrhenius $A$ Variation: Detonation Decoupling}
 \begin{figure}
 \centering
@@ -106,5 +110,240 @@ This produced smoother and more consistent detonations.
 \end{figure}
 \end{frame}
 
+\subsection{Time Step Variation}
+
+\begin{frame}{Time Step Variation}
+\begin{itemize}
+\item Larger timesteps reduce computational expense, but can increase solution instability
+\item \texttt{rhoReactingCentralFoam} can change timestep based on both max-desired central and acoustic Courant numbers
+\item To characterize solution behavior, the max-allowed CFL was varied 
+\end{itemize}
+\begin{table}[]
+\centering
+%\caption{Max CFL errors compared to CFL = 0.01}
+%\label{tab:cflerror}
+\begin{tabular}{cccc}
+Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ \hline
+0.3 & 57.18 & 19.54 & 27.62 \\ 
+0.2 & 5.89 & 8.72 & 8.66 \\
+0.1 & 1.28 & 2.71 & 12.92 \\
+0.05 & 2.34 & 1.29 & 8.96 \\
+0.01 & 0 & 0 & 0 \\
+\end{tabular}
+\end{table}% 
+\end{frame}
+
+\begin{frame}{Time Step Variation: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/cfl_test/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Time Step Variation: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/cfl_test/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Time Step Variation: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/cfl_test/u.png}
+\end{center}
+\end{frame}
+
+\subsection{Static Mesh Variation}
+
+\begin{frame}{Static Mesh Variation}
+\begin{itemize}
+\item Before comparing AMR, need to have baseline static meshes 
+\item Start with one-dimensional, move to two-dimensional 
+\item Static mesh resolutions will help determine convergence criteria for:
+\begin{itemize}
+    \item overall detonation shape convergence 
+    \item ZND Von Neumann pressure spike convergence 
+    \item fine detonation structure convergence
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{1D Static Mesh Variation: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/static1d/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{1D Static Mesh Variation: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/static1d/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{1D Static Mesh Variation: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/static1d/u.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{2D Static Mesh Variation: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/staticfigs/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{2D Static Mesh Variation: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/staticfigs/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{2D Static Mesh Variation: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/staticfigs/u.png}
+\end{center}
+\end{frame}
+
+\subsection{Adaptive Meshing}
+
+\begin{frame}{Adaptive Mesh Variation and Comparison}
+Some AMR comparisons and parameter variations were made next, namely:
+\begin{itemize}
+\item AMR refinement level variation
+\item AMR buffer layer variation
+\item AMR normalized pressure gradient bound variation 
+\item AMR compared to static meshes
+\end{itemize}
+\end{frame}
+
+\subsection{AMR Refinement Level Variation}
 
 
+\begin{frame}{AMR Refinement Level Variation: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Refinement Level Variation: Pressure Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/pe.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Refinement Level Variation: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Refinement Level Variation: Temperature Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/te.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Refinement Level Variation: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/u.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Refinement Level Variation: Velocity Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/ue.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Refinement Level Variation Summary}
+\begin{columns}
+\column{0.6\textwidth}
+\begin{itemize}
+\item 125-20-1 base mesh
+\item tracking $||\nabla (p)||$ from 0.2 to 1, unrefining below 0.2
+\item 4 levels (2000-320-1) to begin resolving von Neumann spike, agrees with static trends
+\item 5 levels nearly matches peak pressure of 5000-800-1 static mesh with 3.7m fewer cells
+\item each level exponentially more computationally expensive 
+\end{itemize}
+
+\column{0.4\textwidth}
+\begin{table}[h]
+\centering
+%\caption{Cells for each refinement level for the 125-20-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_refinelevels}}
+%\label{tab:amr_refinelevels}
+\begin{tabular}{cc}
+Refinement Level & Cells \\ \hline
+5 & 228,607 \\ 
+4 & 54,678 \\ 
+3 & 13,028 \\ 
+2 & 5,300 \\
+1 & 2,920 \\
+None & 2500 \\
+\end{tabular}
+\end{table}
+\end{columns}
+\end{frame}
+
+\subsection{AMR Buffer Layer Variation}
+
+\begin{frame}{AMR Buffer Layer Variation: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Buffer Layer Variation: Pressure Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/pe.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Buffer Layer Variation: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Buffer Layer Variation: Temperature Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/te.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Buffer Layer Variation: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/u.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Buffer Layer Variation: Velocity Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/ue.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR Buffer Layer Variation Summary}
+\begin{columns}
+\column{0.6\textwidth}    
+\begin{itemize}
+\item 240-40-1 base mesh
+\item tracking $||\nabla (p)||$ from 0.2 to 1, unrefining below 0.2
+\end{itemize}
+\column{0.4\textwidth}
+\begin{table}[h]
+\centering
+%\caption{Cells for each refinement level for the 250-40-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_bufflayers}}
+%\label{tab:amr_bufflayers}
+\begin{tabular}{cc}
+Buffer Layers & Cells \\ \hline
+6 & 37,405 \\ 
+5 & 34,353 \\
+4 & 32,960 \\
+3 & 37,678 \\
+2 & 16,173 \\
+1 & 10,840 \\
+None & 10,000 \\
+\end{tabular}
+\end{table}
+
+
+\end{columns}
+\end{frame}
