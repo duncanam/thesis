@@ -258,10 +258,11 @@ Some AMR comparisons and parameter variations were made next, namely:
 \column{0.6\textwidth}
 \begin{itemize}
 \item 125-20-1 base mesh
-\item tracking $||\nabla (p)||$ from 0.2 to 1, unrefining below 0.2
+\item tracking $||\nabla (p)||$ from 0.2 to 1, unrefining below 0.2, with 3 buffer layers
 \item 4 levels (2000-320-1) to begin resolving von Neumann spike, agrees with static trends
 \item 5 levels nearly matches peak pressure of 5000-800-1 static mesh with 3.7m fewer cells
-\item each level exponentially more computationally expensive 
+%\item each level exponentially more computationally expensive 
+\item cells scale exponentially with refinement level
 \end{itemize}
 
 \column{0.4\textwidth}
@@ -325,7 +326,10 @@ None & 2500 \\
 \column{0.6\textwidth}    
 \begin{itemize}
 \item 240-40-1 base mesh
-\item tracking $||\nabla (p)||$ from 0.2 to 1, unrefining below 0.2
+\item tracking $||\nabla (p)||$ from 0.2 to 1, unrefining below 0.2, with 3 refinement levels
+\item past 4 buffer layers, solution is ``converged''
+\item each layer adds around 0.2 mm to wave progression until ``converged'', peak solution largely unchanged
+\item cells scale linearly with buffer layers
 \end{itemize}
 \column{0.4\textwidth}
 \begin{table}[h]
@@ -343,7 +347,141 @@ Buffer Layers & Cells \\ \hline
 None & 10,000 \\
 \end{tabular}
 \end{table}
-
-
 \end{columns}
+\end{frame}
+
+\subsection{AMR $|| \nabla (p)||$ Refinement Range Variation}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Pressure Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/pe.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Temperature Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/te.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/u.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Velocity Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/ue.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR $|| \nabla (p)||$ Refinement Range Variation Summary}
+\begin{columns}
+\column{0.5\textwidth}
+\begin{itemize}
+    \item 240-40-1 base mesh 
+    \item tracking $|| \nabla (p)||$ with 3 refinement and buffer layers
+    \item Solution peak values plateau at 0.1 and lower
+    \item Below 0.05 computational expense is exponential 
+    \item Above 0.05 computational expense is largely unchanged
+\end{itemize}
+
+\column{0.5\textwidth}
+\begin{table}[h]
+\centering
+%\caption{Cells for each lower refinement/unrefinement bound for the 250-40-1 simulation at \(t = 3\times 10^{ - 5} s\) in Figure \ref{fig:amr_refinebounds}}
+%\label{tab:amr_refinebounds}
+\begin{tabular}{cc}
+Lower un/refinement bound & Cells \\ \hline
+0.01 & 139,136 \\
+0.05 & 39,799 \\
+0.1 & 38,343 \\ 
+0.2 & 37,678 \\
+0.3 & 37,692 \\ 
+0.4 & 36,355 \\
+No AMR & 10,000 \\
+\end{tabular}
+\end{table}
+\end{columns}
+\end{frame}
+
+\subsection{AMR and Static Mesh Comparison}
+
+\begin{frame}{AMR vs. Static: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR vs. Static: Pressure Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/pe.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR vs. Static: Temperature Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/t.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR vs. Static: Temperature Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/te.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR vs. Static: Velocity Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/u.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR vs. Static: Velocity Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/ue.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR and Static Mesh Comparison: Summary}
+\begin{itemize}
+\item 240-40-1 base mesh, AMR tracking $|| \nabla (p)|| $
+\item Good agreement between 1250-200-1 static mesh and AMR with low/unrefine bound of 0.1 and 3 refine and buffer layers; 85\% cell count reduction with exact peak solution reproduction
+\item AMR with low/unrefine bound of 0.2 and 4 refine and buffer layers can model peak conditions of 5000-800-1 mesh with 96\% reduction in cell count ($\Delta x \approx 0.00125 $ m)
+\item Interesting observation: purple AMR run has more refinement levels than brown but brown has a lower AMR trigger bound and is more accurate overall, while being 3.8x smaller
+\end{itemize}
+\end{frame}
+
+\begin{frame}{AMR and Static Mesh Comparison: Summary ii}
+\begin{table}[]
+\scalebox{0.9}{
+\centering
+%\caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
+%\label{tab:amrcompare}
+\begin{tabular}{ccp{2cm}p{2cm}p{2cm}p{2cm}c}
+Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline
+1250-200-1 & Static & - & - & - & - & 250,000 \\ 
+2500-400-1 & Static & - & - & - & - & 1,000,000 \\
+5000-800-1 & Static & - & - & - & - & 4,000,000 \\
+250-40-1 & AMR & 0.2 & 1 & 4 & 4 & 148,950 \\
+250-40-1 & AMR & 0.1 & 1 & 3 & 4 & 149,762 \\
+250-40-1 & AMR & 0.05 & 1 & 3 & 4 & 160,570 \\ 
+250-40-1 & AMR & 0.2 & 1 & 3 & 4 & 146,710 \\ 
+250-40-1 & AMR & 0.1 & 1 & 3 & 3 & 38,343 \\ 
+\end{tabular}
+}
+\end{table}
 \end{frame}
