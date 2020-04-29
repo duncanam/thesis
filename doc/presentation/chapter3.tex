@@ -1,4 +1,12 @@
 \section{Solver Parameter Testing}
+
+\begin{frame}{Solver Parameter Testing}
+\begin{itemize}
+\item Certain parameters can be varied during the modeling of detonations 
+\item Plots shown are pressure distributions, which agree in regards to convergence to temperature and velocity distribution plots
+\end{itemize}
+\end{frame}
+
 \subsection{Detonation Ignition Testing}
 
 \begin{frame}{Ignition Tests}
@@ -35,34 +43,6 @@ Gradient spanning from 1200 K and 4 atm to 300 K and 1 atm over 0.01 m:
 This produced smoother and more consistent detonations. 
 \end{frame}
 
-\subsection{Cellular Detonation Modeling Attempts}
-
-\begin{frame}{Cellular Detonation Modeling}
-\begin{itemize}
-\item Cellular ``fishscale'' patterns appear on smoked foils placed in detonation tube experiments
-\item Can be used to verify numerical detonation modeling 
-\item Numerical simulations can replicate this with maximum pressure and density traces over time for each cell
-\item Temperature randomization was seeded throughout the domain, at up to 20\% of the maximum gradient temperature to assist cellular detonation formation 
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Cellular Detonation Modeling: Initial $T$ Randomization}
-\begin{figure}[]
-\centering
-\includegraphics[width=\textwidth]{../figs/ignition/randgrad.png}
-%\caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
-%\label{fig:gradrand}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Cellular Detonation Modeling: Maximum $\rho$ Traces}
-\begin{figure}[]
-\centering
-\includegraphics[width=\textwidth]{../figs/example_results/maxrho.png}
-%\caption{Surface plot of maximum density tracked across all time steps for each cell, emulating a ``smoke foil''}
-%\label{fig:maxrho}
-\end{figure}
-\end{frame}
 
 \subsection{Arrhenius Pre-exponential Factor Variation}
 
@@ -80,24 +60,6 @@ This produced smoother and more consistent detonations.
 \includegraphics[width=0.8\linewidth]{../figs/Atest/p.png}
 %\caption{Pressure distribution in detonation tube for pre-exponential factor exponent sweep test}
 %\label{fig:atestp}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Arrhenius $A$ Variation: Temperature Distribution}
-\begin{figure}
-\centering
-\includegraphics[width=0.8\linewidth]{../figs/Atest/t.png}
-%\caption{Temperature distribution in detonation tube for pre-exponential factor exponent sweep test}
-%\label{fig:atestt}
-\end{figure}
-\end{frame}
-
-\begin{frame}{Arrhenius $A$ Variation: Velocity Distribution}
-\begin{figure}
-\centering
-\includegraphics[width=0.8\linewidth]{../figs/Atest/u.png}
-%\caption{Velocity distribution in detonation tube for pre-exponential factor exponent sweep test}
-%\label{fig:atestu}
 \end{figure}
 \end{frame}
 
@@ -139,18 +101,6 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 \end{center}
 \end{frame}
 
-\begin{frame}{Time Step Variation: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/cfl_test/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{Time Step Variation: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/cfl_test/u.png}
-\end{center}
-\end{frame}
-
 \subsection{Static Mesh Variation}
 
 \begin{frame}{Static Mesh Variation}
@@ -172,33 +122,9 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 \end{center}
 \end{frame}
 
-\begin{frame}{1D Static Mesh Variation: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/static1d/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{1D Static Mesh Variation: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/static1d/u.png}
-\end{center}
-\end{frame}
-
 \begin{frame}{2D Static Mesh Variation: Pressure Distribution}
 \begin{center}
 \includegraphics[width=0.8\textwidth]{../figs/staticfigs/p.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{2D Static Mesh Variation: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/staticfigs/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{2D Static Mesh Variation: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/staticfigs/u.png}
 \end{center}
 \end{frame}
 
@@ -207,15 +133,58 @@ Max CFL & Pressure Error (\%) & Temperature Error (\%) & Velocity Error (\%) \\ 
 \begin{frame}{Adaptive Mesh Variation and Comparison}
 Some AMR comparisons and parameter variations were made next, namely:
 \begin{itemize}
+\item AMR compared to static meshes
 \item AMR refinement level variation
 \item AMR buffer layer variation
 \item AMR normalized pressure gradient bound variation 
-\item AMR compared to static meshes
 \end{itemize}
 \end{frame}
 
-\subsection{AMR Refinement Level Variation}
+\subsection{AMR and Static Mesh Comparison}
 
+\begin{frame}{AMR vs. Static: Pressure Distribution}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/p.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR vs. Static: Pressure Distribution (enlarged)}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/pe.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{AMR and Static Mesh Comparison: Summary}
+\begin{itemize}
+\item 240-40-1 base mesh, AMR tracking $|| \nabla (p)|| $
+\item Good agreement between 1250-200-1 static mesh and AMR with low/unrefine bound of 0.1 and 3 refine and buffer layers; 85\% cell count reduction with exact peak solution reproduction
+\item AMR with low/unrefine bound of 0.2 and 4 refine and buffer layers can model peak conditions of 5000-800-1 mesh with 96\% reduction in cell count ($\Delta x \approx 0.00125 $ m)
+\item Interesting observation: purple AMR run has more refinement levels than brown but brown has a lower AMR trigger bound and is more accurate overall, while being 3.8x smaller
+\end{itemize}
+\end{frame}
+
+\begin{frame}{AMR and Static Mesh Comparison: Summary ii}
+\begin{table}[]
+\scalebox{0.9}{
+\centering
+%\caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
+%\label{tab:amrcompare}
+\begin{tabular}{ccp{2cm}p{2cm}p{2cm}p{2cm}c}
+Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline
+1250-200-1 & Static & - & - & - & - & 250,000 \\ 
+2500-400-1 & Static & - & - & - & - & 1,000,000 \\
+5000-800-1 & Static & - & - & - & - & 4,000,000 \\
+250-40-1 & AMR & 0.2 & 1 & 4 & 4 & 148,950 \\
+250-40-1 & AMR & 0.1 & 1 & 3 & 4 & 149,762 \\
+250-40-1 & AMR & 0.05 & 1 & 3 & 4 & 160,570 \\ 
+250-40-1 & AMR & 0.2 & 1 & 3 & 4 & 146,710 \\ 
+250-40-1 & AMR & 0.1 & 1 & 3 & 3 & 38,343 \\ 
+\end{tabular}
+}
+\end{table}
+\end{frame}
+
+\subsection{AMR Refinement Level Variation}
 
 \begin{frame}{AMR Refinement Level Variation: Pressure Distribution}
 \begin{center}
@@ -229,29 +198,6 @@ Some AMR comparisons and parameter variations were made next, namely:
 \end{center}
 \end{frame}
 
-\begin{frame}{AMR Refinement Level Variation: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Refinement Level Variation: Temperature Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/te.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Refinement Level Variation: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/u.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Refinement Level Variation: Velocity Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinelevels/ue.png}
-\end{center}
-\end{frame}
 
 \begin{frame}{AMR Refinement Level Variation Summary}
 \begin{columns}
@@ -294,30 +240,6 @@ None & 2500 \\
 \begin{frame}{AMR Buffer Layer Variation: Pressure Distribution (enlarged)}
 \begin{center}
 \includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/pe.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Buffer Layer Variation: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Buffer Layer Variation: Temperature Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/te.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Buffer Layer Variation: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/u.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR Buffer Layer Variation: Velocity Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_bufflayers/ue.png}
 \end{center}
 \end{frame}
 
@@ -364,30 +286,6 @@ None & 10,000 \\
 \end{center}
 \end{frame}
 
-\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Temperature Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/te.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/u.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR $|| \nabla (p)||$ Refine Range Variation: Velocity Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amr_refinebounds/ue.png}
-\end{center}
-\end{frame}
-
 \begin{frame}{AMR $|| \nabla (p)||$ Refinement Range Variation Summary}
 \begin{columns}
 \column{0.5\textwidth}
@@ -418,70 +316,31 @@ No AMR & 10,000 \\
 \end{columns}
 \end{frame}
 
-\subsection{AMR and Static Mesh Comparison}
+\subsection{Cellular Detonation Modeling}
 
-\begin{frame}{AMR vs. Static: Pressure Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/p.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR vs. Static: Pressure Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/pe.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR vs. Static: Temperature Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/t.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR vs. Static: Temperature Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/te.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR vs. Static: Velocity Distribution}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/u.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR vs. Static: Velocity Distribution (enlarged)}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../figs/amrfigs/amrcompare/ue.png}
-\end{center}
-\end{frame}
-
-\begin{frame}{AMR and Static Mesh Comparison: Summary}
+\begin{frame}{Cellular Detonation Modeling}
 \begin{itemize}
-\item 240-40-1 base mesh, AMR tracking $|| \nabla (p)|| $
-\item Good agreement between 1250-200-1 static mesh and AMR with low/unrefine bound of 0.1 and 3 refine and buffer layers; 85\% cell count reduction with exact peak solution reproduction
-\item AMR with low/unrefine bound of 0.2 and 4 refine and buffer layers can model peak conditions of 5000-800-1 mesh with 96\% reduction in cell count ($\Delta x \approx 0.00125 $ m)
-\item Interesting observation: purple AMR run has more refinement levels than brown but brown has a lower AMR trigger bound and is more accurate overall, while being 3.8x smaller
+\item Cellular ``fishscale'' patterns appear on smoked foils placed in detonation tube experiments
+\item Can be used to verify numerical detonation modeling 
+\item Numerical simulations can replicate this with maximum pressure and density traces over time for each cell
+\item Temperature randomization was seeded throughout the domain, at up to 20\% of the maximum gradient temperature to assist cellular detonation formation 
 \end{itemize}
 \end{frame}
 
-\begin{frame}{AMR and Static Mesh Comparison: Summary ii}
-\begin{table}[]
-\scalebox{0.9}{
+\begin{frame}{Cellular Detonation Modeling: Initial $T$ Randomization}
+\begin{figure}[]
 \centering
-%\caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
-%\label{tab:amrcompare}
-\begin{tabular}{ccp{2cm}p{2cm}p{2cm}p{2cm}c}
-Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline
-1250-200-1 & Static & - & - & - & - & 250,000 \\ 
-2500-400-1 & Static & - & - & - & - & 1,000,000 \\
-5000-800-1 & Static & - & - & - & - & 4,000,000 \\
-250-40-1 & AMR & 0.2 & 1 & 4 & 4 & 148,950 \\
-250-40-1 & AMR & 0.1 & 1 & 3 & 4 & 149,762 \\
-250-40-1 & AMR & 0.05 & 1 & 3 & 4 & 160,570 \\ 
-250-40-1 & AMR & 0.2 & 1 & 3 & 4 & 146,710 \\ 
-250-40-1 & AMR & 0.1 & 1 & 3 & 3 & 38,343 \\ 
-\end{tabular}
-}
-\end{table}
+\includegraphics[width=\textwidth]{../figs/ignition/randgrad.png}
+%\caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
+%\label{fig:gradrand}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Cellular Detonation Modeling: Maximum $\rho$ Traces}
+\begin{figure}[]
+\centering
+\includegraphics[width=\textwidth]{../figs/example_results/maxrho.png}
+%\caption{Surface plot of maximum density tracked across all time steps for each cell, emulating a ``smoke foil''}
+%\label{fig:maxrho}
+\end{figure}
 \end{frame}
