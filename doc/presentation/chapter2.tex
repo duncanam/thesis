@@ -1,12 +1,5 @@
 \section{AMR-Based Detonation Solver in OpenFOAM}
 
-\begin{frame}{OpenFOAM Overview}
-\begin{itemize}
-\item Open-source, free, computational fluid dynamics toolbox 
-\item Written in C++, has many solvers 
-\item No GUI, file-based input and control
-\end{itemize}
-\end{frame}
 
 \begin{frame}{Tested Solvers}
 Solvers tested for their capability to model shocks and detonations:
@@ -44,7 +37,7 @@ where
 \begin{frame}{Notes About Governing Equations}
 \begin{itemize}
 \item Specific heat $C_{p,i}=C_{p,i}(T)$ from NIST JANAF \cite{janaf} lookup tables.  
-\item No turbulence modeling 
+\item No explicit turbulence modeling, but turbulence can form
 \begin{itemize}
     \item subgrid-scale turbulence structures averaged out numerically
     \item akin to implicit LES
@@ -108,16 +101,23 @@ Besides ignition region, domain is at 1 atm and 300 K
 
 \subsection{Parallel Computing}
 
-\begin{frame}[allowframebreaks]{Parallel Computing}
-Domain is decomposed into chunks which are independently processed in parallel, communicating with MPI \cite{walker}. Decomposition defined in \texttt{decomposeParDict}. Several methods for decomposition:
+\begin{frame}{Parallel Computing: Decomposition}
+%Domain is decomposed into chunks which are independently processed in parallel, communicating with MPI \cite{walker}. Decomposition defined in \texttt{decomposeParDict}. Several methods for decomposition:
+%\begin{itemize}
+%\item \texttt{simple}: define splits in each direction 
+%\item \texttt{hierarchical}: \texttt{simple}, but with recursive ordering to splits
+%\item \texttt{scotch}: minimizes boundaries between processors, can set weighting
+%\item \texttt{manual}: manual cell allocation to each processor 
+%\end{itemize}
+%The \texttt{simple} method was used here. 
 \begin{itemize}
-\item \texttt{simple}: define splits in each direction 
-\item \texttt{hierarchical}: \texttt{simple}, but with recursive ordering to splits
-\item \texttt{scotch}: minimizes boundaries between processors, can set weighting
-\item \texttt{manual}: manual cell allocation to each processor 
+\item Domain is decomposed into chunks which are independently processed in parallel, communicating with MPI \cite{walker}
+\item Decomposition defined in \texttt{decomposeParDict}
+\item Several methods for decomposing domain in OpenFOAM, but \texttt{simple} method was utilized which simply splits number of times in each direction
 \end{itemize}
-The \texttt{simple} method was used here. 
+\end{frame}
 
+\begin{frame}{Parallel Computing: Load Balancing}
 \begin{figure}[p]
     \centering
     \begin{subfigure}[]{0.45\textwidth}
@@ -139,7 +139,19 @@ The \texttt{simple} method was used here.
 
 \subsection{Adaptive Mesh Refinement}
 
-\begin{frame}{Adaptive Mesh Refinement}
+\begin{frame}{Adaptive Mesh Refinement: Splitting}
+Adaptive meshing splits the cells using an octree splitting method:
+\begin{figure}[]
+\centering
+\includegraphics[width=0.4\textwidth]{../figs/amr_example.png}
+%\caption{Adaptive mesh refinement octree splitting method}
+%\label{fig:octree}
+\end{figure}%
+This makes the AMR inherently three-dimensional. 
+\end{frame}
+
+
+\begin{frame}{Adaptive Mesh Refinement Parameters}
 Allows for the mesh to refine and unrefine based on set parameters:
 \begin{itemize}
 \item \texttt{refineInterval}: frequency when active, based on time steps
@@ -147,11 +159,23 @@ Allows for the mesh to refine and unrefine based on set parameters:
 \item \texttt{lowerRefineLevel}: lower bound of active refinement 
 \item \texttt{upperRefineLevel}: upper bound of active refinement
 \item \texttt{unrefineLevel}: upper bound of unrefinement
-\item \texttt{nBufferLayers}: number of buffer cell layers between levels of refinement 
-\item \texttt{maxRefinement}: additional recursive refinement levels
-\item \texttt{maxCells}: suggested maximum cell count limit
+%\item \texttt{nBufferLayers}: number of buffer cell layers between levels of refinement 
+%\item \texttt{maxRefinement}: additional recursive refinement levels
+\item \texttt{maxCells}: maximum cell count to trigger AMR update
 \end{itemize}
 \end{frame}
+
+\begin{frame}{Adaptive Mesh Refinement: Refinement Levels}
+\begin{columns}
+\column{0.5\textwidth}
+\texttt{maxRefinement}: Number of additional recursive refinement levels
+\column{0.5\textwidth}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{../figs/amr_refine.png}
+\end{center}
+\end{columns}
+\end{frame}
+
 
 \begin{frame}{Adaptive Mesh Refinement: Buffer Layers}
 \begin{columns}
@@ -164,21 +188,11 @@ Allows for the mesh to refine and unrefine based on set parameters:
 \end{columns}
 \end{frame}
 
-\begin{frame}{Adaptive Mesh Refinement: Splitting}
-Adaptive meshing splits the cells using an octree splitting method:
-\begin{figure}[]
-\centering
-\includegraphics[width=0.4\textwidth]{../figs/amr_example.png}
-%\caption{Adaptive mesh refinement octree splitting method}
-%\label{fig:octree}
-\end{figure}%
-This makes the AMR inherently three-dimensional. 
-\end{frame}
 
 \begin{frame}{Adaptive Mesh Refinement: Detonation Wave}
 \begin{figure}
 \centering
-\includegraphics[width=0.65\textwidth]{../figs/amr_cells.png}
+\includegraphics[width=0.7\textwidth]{../figs/amr_cells.png}
 \caption{Three-level adaptive mesh refinement over a pressure field surface contour, with the detonation wave traveling from the -x wall to +x exit}
 %\label{fig:examr}
 \end{figure}
@@ -204,7 +218,7 @@ This makes the AMR inherently three-dimensional.
 
 \subsection{Initial Work and Testing}
 
-\begin{frame}[allowframebreaks]{Initial Detonation Attempts}
+\begin{frame}{Initial Detonation Attempts}
 First testing \texttt{rhoReactingFoam}, methane-oxygen without nitrogen was used, with corner ignition to test shock reflection and exit 
 \begin{figure}[]
 \centering
@@ -213,9 +227,9 @@ First testing \texttt{rhoReactingFoam}, methane-oxygen without nitrogen was used
 %\label{fig:cornerdet}
 \end{figure}%
 Testing the detonation tube setup performed by Towery \textit{et. al.} \cite{towery1} was next, to be used as comparison. 
+\end{frame}
 
-\newpage
-
+\begin{frame}{\texttt{rhoReactingFoam} Problems}
 \begin{columns}
 \column{0.4\textwidth}
 \begin{itemize}
@@ -231,8 +245,9 @@ Testing the detonation tube setup performed by Towery \textit{et. al.} \cite{tow
 \caption*{Pressure vs. Grid Location}
 \end{figure}%
 \end{columns}
-\newpage
+\end{frame}
 
+\begin{frame}{\texttt{rhoReactingCentralFoam} Selection and Validation}
 \begin{columns}
 \column{0.6\textwidth}
 \begin{figure}[]

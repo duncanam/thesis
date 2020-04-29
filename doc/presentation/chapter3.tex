@@ -4,6 +4,7 @@
 \begin{itemize}
 \item Certain parameters can be varied during the modeling of detonations 
 \item Plots shown are pressure distributions, which agree in regards to convergence to temperature and velocity distribution plots
+\item Grid resolutions will be referred to as their number of cells in that dimension, or primarily in tube length which is 0.25 m long. 
 \end{itemize}
 \end{frame}
 
@@ -48,7 +49,7 @@ This produced smoother and more consistent detonations.
 
 \begin{frame}{Arrhenius Pre-exponential Factor $A$ Variation}
 \begin{itemize}
-\item Wanted to gauge sensitivity to Arrhenius pre-exponential factor as well as better match published values 
+\item Wanted to gauge sensitivity to Arrhenius pre-exponential factor as well as get a sense of how values compare to published values
 \item Swept exponent between $10^{11}$ and $10^{17}$ 
 \item Plotted CJ target from similar setup by Towery \textit{et. al.} \cite{towery1}
 \end{itemize}
@@ -78,6 +79,9 @@ This produced smoother and more consistent detonations.
 \begin{itemize}
 \item Larger timesteps reduce computational expense, but can increase solution instability
 \item \texttt{rhoReactingCentralFoam} can change timestep based on both max-desired central and acoustic Courant numbers
+\begin{itemize}
+    \item most existing OpenFOAM solvers track solely the central courant number
+\end{itemize}
 \item To characterize solution behavior, the max-allowed CFL was varied 
 \end{itemize}
 \begin{table}[]
@@ -164,21 +168,22 @@ Some AMR comparisons and parameter variations were made next, namely:
 \end{frame}
 
 \begin{frame}{AMR and Static Mesh Comparison: Summary ii}
+Type colors match static targets to AMR:
 \begin{table}[]
 \scalebox{0.9}{
 \centering
 %\caption{AMR and Static Mesh Cell Count Comparisons for Figure \ref{fig:amrcompare}, tracking normalized pressure gradient}
 %\label{tab:amrcompare}
 \begin{tabular}{ccp{2cm}p{2cm}p{2cm}p{2cm}c}
-Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline
-1250-200-1 & Static & - & - & - & - & 250,000 \\ 
+Mesh & Type & Unrefine/ lowrefine & Upper ~~~ refine & Buffer ~~ layers & Refine ~~ levels& Cell Count \\ \hline \hline
+1250-200-1 & {\color{blue}Static} & - & - & - & - & 250,000 \\ 
 2500-400-1 & Static & - & - & - & - & 1,000,000 \\
-5000-800-1 & Static & - & - & - & - & 4,000,000 \\
-250-40-1 & AMR & 0.2 & 1 & 4 & 4 & 148,950 \\
-250-40-1 & AMR & 0.1 & 1 & 3 & 4 & 149,762 \\
-250-40-1 & AMR & 0.05 & 1 & 3 & 4 & 160,570 \\ 
-250-40-1 & AMR & 0.2 & 1 & 3 & 4 & 146,710 \\ 
-250-40-1 & AMR & 0.1 & 1 & 3 & 3 & 38,343 \\ 
+5000-800-1 & {\color{red}Static} & - & - & - & - & 4,000,000 \\ \hline
+250-40-1 & {\color{red}AMR} & 0.2 & 1 & 4 & 4 & 148,950 \\
+250-40-1 & {\color{red}AMR} & 0.1 & 1 & 3 & 4 & 149,762 \\
+250-40-1 & {\color{red}AMR} & 0.05 & 1 & 3 & 4 & 160,570 \\ \hline
+250-40-1 & {\color{blue}AMR} & 0.2 & 1 & 3 & 4 & 146,710 \\ 
+250-40-1 & {\color{blue}AMR} & 0.1 & 1 & 3 & 3 & 38,343 \\ 
 \end{tabular}
 }
 \end{table}
