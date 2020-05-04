@@ -32,7 +32,7 @@ The block ignition method with high pressure and temperature stoichiometric reac
 \label{fig:blockig}
 \end{figure}%
 
-Ultimately, this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery\cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
+Ultimately, this ignition approach was not pursued further due to instability in detonation initiation due to the very large gradient in conditions between the block ignition region and the rest of the domain. For both very high and very low grid resolutions, detonation would sometimes not occur and instead the shockwave would decouple from the flame reaction front. A better approach shown by Towery \textit{et. al.} \cite{towery2} is to use a pressure and temperature gradient ranging from the wall to the domain, smoothly transitioning the ignition region to the domain. 
 
 \subsection{Gradient Ignition}
 Using the theory shown in Towery \textit{et al.}~\cite{towery2}, we developed an initial gradient ignition condition to guarantee a detonation across mesh resolutions. This gradient ignition spanned 0.01 m from the leftmost wall, ranging from 1200 K at the wall to the domain temperature of 300 K. The tool \verb|setFields| cannot set fields for initial conditions with functions, so \verb|funkySetFields| was applied for the gradient condition. This can be seen in Figure \ref{fig:gradig}. 
@@ -44,16 +44,10 @@ Using the theory shown in Towery \textit{et al.}~\cite{towery2}, we developed an
 \label{fig:gradig}
 \end{figure}%
 
-\begin{figure}[t!]
-\centering
-\includegraphics[width=0.8\textwidth]{figs/ignition/randgrad.png}
-\caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
-\label{fig:gradrand}
-\end{figure}%
 
 \noindent After transitioning to this ignition method, detonations were less noisy and more consistent in their ignition. The next stage towards matching experimental results and other computational detonation modeling was to attempt to model detonation cells. 
 
-\section{Cellular Detonation Modeling Attempts}
+\section{Cellular Detonation Modeling}
 Comparison of cellular detonation structure is one method to validate numerical solvers with experimental results. Maximum pressure and density plots across all time steps for every cell can be plotted to emulate experimental ``smoke foil'' results. The smoke foil is a piece of smooth metal placed flat against a wall in a detonation tube chamber, in which smoke particles have been evenly distributed (usually by a fire) upon the surface of the foil. When a detonation passes over the smoke foil, the density and pressure differences will leave fish scale-like patterns upon the foil. 
 
 In order to better match experimental conditions and form detonation cells, the temperature gradient initial condition was also expanded to include a randomized 240 K temperature increase throughout the domain seen in Figure \ref{fig:gradrand}. This was chosen as it is 20\% of the maximum initial ignition temperature, and should provide enough randomization to instantiate detonation cells. The randomization of temperature from +0 K to +240 K is uniform and not Gaussian in distribution. With the randomization of temperature throughout the domain, the maximum value of density across all time steps for each cell was recorded and plotted as a surface plot. 
@@ -62,13 +56,28 @@ For a 2500-400-1 mesh, this is seen in Figure \ref{fig:maxrho}.
 
 \begin{figure}[t!]
 \centering
+\includegraphics[width=0.8\textwidth]{figs/ignition/randgrad.png}
+\caption{Gradient ignition method with randomized temperature distribution throughout domain, seen on left side of domain, at t = 0 s}
+\label{fig:gradrand}
+\end{figure}%
+
+\begin{figure}[b!]
+\centering
 \includegraphics[width=0.9\textwidth]{figs/example_results/maxrho.png}
 \caption{Surface plot of maximum density tracked across all time steps for each cell, emulating a ``smoke foil''}
 \label{fig:maxrho}
 \end{figure}
 
-From this figure, we deduced that detonation cells are possible but never initiated. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy'' and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since un-refinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. Another benefit of the addition of slight noise in the background domain is the ability to determine when the mesh resolution is refined enough to begin resolving fine detonation structure. As seen in the high refinement two-dimensional static mesh detonation results later in this chapter, the fine variation in the detonation wave itself is seen and therefore the threshold for resolving such structures is known. 
+From this figure, we deduced that detonation cells are possible but never initiated with this grid resolution. The distinct cellular structure is not seen here, and further work with more accurate multi-step reaction mechanisms may have more success in bringing light to these features for detonations within \verb|rhoReactingCentralFoam|. Note that the field was not tracked for very long throughout the simulation due to the extreme data storage requirements for such thermodynamic field tracking. When ParaView is utilized to access the temporal statistics on a flow variable, very small time steps are required in order for the temporal statistical plots to not appear ``choppy'' and broken up. For the plot here, save files were required every \(1 \times 10^{ - 8}\) s in order to be continuous and smooth. With one million cells per time step, this quickly scales. However, detonation cells would be visible at this stage in the simulation as the detonation wave has stabilized. Other factors that may assist the formation of detonation cells are mesh resolution and the strength of the randomization parameters used throughout the flow field. When utilizing AMR, care must be used when attempting to model detonation cells since un-refinement behind the detonation wave smooths the solution considerably and flame structure as well as detonation cell formation may be eliminated. It is likely best to start with a static mesh and formulate the detonation cells to compare to experimental results, and then use the cell-structure-matched static mesh as a target for tuning AMR parameters. Different ranges of randomization throughout the flow field will also alter how the detonation front progresses and forms detonation cells. Another benefit of the addition of slight noise in the background domain is the ability to determine when the mesh resolution is refined enough to begin resolving fine detonation structure. As seen in the high refinement two-dimensional static mesh detonation results later in this chapter, the fine variation in the detonation wave itself is seen and therefore the threshold for resolving such structures is known. 
 
+A pressure distribution field of the static 10000-1600-1 mesh was taken, to see if detonation cell evidence was present. Note that due to computational requirements, only a pressure field at a single time step was visualized, in comparison to the maximum pressure or density for each cell over all time steps. Figure \ref{fig:detcells} is the result. Note that the detonation cells are fairly small, and it is likely that with more complex chemistry models that their sizing will be more realistic.
+
+\begin{sidewaysfigure}[p]
+\centering 
+\includegraphics[width=\textwidth]{figs/detcells.png}
+\caption{Static 10000-1600-1 mesh with detonation cell formation}
+\label{fig:detcells}
+\end{sidewaysfigure}
 
 
 \section{Arrhenius Pre-exponential Factor}
@@ -163,7 +172,7 @@ Inside \verb|controlDict| for \verb|rhoReactingCentralFoam|, we can set a maximu
 
 
 From Figures \ref{fig:cflp}, \ref{fig:cflt}, and \ref{fig:cflu}, it is seen that there is decreased noise in the solution as well as convergence as the time step and therefore maximum CFL is decreased. More evident in the temperature plot \ref{fig:cflt}, noise and instability is especially clear in the detonation simulations with maximum CFLs of 0.2 and 0.3. The CFL of 0.1 was decided to be acceptably converged due to a small comparative error, seen in Table \ref{tab:cflerror}. 
-\begin{table}[]
+\begin{table}[b!]
 \centering
 \caption{Max CFL errors compared to CFL = 0.01}
 \label{tab:cflerror}

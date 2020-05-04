@@ -2,15 +2,17 @@
 
 \usepackage{amssymb}		% to get all AMS symbols
 \usepackage{graphicx}		% to insert figures
-\usepackage{hyperref}		% PDF hyperreferences??
 \usepackage{xcolor}			% Coloring
 \usepackage{float}			% for figure [H]
 \usepackage{placeins}		% \FloatBarrier
 \usepackage{chemformula}	% chemical equations
 \usepackage{subcaption}		% subfigures
-\usepackage{url}			% url links
+\usepackage[draft]{hyperref}  % This makes hyperref commands do nothing without errors
+% Have to use draft to disable external hyperlinks
+\usepackage{url}			% This makes \url work
 \usepackage{bm}				% bold math
-\usepackage[figuresleft]{rotating}		% rotated figures
+%\usepackage[figuresleft]{rotating}		% rotated figures
+\usepackage[]{rotating}		% rotated figures (CU spec)
 
 %\renewcommand{\baselinestretch}{1}
 
@@ -21,7 +23,7 @@
 
 \title{Detonation Modeling in OpenFOAM Using Adaptive Mesh Refinement}
 
-\author{D.~A.}{McGough}
+\author{Duncan A.}{McGough}
 
 \otherdegrees{B.S., University of Colorado Boulder}
 
@@ -91,8 +93,8 @@
 \bibliography{refs}		% Bib database in "refs.bib"
 
 %%%%%%%%%   then the Appendices, if any   %%%%%%%%%
-\appendix
-\input appendixA.tex
+%\appendix
+%\input appendixA.tex
 %\input appendixB.tex
 
 

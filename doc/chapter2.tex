@@ -90,11 +90,11 @@ Other trace elements present in air are not modeled here, and this could be a to
 
 The chemical reaction rate can be modeled in OpenFOAM with the Arrhenius equation \cite{arrhenius} which takes the form \cite{christ} 
 \begin{equation}
-\dot{\omega}_i = AT^\beta \exp\left(\frac{E_a}{R T}\right)\,,
+\dot{\omega}_i = AT^\beta \exp\left(\frac{ -E_a}{R T}\right)\,,
 \end{equation}
 where $A$ is the pre-exponential factor, $\beta$ is the temperature exponent, and $E_a$ is the activation energy. OpenFOAM requests \verb|A|, \verb|beta|, and \verb|Ta|. We can write \(Ta = \frac{Ea}{R }\). While in later sections the effect of \(A\) is explored on the solution, the values landed on for numerical simulation in this work are:
 \begin{equation}
-   A = 1.4 \times 10^{13} ~ \text{m}^3\text{mol}^{-1}s^{-1},
+   A = 1.4 \times 10^{13} ~ \text{m}^3\text{mol}^{-1}\text{s}^{-1},
    \qquad 
    Ta = 12996 ~\text{K},
    \qquad
@@ -133,7 +133,7 @@ The next important scheme is the van Leer \cite{vanleer} flux limiting scheme th
 
 Once the numerical schemes are defined, the system of equations needs to be solved. The mass, momentum, energy, and species equations are combined together in matrix linear form to be solved (\(\bm{Ax} = \bm{b}\)). OpenFOAM allows the user to alter the solver settings for each solution variable \cite{ofug}. The velocity, internal energy, and species mass fraction utilize the PBiCGStab solver mentioned earlier. This is an iterative linear solver that uses a preconditioner to help accelerate convergence of the solution.  Computationally, there are two matrix-vector multiplications, six parallel reductions, and a twice-applied preconditioning step that occurs every time step. Upon startup there is an initial matrix-vector multiplication and a single parallel reduction. The preconditioner used for enthalpy and species is known as DILU, or Diagonal-based Incomplete LU \cite{saad}. This preconditioner performs an incomplete LU factorization \cite{schwarzenberg} of the solution matrix and reduces the solver sensitivity to errors or changes in input. The preconditioner for velocity is DIC, or Diagonal-based Incomplete Cholesky \cite{golub}. This preconditioner performs an incomplete Cholesky factorization of the solution matrix to precondition the solution matrix. Density is solved using the \verb|diagonal| solver, a simple solve by a solution matrix inversion. Parameters used for numerical solving can be seen in Table \ref{tab:numerics}.
 
-\begin{table}[t!]
+\begin{table}[b!]
 \centering
 \caption{Finite volume numerical solvers and preconditioners used for solution variables}
 \label{tab:numerics}
@@ -187,6 +187,10 @@ Line plots seen in the upcoming sections were sampled with the OpenFOAM utility 
 
 At this stage, some modeling notation should be introduced to simplify some things. Initial and static grid resolutions will take the form ``Nx-Ny-Nz'' with N representing the number of evenly-spaced cells that will fill the dimension, and x/y/z representing the dimension. A 500-40-3 grid represents 500 cell divisions in x, 40 divisions in y, and 3 divisions in z. This notation will be used later to quickly distinguish between resolutions and dimensionality of a mesh. Since OpenFOAM does not strictly have a one-dimensional or two-dimensional operating mode, three dimensions must always be realized. This is not a problem however, as a single cell can be used to represent a flattened dimension, with special boundary conditions for the faces that are in the ``dimensionless'' plane. For example, a two-dimensional geometry would be represented with a 500-40-1 mesh, and a one-dimensional geometry with a 500-1-1 mesh. 
 
+
+\section{Domain Setup}
+The geometry used for this research is seen in Figure \ref{fig:domainBC}. The so-called ``inlet'' (even though fluid is not actively moving through this face) is the region where the detonation is initiated. The inlet is a solid adiabatic wall with velocity slip conditions such that the fluid can slide across it without effects from viscosity. This was chosen such that just the detonation itself can be studied in a pure form. Other walls are like this, such as the walls that make up the sides. It should be noted that the sides located in the x-y planes (``front and back'') change their type depending on the simulation. Since OpenFOAM does not have a two-dimensional mesh mode, for static mesh two-dimensional simulations these faces are set as a special ``empty'' patch type in order to tell OpenFOAM that it is a two-dimensional simulation taking place. For three-dimensional simulations the front and back faces are identical to the x-z ``top and bottom'' planes, which like the inlet are velocity-slip adiabatic walls. Two-dimensional AMR runs also use the three-dimensional wall setup here as the oct-tree cell splitting algorithm for mesh refinement is inherently three-dimensional even if we are simulating a two-dimensional domain. Due to this, two-dimensional simulations are actually pseudo-two-dimensional. 
+
 \begin{figure}[t!]
 \centering
 \includegraphics[width=\linewidth]{./figs/domainBC.png}
@@ -194,8 +198,6 @@ At this stage, some modeling notation should be introduced to simplify some thin
 \label{fig:domainBC}
 \end{figure}%
 
-\section{Domain Setup}
-The geometry used for this research is seen in Figure \ref{fig:domainBC}. The so-called ``inlet'' (even though fluid is not actively moving through this face) is the region where the detonation is initiated. The inlet is a solid adiabatic wall with velocity slip conditions such that the fluid can slide across it without effects from viscosity. This was chosen such that just the detonation itself can be studied in a pure form. Other walls are like this, such as the walls that make up the sides. It should be noted that the sides located in the x-y planes (``front and back'') change their type depending on the simulation. Since OpenFOAM does not have a two-dimensional mesh mode, for static mesh two-dimensional simulations these faces are set as a special ``empty'' patch type in order to tell OpenFOAM that it is a two-dimensional simulation taking place. For three-dimensional simulations the front and back faces are identical to the x-z ``top and bottom'' planes, which like the inlet are velocity-slip adiabatic walls. Two-dimensional AMR runs also use the three-dimensional wall setup here as the oct-tree cell splitting algorithm for mesh refinement is inherently three-dimensional even if we are simulating a two-dimensional domain. Due to this, two-dimensional simulations are actually pseudo-two-dimensional. 
 
 The exit plane of the domain utilizes a ``waveTransmissive'' boundary condition. This is a special boundary condition that allows for waves such as shock waves to not reflect at the boundary while expelling gases \cite{poinsot}. A traditional OpenFOAM pressure outlet was seen to reflect the shockwave coupled with the detonation wave during testing of various boundary conditions. 
 
@@ -300,7 +302,7 @@ In Figure \ref{fig:examr}, an example AMR detonation simulation is shown. The bl
 \section{Initial Meshing}
 While the primary topic of interest in this work is adaptive meshing, a primary static mesh is required in order for the adaptive mesh refinement routines within OpenFOAM to refine from. Structured meshes are utilized, with hexahedrons comprising the mesh. Meshes used for static mesh and initial AMR simulations can be seen in Figure \ref{fig:meshcompare}. The meshes displayed utilize 125 partitions along detonation ``tube'' and 20 partitions in width, depending on two or three dimensionality in order to be visible for the reader. Real meshes used in simulation are much more fine in order to capture the thin detonation and shock region, but these resolutions are feasible for adaptive meshing, as seen in the results. Meshes used in this research were created with the OpenFOAM utility \verb|blockMesh|, which generates structured hex meshes based on use input of ``blocks'' which define rectangular prisms that \verb|blockMesh| then uses to form faces and patches for boundary conditions as well as to partition into the mesh. 
 
-\begin{figure}[]
+\begin{figure}[p]
     \centering
     \begin{subfigure}[]{\textwidth}
         \centering
@@ -343,7 +345,7 @@ To begin on the problem of modeling detonations in OpenFOAM, the OpenFOAM instal
 Firstly, the detonation of methane fuel and oxygen oxidizer without inert nitrogen filler was explored within a 2D detonation tube with the solver \verb|rhoReactingFoam|. A region of high temperature methane and oxygen on the left hand side was used to initiate the detonation. In the PDE and detonation simulations presented in this paper, stoichiometric fuel and oxidizer was premixed and available thoughout the domain. 
 %Solid walls on the left, top, and bottom of the tube were used. The exit was set as a special \verb|waveTransmissive| boundary condition that allows for shockwaves to not reflect at the exit and for gases to expel as well. 
 A detonation was successfully created with this, but the accuracy and stability were still untested. In order to check that the boundary conditions being applied were correct, a small detonation cell of high pressure and temperature was set in the bottom left corner of the tube. As the simulation progressed, correct wave reflection was seen on the sides of the tube as well as some wave transmissive behavior from the exit was seen (Figure \ref{fig:cornerdet}). 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \centering
 \includegraphics[width=\linewidth]{figs/cornerdet.png}
 \caption{Initial methane and oxygen detonation boundary condition test with corner detonation. Velocity magnitude is plotted here without scale to just check the solver and boundary conditions for modeling potential. Detonation was initiated in the lower left corner.}
