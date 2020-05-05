@@ -35,6 +35,7 @@ divSchemes
 		div(phi,H2)		Gauss vanLeer01;
 		div(phi,H2O)	Gauss vanLeer01;
 		div(phi,N2)		Gauss vanLeer01;
+		div(phi,Yi_h)	Gauss vanLeer;
 }
 
 laplacianSchemes
@@ -45,10 +46,10 @@ laplacianSchemes
 interpolationSchemes
 {
     	default				linear;
-		reconstruct(rho)	vanLeer;
-		reconstruct(U)		vanLeerV;
-		reconstruct(T)		vanLeer;
-		reconstruct(Yi)		vanLeer01;
+		reconstruct(rho)	Minmod;
+		reconstruct(U)		MinmodV;
+		reconstruct(T)		Minmod;
+		reconstruct(Yi)		Minmod;
 }
 
 snGradSchemes

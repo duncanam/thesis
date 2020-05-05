@@ -19,24 +19,29 @@ solvers
 {
 	U
 	{
-		solver		smoothSolver;
-		smoother	GaussSeidel;
-		nSweeps		2;
-		tolerance	1e-13;
-		relTol		0;
+		//solver		smoothSolver;
+		//smoother	GaussSeidel;
+		//nSweeps		2;
+		//tolerance	1e-17;
+		//relTol		0;
+
+		solver			PBiCGStab;
+		preconditioner	DIC;
+		tolerance		1e-15;
+		relTol			0;
 	}
 	
 	h
 	{
 		$U;
-		tolerance	1e-13;
+		tolerance	1e-17;
 		relTol		0;
 	}
 
 	e
 	{
 		$U;
-		tolerance	1e-13;
+		tolerance	1e-17;
 		relTol		0;
 	}
 
@@ -45,11 +50,11 @@ solvers
 		solver		diagonal;
 	}
 
-	"(O2|H2|H2O|N2)"
+	"(O2|H2|H2O|N2|Yi)"
 	{
 		solver          PBiCGStab;
         preconditioner	DILU;
-        tolerance       1e-13;
+        tolerance       1e-17;
         relTol          0;
 	}
 	
