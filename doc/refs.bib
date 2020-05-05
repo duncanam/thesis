@@ -1,0 +1,574 @@
+@inbook{towery1,
+author = {Colin A. Towery and Katherine M. Smith and Prateek Shrestha and Peter E. Hamlington and Marthinus Van Schoor},
+title = {Examination of Turbulent Flow Effects in Rotating Detonation Engines},
+booktitle = {44th AIAA Fluid Dynamics Conference},
+chapter = {},
+pages = {},
+doi = {10.2514/6.2014-3031},
+URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2014-3031},
+eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2014-3031}
+}
+
+@article{hashemi,
+author = {Rai, Jung and Parajuli, Sudeep and Abbasi, Arash and Hashemi, Sayed},
+year = {2016},
+month = {05},
+pages = {},
+title = {Investigation of different chemical kinetics reaction rates and its relevant modelling for H2 -O2 combustion}
+}
+
+@misc{ajaero,
+           month = {January},
+            year = {2019},
+           title = {Validation Of The Kurganov-Tadmor/Kurganov-Noelle Petrova Scheme for Rotating Detonation Engine Simulations Using OpenFOAM},
+          school = {Concordia University},
+          author = {Chibuikem Ajaero},
+             url = {https://spectrum.library.concordia.ca/984878/},
+    howpublished = {\url{https://spectrum.library.concordia.ca/984878/}},
+        abstract = {Detonation waves are a challenging field of study given the short time and length scales involved in the phenomenon. Such waves exhibit a complex structure consisting of a lead shock and shock waves travelling transversely to a detonation?s normal propagation direction. The interaction between the shocks and the rapid chemical reactions they trigger results in the emergence of a natural length scale, the detonation cell size. There are still no complete theory or model that can accurately predict the cell size or a detonation waves initiation, propagation and failure dynamics. The numerical simulation of detonation waves is also challenging, due to the rapid reaction rates encountered. The Open source Field Operation And Manipulation (OpenFOAM) framework, commonly referred to as OpenFOAM, Computational Fluid Mechanics (CFD) package is increasingly used and referenced.
+One drawback of the stock OpenFOAM package is that the only finite volume numerical scheme available for the solution of the Euler equations in conservative form is the Kuganov-Tadmor (KT)/Kuganov-Noelle-Petrova (KNP) numerical scheme. Moreover, combustion is not implemented, hence which needs to be modified to simulate detonation waves; a coupling of compressible flows and reaction. This particular scheme is 2nd order accurate in smooth region based on the idea behind the Lax-Friedrichs scheme and which does not involve the solution to a Riemann problem in order to evaluate the intercell fluxes. This is unlike the methods currently used in detonation research, which nearly always consist of Godunov-type schemes with an approximate Riemann Solver such as Harten-Lax-van Leer-Contact (HLLC). OpenFOAM, with the KNP scheme, was recently used to simulate
+the two-dimensional structure of detonation waves despite having not been fully validated for the detonation simulation. Efforts to get access to the codes used proved abortive. In this work, we create a custom solver named rhoCentralFoamreac which we used to evaluate (validate) the KNP scheme for detonation cases, by simulating a standard 1D detonation
+case that usually results in pulsating propagation with a single mode. Metrics for detailed comparison and convergence studies are the oscillation peak pressure and period. Using the KNP scheme, we then examine OpenFoam as a CFD tool for the simulation of a detonation based engine, where an initiated wave propagates circumferentially in a combustion chamber, commonly referred to as a rotating detonation engine. We study the effect of different
+ignition methods, and initiation flow fields (subsonic and supersonic) on the formation of these rotating detonation waves.}
+}
+
+@misc{ofug,
+          title = "OpenFOAM v7 User Guide",
+          author = "The OpenFOAM Foundation",
+          url = "https://cfd.direct/openfoam/user-guide",
+          howpublished = {\url{https://cfd.direct/openfoam/user-guide}}
+
+}
+
+@misc{christ,
+          title = "Simulating the combustion of gaseous fuels",
+          author = "Dominik Christ",
+          howpublished = {\url{https://openfoamwiki.net/images/8/8a/Christ_OFW6_slides.pdf}}
+}
+
+@article{marcantoni,
+title = "rhoCentralRfFoam: An OpenFOAM solver for high speed chemically active flows – Simulation of planar detonations –",
+journal = "Computer Physics Communications",
+volume = "219",
+pages = "209 - 222",
+year = "2017",
+issn = "0010-4655",
+doi = "https://doi.org/10.1016/j.cpc.2017.05.021",
+url = "http://www.sciencedirect.com/science/article/pii/S0010465517301637",
+author = "L.F. Gutiérrez Marcantoni and J. Tamagno and S. Elaskar",
+keywords = "Kurganov schemes, OpenFOAM, Detonation, Induction time",
+abstract = "A new solver developed within the framework of OpenFOAM 2.3.0, called rhoCentralRfFoam which can be interpreted like an evolution of rhoCentralFoam, is presented. Its use, performing numerical simulations on initiation and propagation of planar detonation waves in combustible mixtures H2–Air and H2–O2–Ar, is described. Unsteady one dimensional (1D) Euler equations coupled with sources to take into account chemical activity, are numerically solved using the Kurganov, Noelle and Petrova second order scheme in a domain discretized with finite volumes. The computational code can work with any number of species and its corresponding reactions, but here it was tested with 13 chemically active species (one species inert), and 33 elementary reactions. A gaseous igniter which acts like a shock-tube driver, and powerful enough to generate a strong shock capable of triggering exothermic chemical reactions in fuel mixtures, is used to start planar detonations. The following main aspects of planar detonations are here, treated: induction time of combustible mixtures cited above and required mesh resolutions; convergence of overdriven detonations to Chapman–Jouguet states; detonation structure (ZND model); and the use of reflected shocks to determine induction times experimentally. The rhoCentralRfFoam code was verified comparing numerical results and it was validated, through analytical results and experimental data."
+}
+
+@article{towery2,
+title = "Detonation initiation by compressible turbulence thermodynamic fluctuations",
+journal = "Combustion and Flame",
+volume = "213",
+pages = "172 - 183",
+year = "2020",
+issn = "0010-2180",
+doi = "https://doi.org/10.1016/j.combustflame.2019.11.025",
+url = "http://www.sciencedirect.com/science/article/pii/S0010218019305309",
+author = "Colin A.Z. Towery and Alexei Y. Poludnenko and Peter E. Hamlington",
+keywords = "Compressible turbulence, Premixed autoignition, Detonation initiation",
+abstract = "Theory and computations have established that thermodynamic gradients created by hot spots in reactive gas mixtures can lead to spontaneous detonation initiation. However, the current laminar theory of the temperature-gradient mechanism for detonation initiation is restricted to idealized physical configurations. Thus, it only predicts conditions for the onset of detonations in quiescent gases, where an isolated hot spot is formed on a timescale shorter than the chemical and acoustic timescales of the gas. In this work, we extend the laminar temperature-gradient mechanism into a statistical model for predicting the detonability of an autoignitive gas experiencing compressible isotropic turbulence fluctuations. Compressible turbulence forms non-monotonic temperature fields with tightly-spaced local minima and maxima that evolve over a range of timescales, including those much larger than chemical and acoustic timescales. We examine the utility of the adapted statistical model through direct numerical simulations of compressible isotropic turbulence in premixed hydrogen-air reactants for a range of conditions. We find strong, but not conclusive, evidence that the model can predict the degree of detonability in an autoignitive gas due to turbulence-induced thermodynamic gradients."
+}
+
+@article{zeldovich,
+          title = "On the theory of the propagation of detonations on gaseous system",
+          journal = "Zhurnal Eksperimental'noi i Teoreticheskoi Fiziki",
+          year = "1940",
+          pages = "542 - 568",
+          author = "Zel'dovich, Ya. B."
+}
+
+@article{neumann,
+          title = "Theory of detonation waves. Progress Report to the National Defense Research Committee Div. B, OSRD-549 (PB 31090)",
+          journal = "John von Neumann: Collected Works, 1903–1957",
+          pages = "178 - 218",
+          year = "1942",
+          author = "von Neumann, J."
+}
+
+@article{doring,
+          title = "On detonation processes in gases",
+          journal = "Annalen der Physik",
+          pages = "421 - 436",
+          year = "1943",
+          author = "Werner Doring"
+}
+
+@article{paraview,
+author = {Ahrens, J. and Geveci, Berk and Law, Charles},
+year = {2005},
+month = {01},
+pages = {},
+title = {ParaView: An End-User Tool for Large Data Visualization},
+journal = {Visualization Handbook}
+}
+
+@article{schwer1,
+title = "Fluid dynamics of rotating detonation engines with hydrogen and hydrocarbon fuels",
+journal = "Proceedings of the Combustion Institute",
+volume = "34",
+number = "2",
+pages = "1991 - 1998",
+year = "2013",
+issn = "1540-7489",
+doi = "https://doi.org/10.1016/j.proci.2012.05.046",
+url = "http://www.sciencedirect.com/science/article/pii/S1540748912000478",
+author = "Douglas Schwer and K. Kailasanath",
+keywords = "RDE, Hydrocarbon, Simulation, Continuous detonation",
+abstract = "Rotating detonation engines (RDE’s) represent a logical step from pulsed detonation engine concepts to a continuous detonation engine concept for obtaining propulsion from the high efficiency detonation cycle. The hydrogen/air and hydrogen/oxygen RDE concepts have been most extensively studied, however, being able to use hydrocarbon fuels is essential for practical RDE’s. The current paper extends our hydrogen/air model to hydrocarbon fuels with both air and pure oxygen as the oxidizer. Before beginning the RDE calculations, several detonation tube results are summarized showing the ability of the code to reproduce the correct detonation velocity and CJ properties. In addition, a calculation capturing the expected irregular detonation cell patterns of ethylene/air is also shown. To do the full range of fuels and oxidizers, we found the use of temperature-dependent thermodynamic properties to be essential, especially for hydrocarbon/oxygen mixtures. The overall results for air-breathing RDE’s with hydrocarbons ranged from 1990 to 2540s, while in pure oxygen mode the specific impulse varied from 700 to 1070s. These results were between 85% and 89% of the expected ideal detonation cycle results, and are in line with previous hydrogen/air estimates from our previous work. We conclude from this that hydrocarbon RDE’s are viable and that the basic flow-field patterns and behaviors are very similar to the hydrogen/air cases detailed previously."
+}
+
+@article{dinh,
+title = "Simulation of Rotating Detonation Engine by OpenFOAM",
+author = "Thien Xuan Dinh and Masatake Yoshida and Shuichi Ishikura",
+journal = "Sci. Tech Energetic Materials",
+volume = "80",
+number = "2",
+year = "2019",
+pages = "68 - 71"
+}
+
+@article{kurganov2,
+author = {Kurganov, Alexander and Noelle, Sebastian and Petrova, Guergana},
+title = {Semidiscrete Central-Upwind Schemes for Hyperbolic Conservation Laws and Hamilton--Jacobi Equations},
+journal = {SIAM Journal on Scientific Computing},
+volume = {23},
+number = {3},
+pages = {707-740},
+year = {2001},
+doi = {10.1137/S1064827500373413},
+
+URL = { 
+        https://doi.org/10.1137/S1064827500373413
+    
+},
+eprint = { 
+        https://doi.org/10.1137/S1064827500373413
+    
+}
+
+}
+
+@misc{cea,
+title = "Chemical Equilibrium with Applications (CEA)",
+author = "NASA",
+howpublished = {\url{https://www.grc.nasa.gov/WWW/CEAWeb/}}
+}
+
+@article{kim,
+author = {D. Kim and J. Kim},
+title = {Numerical method to simulate detonative combustion of hydrogen-air mixture in a containment},
+journal = {Engineering Applications of Computational Fluid Mechanics},
+volume = {13},
+number = {1},
+pages = {938-953},
+year  = {2019},
+publisher = {Taylor & Francis},
+doi = {10.1080/19942060.2019.1660219},
+
+URL = { 
+        https://doi.org/10.1080/19942060.2019.1660219
+    
+},
+eprint = { 
+        https://doi.org/10.1080/19942060.2019.1660219
+    
+}
+
+} 
+
+@misc{swak4foam,
+title = "swak4Foam",
+publisher = "OpenFOAMWiki",
+howpublished = {\url{https://openfoamwiki.net/index.php/Contrib/swak4Foam}},
+}
+
+@book{kuo,
+title = "Principles of Combustion",
+edition = "2nd",
+author = "Kenneth Kuo",
+publisher = "Wiley",
+year = "2005"
+}
+
+@Article{rkf,
+author={Fehlberg, E.},
+title={Klassische Runge-Kutta-Formeln vierter und niedrigerer Ordnung mit Schrittweiten-Kontrolle und ihre Anwendung auf W{\"a}rmeleitungsprobleme},
+journal={Computing},
+year={1970},
+volume={6},
+number={1},
+pages={61-71},
+abstract={Es werden neue, expliziteRunge-Kutta-Formeln vierter und niedrigerer Ordnung mitgeteilt. Diese Formeln enthalten eine Schrittweiten-Kontrolle, die auf einer vollst{\"a}ndigen Erfassung des ersten Gliedes des lokalen Abbruchfehlers basiert. Die Formeln haben wesentlich kleinere Abbruchfehler als entsprechende Formeln anderer Autoren. Diese neuen Formeln eignen sich zur numerischen Integration von in den Raumvariablen diskretisierten W{\"a}rmeleitungsproblemen, da die bei solchen Problemen auftretenden Stabilit{\"a}tsverh{\"a}ltnisse die zul{\"a}ssige Schrittweite vonRunge-Kutta-Formeln h{\"o}herer Ordnung beeintr{\"a}chtigen w{\"u}rden. Die Formeln werden auf ein Beispiel f{\"u}r ein W{\"a}rmeleitungsproblem angewandt.},
+issn={1436-5057},
+doi={10.1007/BF02241732},
+url={https://doi.org/10.1007/BF02241732}
+}
+
+@article{kurganov1,
+author = "Alexander Kurganov and Eitan Tadmor",
+title = "New High-Resolution Central Schemes for Nonlinear Conservation Laws and Convection-Diffusion Equations",
+journal = "Journal of Computational Physics",
+year = "2000",
+volume = "160",
+pages = "241-282"
+}
+
+@article{vanleer,
+title = "Towards the Ultimate Conservative Difference Scheme, V. A Second Order Sequel to Godunov's Method",
+author = "B. van Leer",
+year = "1979",
+journal = "Journal of Computational Physics",
+volume = "32",
+pages = "101 - 136"
+}
+@misc{weller,
+  title={CJ, OpenFOAM{\textregistered}-The Open Source Computational Fluid Dynamics (CFD) Toolbox},
+  author={Weller, H and Greenshields, C and Janssens, M and Heather, A and Ferraris, S},
+  year={2004}
+}
+
+@article{vorst,
+author = {van der Vorst, H. A.},
+title = {Bi-CGSTAB: A Fast and Smoothly Converging Variant of Bi-CG for the Solution of Nonsymmetric Linear Systems},
+journal = {SIAM Journal on Scientific and Statistical Computing},
+volume = {13},
+number = {2},
+pages = {631-644},
+year = {1992},
+doi = {10.1137/0913035},
+
+URL = { 
+        https://doi.org/10.1137/0913035
+    
+},
+eprint = { 
+        https://doi.org/10.1137/0913035
+    
+}
+
+}
+
+@article{sutherland,
+author = { William   Sutherland },
+title = {LII. The viscosity of gases and molecular force},
+journal = {The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science},
+volume = {36},
+number = {223},
+pages = {507-531},
+year  = {1893},
+publisher = {Taylor & Francis},
+doi = {10.1080/14786449308620508},
+
+URL = { 
+        https://doi.org/10.1080/14786449308620508
+    
+},
+eprint = { 
+        https://doi.org/10.1080/14786449308620508
+    
+}
+
+}
+
+@misc{janaf,
+title = "NIST-JANAF Thermochemical Tables",
+author = "M.W. Chase, Jr. and C.A. Davies and J.R. Downey, Jr. and D.J. Frurip and R.A. McDonald and A.N. Syverud",
+year = "1998",
+howpublished = {\url{https://janaf.nist.gov/}}
+}
+
+@Article{godunov,
+ Author = {S. K. {Godunov}},
+ Title = {{Eine Differenzenmethode f\"ur die N\"aherungsberechnung unstetiger L\"osungen der hydrodynamischen Gleichungen.}},
+ FJournal = {{Matematicheski\u{\i} Sbornik. Novaya Seriya}},
+ Journal = {{Mat. Sb., Nov. Ser.}},
+ Volume = {47},
+ Pages = {271--306},
+ Year = {1959},
+ Publisher = {Izdatel'stvo Nauka, Moskva},
+ Language = {Russian},
+ MSC2010 = {76M20 76L05},
+ Zbl = {0171.46204}
+}
+
+@inbook{minmod,
+author = {Krzysztof Michalak and Carl Ollivier-Gooch},
+title = {Limiters for Unstructured Higher-Order Accurate Solutions of the Euler Equations},
+booktitle = {46th AIAA Aerospace Sciences Meeting and Exhibit},
+chapter = {},
+pages = {},
+doi = {10.2514/6.2008-776},
+URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2008-776},
+eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2008-776}
+} 
+
+@inbook{saad,
+title = "Iterative method for sparse linear systems",
+author = "Yousef Saad",
+publisher = "PWS publishing company, a division of international Thomson publishing Inc",
+year = "1996",
+edition = "2nd"
+}
+
+@ARTICLE{schwarzenberg,
+       author = {{Schwarzenberg-Czerny}, A.},
+        title = "{On matrix factorization and efficient least squares solution.}",
+      journal = {Astronomy and Astrophysics Supplement,},
+     keywords = {METHODS: NUMERICAL, METHODS: DATA ANALYSIS},
+         year = 1995,
+        month = apr,
+       volume = {110},
+        pages = {405},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/1995A&AS..110..405S},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+
+@book{golub,
+  title={Matrix Computations},
+  author={Golub, G.H. and Van Loan, C.F.},
+  isbn={9780801830105},
+  lccn={83007897},
+  series={Johns Hopkins Studies in Atlantic History \& Culture},
+  url={https://books.google.com/books?id=g4gQAQAAIAAJ},
+  year={1983},
+  publisher={Johns Hopkins University Press}
+}
+
+@article{poinsot,
+title = "Boundary conditions for direct simulations of compressible viscous flows",
+journal = "Journal of Computational Physics",
+volume = "101",
+number = "1",
+pages = "104 - 129",
+year = "1992",
+issn = "0021-9991",
+doi = "https://doi.org/10.1016/0021-9991(92)90046-2",
+url = "http://www.sciencedirect.com/science/article/pii/0021999192900462",
+author = "T.J Poinsot and S.K Lelef",
+abstract = "Procedures to define boundary conditions for Navier-Stokes equations are discussed. A new formulation using characteristic wave relations through boundaries is derived for the Euler equations and generalized to the Navier-Stokes equations. The emphasis is on deriving boundary conditions compatible with modern non-dissipative algorithms used for direct simulations of turbulent flows. These methods have very low dispersion errors and require precise boundary conditions to avoid numerical instabilities and to control spurious wave reflections at the computational boundaries. The present formulation is an attempt to provide such conditions. Reflecting and non-reflecting boundary condition treatments are presented. Examples of practical implementations for inlet and outlet boundaries as well as slip and no-slip walls are presented. The method applies to subsonic and supersonic flows. It is compared with a reference method based on extrapolation and partial use of Riemann invariants. Test cases described include a ducted shear layer, vortices propagating through boundaries, and Poiseuille flow. Although no mathematical proof of well-posedness is given, the method uses the correct number of boundary conditions required for well-posedness of the Navier-Stokes equations and the examples reveal that it provides a significant improvement over the reference method."
+}
+
+@Article{courant,
+author={Courant, R.
+and Friedrichs, K.
+and Lewy, H.},
+title={{\"U}ber die partiellen Differenzengleichungen der mathematischen Physik},
+journal={Mathematische Annalen},
+year={1928},
+month={Dec},
+day={01},
+volume={100},
+number={1},
+pages={32-74},
+issn={1432-1807},
+doi={10.1007/BF01448839},
+url={https://doi.org/10.1007/BF01448839}
+}
+
+@article { arrhenius,
+      author = "Svante Arrhenius",
+      title = "Uber die Dissociationswarme und den Einfluss der Temperatur auf den Dissociationsgrad der Elektrolyte",
+      journal = "Zeitschrift fur Physikalische Chemie",
+      year = "1889",
+      publisher = "De Gruyter",
+      address = "Berlin, Boston",
+      volume = "4U",
+      number = "1",
+      pages = "96 - 116",
+}
+
+@book{euler,
+  title={Institutionum calculi integralis},
+  author={Euler, L.},
+  number={v. 1},
+  series={Institutionum calculi integralis},
+  url={https://books.google.com/books?id=Vg8OAAAAQAAJ},
+  year={1768},
+  publisher={imp. Acad. imp. Sa{\`e}nt.}
+}
+
+@article{walker,
+title = {Standards for message-passing in a distributed memory environment},
+author = {Walker, D W},
+year = {1992},
+} 
+
+@article{li,
+title = "Numerical simulations of cellular detonation diffraction in a stable gaseous mixture",
+journal = "Propulsion and Power Research",
+volume = "5",
+number = "3",
+pages = "177 - 183",
+year = "2016",
+issn = "2212-540X",
+doi = "https://doi.org/10.1016/j.jppr.2016.07.004",
+url = "http://www.sciencedirect.com/science/article/pii/S2212540X16300232",
+author = "Jian Li and Jianguo Ning and Charles B. Kiyanda and Hoi Dick Ng",
+}
+
+@article{berger1984,
+  title={The AMR technique},
+  author={Berger, MJ and Oliger, J},
+  journal={J. Computat. Phys},
+  volume={53},
+  pages={484--512},
+  year={1984}
+}
+
+@article{berger1985,
+  title={Automatic adaptive grid refinement for the Euler equations},
+  author={Berger, Marsha J and Jameson, Antony},
+  journal={AIAA journal},
+  volume={23},
+  number={4},
+  pages={561--568},
+  year={1985}
+}
+
+@article{berger1989,
+  title={Local adaptive mesh refinement for shock hydrodynamics},
+  author={Berger, Marsha J and Colella, Phillip and others},
+  journal={Journal of computational Physics},
+  volume={82},
+  number={1},
+  pages={64--84},
+  year={1989}
+}
+
+@book{deiterding,
+  title={Parallel adaptive simulation of multi-dimensional detonation structures},
+  author={Deiterding, Ralf},
+  year={2003},
+  publisher={Dissertation. de}
+}
+
+@article{henshaw,
+  title={An adaptive numerical scheme for high-speed reactive flow on overlapping grids},
+  author={Henshaw, William D and Schwendeman, Donald W},
+  journal={Journal of Computational Physics},
+  volume={191},
+  number={2},
+  pages={420--447},
+  year={2003},
+  publisher={Elsevier}
+}
+
+@inbook{yi,
+author = {Tae-Hyeong Yi and Cary Turangan and Jing Lou and Piotr Wolanski and Jan Kindracki},
+title = {A Three-Dimensional Numerical Study of  Rotational Detonation in an Annular Chamber},
+booktitle = {47th AIAA Aerospace Sciences Meeting including The New Horizons Forum and Aerospace Exposition},
+chapter = {},
+pages = {},
+doi = {10.2514/6.2009-634},
+URL = {https://arc.aiaa.org/doi/abs/10.2514/6.2009-634},
+eprint = {https://arc.aiaa.org/doi/pdf/10.2514/6.2009-634}
+}
+
+@article{kessler,
+title = "Multilevel detonation cell structures in methane-air mixtures",
+journal = "Proceedings of the Combustion Institute",
+volume = "33",
+number = "2",
+pages = "2211 - 2218",
+year = "2011",
+issn = "1540-7489",
+doi = "https://doi.org/10.1016/j.proci.2010.07.071",
+url = "http://www.sciencedirect.com/science/article/pii/S1540748910003445",
+author = "D.A. Kessler and V.N. Gamezo and E.S. Oran",
+keywords = "Cellular detonations, High-activation energy, Methane-air explosions, Triple-point collisions",
+}
+
+@article{chapman,
+  title={VI. On the rate of explosion in gases},
+  author={Chapman, David Leonard},
+  journal={The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science},
+  volume={47},
+  number={284},
+  pages={90--104},
+  year={1899},
+  publisher={Taylor \& Francis}
+}
+
+@article{jouguet,
+  title={Sur la propagation des r{\'e}actions chimiques dans les gaz},
+  author={Jouguet, Emile},
+  journal={J. Maths. Pure Appl.},
+  volume={7},
+  pages={347},
+  year={1905}
+}
+
+@misc{simscale,
+title = "SimScale: Cloud-based HPC simulation platform",
+authors = "David Heiny and Johannes Probst and Alexander Fischer and Anatol Dammer and Vincenz Dolle",
+howpublished = {\url{https://www.simscale.com/}},
+year = "2020"
+}
+
+@misc{simflow,
+title = "simFLow: Computational Fluid Dynamics Software",
+author = "SIMFLOW Technologies",
+howpublished = {\url{https://sim-flow.com/}},
+year = "2020"
+}
+
+@misc{rapidcfd,
+title = "RapidCFD: OpenFOAM running on a GPU",
+author = "SIMFLOW Technologies",
+howpublished = {\url{https://github.com/Atizar/RapidCFD-dev}},
+year = "2020"
+}
+
+@misc{cuda,
+title = "CUDA: a parallel computing platform and programming model",
+author = "Nvidia",
+howpublished = {\url{https://developer.nvidia.com/cuda-zone}},
+year = "2020"
+}
+
+@article{stokes,
+  title={On the Steady Motion of Incompressible Fluides},
+  author={Stokes, George Gabriel},
+  journal={Transactions of the Cambridge Philosophical Society},
+  year={1842},
+  publisher={Cambridge at the University Press},
+  volume = "7",
+  pages = "439 - 453"
+}
+
+@book{gauss1815,
+  title={Methodus nova integralium valores per approximationem inveniendi},
+  author={Gauss, Carl Friedrich},
+  year={1815},
+  publisher={apvd Henricvm Dieterich}
+}
+
+@article{greenshields,
+  title={Implementation of semi-discrete, non-staggered central schemes in a colocated, polyhedral, finite volume framework, for high-speed viscous flows},
+  author={Greenshields, Christopher J and Weller, Henry G and Gasparini, Luca and Reese, Jason M},
+  journal={International journal for numerical methods in fluids},
+  volume={63},
+  number={1},
+  pages={1--21},
+  year={2010},
+  publisher={Wiley Online Library}
+}
+
+@misc{nakul,
+title = "rhoCentralSpeciesFOAM, a new solver for supersonic combustion",
+author = "Nakul",
+date = "2010",
+howpublished = {\url{https://www.cfd-online.com/Forums/openfoam-community-contributions/82851-new-solver-supersonic-combustion.html}},
+publisher = "CFD-Online"
+}
+
+@misc{nagoya,
+title="900-N Ethelene-Oxygen Rotating Detonation Engine",
+author="Nagoya University",
+howpublished={\url{http://www.mae.nagoya-u.ac.jp/flight/research1.pdf}},
+}

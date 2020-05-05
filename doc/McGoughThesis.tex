@@ -1,0 +1,102 @@
+\documentclass[defaultstyle,12pt]{thesis}
+
+\usepackage{amssymb}		% to get all AMS symbols
+\usepackage{graphicx}		% to insert figures
+\usepackage{xcolor}			% Coloring
+\usepackage{float}			% for figure [H]
+\usepackage{placeins}		% \FloatBarrier
+\usepackage{chemformula}	% chemical equations
+\usepackage{subcaption}		% subfigures
+\usepackage[draft]{hyperref}  % This makes hyperref commands do nothing without errors
+% Have to use draft to disable external hyperlinks
+\usepackage{url}			% This makes \url work
+\usepackage{bm}				% bold math
+%\usepackage[figuresleft]{rotating}		% rotated figures
+\usepackage[]{rotating}		% rotated figures (CU spec)
+
+%\renewcommand{\baselinestretch}{1}
+
+%\definecolor{background}{HTML}{fdf6e3}
+%\pagecolor{background}
+
+%%%%%%%%%%%%   All the preamble material:   %%%%%%%%%%%%
+
+\title{Detonation Modeling in OpenFOAM Using Adaptive Mesh Refinement}
+
+\author{Duncan A.}{McGough}
+
+\otherdegrees{B.S., University of Colorado Boulder}
+
+\degree{Master of Science}		%  #1 {long descr.}
+	{M.S, Aerospace Engineering}		%  #2 {short descr.}
+
+\dept{Smead Department of}			%  #1 {designation}
+	{Aerospace Engineering Sciences}		%  #2 {name}
+
+\advisor{Dr.}				%  #1 {title}
+	{Peter Hamlington}			%  #2 {name}
+
+\reader{Dr. John Evans}		%  2nd person to sign thesis
+\readerThree{Dr. Kenneth Jansen}		%  3rd person to sign thesis
+
+\abstract{  \OnePageChapter	% because it is very short
+		This thesis contains research performed on detonation modeling in OpenFOAM, an open-source computational fluid dynamics toolbox. Several existing solvers are tested for their ability to capture shocks and model reactions needed for detonations. It is shown that the central-upwind-scheme-based solvers better capture sharp flow features with shocks, a necessity for high-speed reacting flow simulations. Automatic time stepping algorithms are examined, tracking both the central and acoustic Courant numbers. Lower than typical Courant numbers for supersonic nonreacting flows are found to be required for solution convergence and noise reduction. The  pre-exponential factor in the Arrhenius rate equation is explored to determine the sensitivity on the solution as well as compare to published values for single-step Arrhenius hydrogen-air combustion. Static one- and two-dimensional meshes were compared, and separate convergence criteria for resolving the detonation wave shape as a whole as well as fine detonation structure were seen. Adaptive mesh refinement (AMR), a type of runtime-active mesh generation that refines the mesh in regions of the domain that need it, is explored to determine if AMR can be used to decrease computational cost of detonation modeling for PDEs and RDEs within OpenFOAM. The normalized pressure gradient is tracked and used to direct where adaptive meshing should occur, and different values of normalized pressure gradient for when adaptive meshing should refine and unrefine the computational domain are examined. Effects of refinement level and the number of buffer layers between refined and unrefined layers are explored in context of both solution accuracy as well as computational cost. It was found that good reproduction of two-dimensional detonation waves formed with static computational grids can be done with adaptive meshing routines in OpenFOAM. Computational cost reductions of over 96\% were seen with AMR. 
+
+	}
+
+%\dedication[Dedication]{	% NEVER use \OnePageChapter here.
+%	Some sort of dedication later
+%	}
+%
+\acknowledgements{	\OnePageChapter	% *MUST* BE ONLY ONE PAGE!
+	\noindent For all the continual support, patience, guidance throughout my work on this thesis, I'd like to thank Dr. Hamlington. I appreciate his willingness to guide me through my Master's degree research, and without it this would not have been possible. 
+
+	\vspace{0.75cm}
+
+	\noindent In addition, I'd like to thank the students in the Turbulent Energy Systems Laboratory (TESLa): Caelan Lapointe and Colin Towery. Their patience throughout my journey of knowledge through areas they were familiar was admirable. Without their assistance, I would have progressed much more slowly. 
+
+	\vspace{0.75cm}
+
+	\noindent I'd like to thank my mentor during my early time at SpaceX, Dr. Diego Arias. His guidance and advice led me to pursuing this thesis work throughout my graduate education. 
+
+	\vspace{0.75cm}
+
+	\noindent Lastly, I'd like to thank those closest to me, my parents Julie and Jeff as well as my dearest Vismaya. Their love and support was invaluable. 
+	}
+
+% \IRBprotocol{E927F29.001X}	% optional!
+
+\ToCisShort	% use this only for 1-page Table of Contents
+
+\LoFisShort	% use this only for 1-page Table of Figures
+% \emptyLoF	% use this if there is no List of Figures
+
+\LoTisShort	% use this only for 1-page Table of Tables
+% \emptyLoT	% use this if there is no List of Tables
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%       BEGIN DOCUMENT...         %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\input macros.tex 
+\input chapter1.tex
+\input chapter2.tex
+\input chapter3.tex
+\input chapter4.tex
+%\input chaptertest.tex
+
+%%%%%%%%%   then the Bibliography, if any   %%%%%%%%%
+\bibliographystyle{unsrt}	% or "siam", or "alpha", etc.
+\nocite{*}		% list all refs in database, cited or not
+\bibliography{refs}		% Bib database in "refs.bib"
+
+%%%%%%%%%   then the Appendices, if any   %%%%%%%%%
+%\appendix
+%\input appendixA.tex
+%\input appendixB.tex
+
+
+\end{document}
+

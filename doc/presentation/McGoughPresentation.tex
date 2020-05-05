@@ -1,0 +1,76 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage{amssymb}		% to get all AMS symbols
+\usepackage{graphicx}		% to insert figures
+\usepackage{xcolor}			% Coloring
+\usepackage{float}			% for figure [H]
+\usepackage{placeins}		% \FloatBarrier
+\usepackage{chemformula}	% chemical equations
+\usepackage{subcaption}		% subfigures
+%\usepackage[draft]{hyperref}  % This makes hyperref commands do nothing without errors
+%% Have to use draft to disable external hyperlinks
+%\usepackage{url}			% This makes \url work
+\usepackage{bm}				% bold math
+%\usepackage[figuresleft]{rotating}		% rotated figures
+\usepackage[]{rotating}		% rotated figures (CU spec)
+\usepackage[]{appendixnumberbeamer}
+
+\usetheme[subsectionpage=progressbar]{metropolis}           % Use metropolis theme
+\title{Detonation Modeling in OpenFOAM Using Adaptive Mesh Refinement}
+\date{April 29, 2020}
+\author{Duncan A. McGough}
+\institute{University of Colorado, Boulder \\
+    {\tiny Ann and H.J. Smead Aerospace Engineering Sciences}}
+    
+
+\setbeamertemplate{bibliography item}[text]
+
+% Place progress bar in footer
+\metroset{progressbar=foot}
+
+% Change progress bar thicknesses
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{3pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{3pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{3pt}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Acknowledgements}
+Many thanks to Dr. Hamlington, Caelan Lapointe, and Colin Towery for the invaluable assistance and guidance. 
+
+\vspace{1cm}
+
+Additional thanks to Dr. Diego Arias, and Julie, Jeff, and Vismaya for advice and support. 
+\end{frame}
+
+\begin{frame}{Overview}
+  \tableofcontents[subsectionstyle=hide]
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{chapter1.tex}
+\input{chapter2.tex}
+\input{chapter3.tex}
+\input{chapter4.tex}
+
+\appendix
+\input{backup.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Bibliography}
+\begin{frame}[allowframebreaks]{Bibliography}
+\bibliographystyle{unsrt}	% or "siam", or "alpha", etc.
+\nocite{*}		% list all refs in database, cited or not
+\bibliography{../refs}		% Bib database in "refs.bib"
+
+\end{frame}
+
+\end{document}

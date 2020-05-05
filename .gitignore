@@ -17,5 +17,16 @@
 # Ignore Jupyter checkpoint folder
 **/.ipynb_checkpoints/**
 
-# Ignore all log files
+# Ignore LaTeX supplemental files
+*.aux
+*.out
+*.lot
 *.log
+*.lof
+*.fls
+*.bbl
+*.blg
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+
